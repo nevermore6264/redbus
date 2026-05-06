@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaThongBao">
+
+    <resultMap id="banDo" type="com.redbus.mohinh.ThongBao">
+        <id property="ma" column="ma"/>
+        <result property="maNguoiDung" column="ma_nguoi_dung"/>
+        <result property="tieuDe" column="tieu_de"/>
+        <result property="noiDung" column="noi_dung"/>
+        <result property="daDoc" column="da_doc"/>
+        <result property="thoiGianTao" column="thoi_gian_tao"/>
+    </resultMap>
+
+    <select id="danhSachTheoMaNguoiDung" resultMap="banDo">
+        SELECT * FROM thong_bao WHERE ma_nguoi_dung = #{maNguoiDung} ORDER BY thoi_gian_tao DESC
+    </select>
+
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO thong_bao (ma_nguoi_dung, tieu_de, noi_dung, da_doc)
+        VALUES (#{maNguoiDung}, #{tieuDe}, #{noiDung}, 0)
+    </insert>
+
+    <update id="danhDauDaDoc">
+        UPDATE thong_bao SET da_doc = 1 WHERE ma = #{ma} AND ma_nguoi_dung = #{maNguoiDung}
+    </update>
+</mapper>

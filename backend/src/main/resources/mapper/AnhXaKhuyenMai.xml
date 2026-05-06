@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaKhuyenMai">
+
+    <resultMap id="banDo" type="com.redbus.mohinh.KhuyenMai">
+        <id property="ma" column="ma"/>
+        <result property="maCode" column="ma_code"/>
+        <result property="tieuDe" column="tieu_de"/>
+        <result property="phanTramGiam" column="phan_tram_giam"/>
+        <result property="soTienGiamToiDa" column="so_tien_giam_toi_da"/>
+        <result property="ngayBatDau" column="ngay_bat_dau"/>
+        <result property="ngayKetThuc" column="ngay_ket_thuc"/>
+        <result property="soLanToiDa" column="gioi_han_so_lan"/>
+        <result property="soLanDaDung" column="so_lan_da_dung"/>
+        <result property="hoatDong" column="hoat_dong"/>
+    </resultMap>
+
+    <select id="timTheoMa" resultMap="banDo">SELECT * FROM khuyen_mai WHERE ma = #{ma}</select>
+    <select id="timTheoMaCode" resultMap="banDo">
+        SELECT * FROM khuyen_mai WHERE UPPER(TRIM(ma_code)) = UPPER(TRIM(#{maCode}))
+    </select>
+    <select id="tatCa" resultMap="banDo">SELECT * FROM khuyen_mai ORDER BY ma DESC</select>
+
+    <select id="demDangHoatDong" resultType="long">
+        SELECT COUNT(*) FROM khuyen_mai
+        WHERE hoat_dong = 1 AND ngay_bat_dau &lt;= #{luc} AND ngay_ket_thuc &gt;= #{luc}
+        AND (gioi_han_so_lan IS NULL OR so_lan_da_dung &lt; gioi_han_so_lan)
+    </select>
+
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO khuyen_mai (ma_code, tieu_de, phan_tram_giam, so_tien_giam_toi_da, ngay_bat_dau, ngay_ket_thuc, gioi_han_so_lan, so_lan_da_dung, hoat_dong)
+        VALUES (#{maCode}, #{tieuDe}, #{phanTramGiam}, #{soTienGiamToiDa}, #{ngayBatDau}, #{ngayKetThuc}, #{soLanToiDa}, COALESCE(#{soLanDaDung}, 0), #{hoatDong})
+    </insert>
+
+    <update id="capNhat">
+        UPDATE khuyen_mai SET ma_code = #{maCode}, tieu_de = #{tieuDe}, phan_tram_giam = #{phanTramGiam},
+            so_tien_giam_toi_da = #{soTienGiamToiDa}, ngay_bat_dau = #{ngayBatDau}, ngay_ket_thuc = #{ngayKetThuc},
+            gioi_han_so_lan = #{soLanToiDa}, so_lan_da_dung = #{soLanDaDung}, hoat_dong = #{hoatDong}
+        WHERE ma = #{ma}
+    </update>
+
+    <update id="tangSoLanDung">UPDATE khuyen_mai SET so_lan_da_dung = so_lan_da_dung + 1 WHERE ma = #{ma}</update>
+
+    <delete id="xoa">DELETE FROM khuyen_mai WHERE ma = #{ma}</delete>
+</mapper>

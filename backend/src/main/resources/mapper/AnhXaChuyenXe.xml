@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaChuyenXe">
+
+    <resultMap id="banDo" type="com.redbus.mohinh.ChuyenXe">
+        <id property="ma" column="ma"/>
+        <result property="maTuyen" column="ma_tuyen"/>
+        <result property="maXe" column="ma_xe"/>
+        <result property="thoiDiemKhoiHanh" column="thoi_diem_khoi_hanh"/>
+        <result property="thoiDiemDen" column="thoi_diem_den"/>
+        <result property="giaVe" column="gia_ve"/>
+        <result property="trangThai" column="trang_thai"/>
+    </resultMap>
+
+    <select id="timTheoMa" resultMap="banDo">SELECT * FROM chuyen_xe WHERE ma = #{ma}</select>
+
+    <select id="timTheoTuyenVaSauThoiDiem" resultMap="banDo">
+        SELECT * FROM chuyen_xe WHERE ma_tuyen = #{maTuyen} AND thoi_diem_khoi_hanh &gt;= #{tuLuc}
+        ORDER BY thoi_diem_khoi_hanh ASC
+    </select>
+
+    <select id="tatCa" resultMap="banDo">SELECT * FROM chuyen_xe ORDER BY thoi_diem_khoi_hanh DESC</select>
+
+    <select id="danhSachMaGheDaGiu" resultType="long">
+        SELECT ma_ghe_ngoi FROM ve_xe
+        WHERE ma_chuyen = #{maChuyen} AND UPPER(trang_thai) != 'CANCELLED'
+    </select>
+
+    <select id="demTheoTrangThai" resultType="int">
+        SELECT COUNT(*) FROM chuyen_xe WHERE UPPER(trang_thai) = UPPER(#{trangThai})
+    </select>
+
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO chuyen_xe (ma_tuyen, ma_xe, thoi_diem_khoi_hanh, thoi_diem_den, gia_ve, trang_thai)
+        VALUES (#{maTuyen}, #{maXe}, #{thoiDiemKhoiHanh}, #{thoiDiemDen}, #{giaVe}, #{trangThai})
+    </insert>
+
+    <update id="capNhat">
+        UPDATE chuyen_xe SET ma_tuyen = #{maTuyen}, ma_xe = #{maXe}, thoi_diem_khoi_hanh = #{thoiDiemKhoiHanh},
+            thoi_diem_den = #{thoiDiemDen}, gia_ve = #{giaVe}, trang_thai = #{trangThai}
+        WHERE ma = #{ma}
+    </update>
+
+    <delete id="xoa">DELETE FROM chuyen_xe WHERE ma = #{ma}</delete>
+</mapper>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaTuyenDuong">
+
+    <resultMap id="banDo" type="com.redbus.mohinh.TuyenDuong">
+        <id property="ma" column="ma"/>
+        <result property="diemDi" column="diem_di"/>
+        <result property="diemDen" column="diem_den"/>
+        <result property="khoangCachKm" column="khoang_cach_km"/>
+        <result property="thoiGianUocTinhPhut" column="thoi_gian_uoc_tinh_phut"/>
+        <result property="hoatDong" column="hoat_dong"/>
+    </resultMap>
+
+    <select id="timTheoMa" resultMap="banDo">SELECT * FROM tuyen_duong WHERE ma = #{ma}</select>
+    <select id="tatCa" resultMap="banDo">SELECT * FROM tuyen_duong ORDER BY ma DESC</select>
+
+    <select id="timKiem" resultMap="banDo">
+        SELECT * FROM tuyen_duong WHERE 1=1
+        <if test="diemDi != null and diemDi != ''">AND diem_di LIKE CONCAT('%', #{diemDi}, '%')</if>
+        <if test="diemDen != null and diemDen != ''">AND diem_den LIKE CONCAT('%', #{diemDen}, '%')</if>
+        ORDER BY ma DESC
+    </select>
+
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO tuyen_duong (diem_di, diem_den, khoang_cach_km, thoi_gian_uoc_tinh_phut, hoat_dong)
+        VALUES (#{diemDi}, #{diemDen}, #{khoangCachKm}, #{thoiGianUocTinhPhut}, #{hoatDong})
+    </insert>
+
+    <update id="capNhat">
+        UPDATE tuyen_duong SET diem_di = #{diemDi}, diem_den = #{diemDen},
+            khoang_cach_km = #{khoangCachKm}, thoi_gian_uoc_tinh_phut = #{thoiGianUocTinhPhut}, hoat_dong = #{hoatDong}
+        WHERE ma = #{ma}
+    </update>
+
+    <delete id="xoa">DELETE FROM tuyen_duong WHERE ma = #{ma}</delete>
+</mapper>

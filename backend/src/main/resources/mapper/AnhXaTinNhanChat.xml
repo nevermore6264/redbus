@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaTinNhanChat">
+
+    <resultMap id="banDo" type="com.redbus.mohinh.TinNhanChat">
+        <id property="ma" column="ma"/>
+        <result property="maNguoiGui" column="ma_nguoi_gui"/>
+        <result property="maNguoiNhan" column="ma_nguoi_nhan"/>
+        <result property="noiDung" column="noi_dung"/>
+        <result property="thoiGianTao" column="thoi_gian_tao"/>
+        <result property="daDocNhan" column="da_doc_nhan"/>
+    </resultMap>
+
+    <select id="tinTrongHoiThoai" resultMap="banDo">
+        SELECT * FROM tin_nhan_chat
+        WHERE (ma_nguoi_gui = #{maA} AND ma_nguoi_nhan = #{maB})
+           OR (ma_nguoi_gui = #{maB} AND ma_nguoi_nhan = #{maA})
+        ORDER BY thoi_gian_tao ASC
+    </select>
+
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO tin_nhan_chat (ma_nguoi_gui, ma_nguoi_nhan, noi_dung, da_doc_nhan)
+        VALUES (#{maNguoiGui}, #{maNguoiNhan}, #{noiDung}, COALESCE(#{daDocNhan}, 0))
+    </insert>
+</mapper>

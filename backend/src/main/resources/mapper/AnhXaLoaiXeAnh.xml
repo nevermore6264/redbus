@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaLoaiXeAnh">
+
+    <resultMap id="banDo" type="com.redbus.mohinh.AnhLoaiXe">
+        <id property="ma" column="ma"/>
+        <result property="maLoaiXe" column="ma_loai_xe"/>
+        <result property="tep" column="tep"/>
+        <result property="thuTu" column="thu_tu"/>
+    </resultMap>
+
+    <select id="timTheoMaLoaiXe" resultMap="banDo">
+        SELECT ma, ma_loai_xe, tep, thu_tu FROM loai_xe_anh WHERE ma_loai_xe = #{maLoaiXe} ORDER BY thu_tu ASC, ma ASC
+    </select>
+
+    <select id="timTheoDanhSachMaLoaiXe" resultMap="banDo">
+        SELECT ma, ma_loai_xe, tep, thu_tu FROM loai_xe_anh
+        WHERE ma_loai_xe IN
+        <foreach collection="dsMa" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY ma_loai_xe, thu_tu ASC, ma ASC
+    </select>
+
+    <select id="timTheoMa" resultMap="banDo">
+        SELECT ma, ma_loai_xe, tep, thu_tu FROM loai_xe_anh WHERE ma = #{ma}
+    </select>
+
+    <select id="timThuTuLonNhat" resultType="_int">
+        SELECT COALESCE(MAX(thu_tu), -1) FROM loai_xe_anh WHERE ma_loai_xe = #{maLoaiXe}
+    </select>
+
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO loai_xe_anh (ma_loai_xe, tep, thu_tu)
+        VALUES (#{maLoaiXe}, #{tep}, #{thuTu})
+    </insert>
+
+    <delete id="xoa">DELETE FROM loai_xe_anh WHERE ma = #{ma}</delete>
+
+    <delete id="xoaTheoMaLoaiXe">DELETE FROM loai_xe_anh WHERE ma_loai_xe = #{maLoaiXe}</delete>
+
+</mapper>

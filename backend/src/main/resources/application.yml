@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: redbus-api
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:redbus}?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&characterEncoding=utf8
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:12345678}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      mode: always
+      # schema.sql tạo DB mới; patch thêm cột `tang` cho DB cũ (CREATE IF NOT EXISTS không ALTER bảng có sẵn).
+      # DB mới đã có `tang` → lệnh ALTER trùng cột sẽ lỗi và được bỏ qua nhờ continue-on-error.
+      schema-locations:
+        - classpath:schema.sql
+        - classpath:db/patch-ghe-ngoi-them-tang.sql
+        - classpath:db/patch-loai-xe-anh.sql
+      continue-on-error: true
+  servlet:
+    multipart:
+      max-file-size: 8MB
+      max-request-size: 12MB
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    default-fetch-size: 100
+    default-statement-timeout: 30
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /api
+
+app:
+  upload:
+    thu-muc: ${UPLOAD_DIR:uploads}
+  jwt:
+    secret: ${JWT_SECRET:RedBusThesisSecretKeyMustBe256BitsLongForHS256Algorithm!!}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
+
+logging:
+  level:
+    com.redbus: INFO

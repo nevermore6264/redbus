@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaDiemDungChan">
+    <resultMap id="banDo" type="com.redbus.mohinh.DiemDungChan">
+        <id property="ma" column="ma"/>
+        <result property="maTuyen" column="ma_tuyen"/>
+        <result property="tenDiem" column="ten_diem"/>
+        <result property="thuTu" column="thu_tu"/>
+        <result property="thoiGianDungPhut" column="thoi_gian_dung_phut"/>
+    </resultMap>
+    <select id="timTheoMa" resultMap="banDo">SELECT * FROM diem_dung_chan WHERE ma = #{ma}</select>
+    <select id="theoMaTuyen" resultMap="banDo">
+        SELECT * FROM diem_dung_chan WHERE ma_tuyen = #{maTuyen} ORDER BY thu_tu ASC, ma ASC
+    </select>
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO diem_dung_chan (ma_tuyen, ten_diem, thu_tu, thoi_gian_dung_phut)
+        VALUES (#{maTuyen}, #{tenDiem}, #{thuTu}, #{thoiGianDungPhut})
+    </insert>
+    <update id="capNhat">
+        UPDATE diem_dung_chan SET ma_tuyen = #{maTuyen}, ten_diem = #{tenDiem},
+            thu_tu = #{thuTu}, thoi_gian_dung_phut = #{thoiGianDungPhut}
+        WHERE ma = #{ma}
+    </update>
+    <delete id="xoa">DELETE FROM diem_dung_chan WHERE ma = #{ma}</delete>
+
+    <select id="demTatCa" resultType="long">SELECT COUNT(*) FROM diem_dung_chan</select>
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaXeKhach">
+
+    <resultMap id="banDo" type="com.redbus.mohinh.XeKhach">
+        <id property="ma" column="ma"/>
+        <result property="maLoaiXe" column="ma_loai_xe"/>
+        <result property="bienSo" column="bien_so"/>
+        <result property="hangXe" column="hang_xe"/>
+        <result property="soCho" column="so_cho"/>
+        <result property="hoatDong" column="hoat_dong"/>
+    </resultMap>
+
+    <select id="timTheoMa" resultMap="banDo">SELECT * FROM xe_khach WHERE ma = #{ma}</select>
+    <select id="tatCa" resultMap="banDo">SELECT * FROM xe_khach ORDER BY ma DESC</select>
+
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO xe_khach (ma_loai_xe, bien_so, hang_xe, so_cho, hoat_dong)
+        VALUES (#{maLoaiXe}, #{bienSo}, #{hangXe}, #{soCho}, #{hoatDong})
+    </insert>
+
+    <update id="capNhat">
+        UPDATE xe_khach SET ma_loai_xe = #{maLoaiXe}, bien_so = #{bienSo}, hang_xe = #{hangXe}, so_cho = #{soCho}, hoat_dong = #{hoatDong}
+        WHERE ma = #{ma}
+    </update>
+
+    <delete id="xoa">DELETE FROM xe_khach WHERE ma = #{ma}</delete>
+</mapper>

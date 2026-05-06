@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaThanhToan">
+
+    <!-- Doc tu ve_xe da PAID + hinh thuc; map sang DTO lich su / bao cao -->
+    <resultMap id="banDo" type="com.redbus.mohinh.GiaoDichThanhToan">
+        <id property="ma" column="ma"/>
+        <result property="maVe" column="ma_ve"/>
+        <result property="maKhuyenMai" column="ma_khuyen_mai"/>
+        <result property="soTien" column="so_tien"/>
+        <result property="phuongThuc" column="phuong_thuc"/>
+        <result property="trangThai" column="trang_thai"/>
+        <result property="maDonPayOs" column="ma_don_payos"/>
+        <result property="thoiGianTao" column="thoi_gian_tao"/>
+    </resultMap>
+
+    <sql id="cotVeThanhToan">
+        v.ma AS ma,
+        v.ma AS ma_ve,
+        v.ma_khuyen_mai AS ma_khuyen_mai,
+        v.so_tien_thanh_toan AS so_tien,
+        COALESCE(h.ma_loai, 'UNKNOWN') AS phuong_thuc,
+        CASE WHEN v.trang_thai = 'PAID' THEN 'SUCCESS' ELSE v.trang_thai END AS trang_thai,
+        v.ma_don_payos AS ma_don_payos,
+        v.thoi_gian_thanh_toan AS thoi_gian_tao
+    </sql>
+
+    <select id="timTheoMa" resultMap="banDo">
+        SELECT <include refid="cotVeThanhToan"/>
+        FROM ve_xe v
+        LEFT JOIN hinh_thuc_thanh_toan h ON v.ma_hinh_thuc = h.ma
+        WHERE v.ma = #{ma} AND v.trang_thai = 'PAID'
+    </select>
+
+    <select id="tatCa" resultMap="banDo">
+        SELECT <include refid="cotVeThanhToan"/>
+        FROM ve_xe v
+        LEFT JOIN hinh_thuc_thanh_toan h ON v.ma_hinh_thuc = h.ma
+        WHERE v.trang_thai = 'PAID'
+        ORDER BY v.thoi_gian_thanh_toan DESC
+    </select>
+
+    <select id="danhSachTheoMaKhach" resultMap="banDo">
+        SELECT <include refid="cotVeThanhToan"/>
+        FROM ve_xe v
+        LEFT JOIN hinh_thuc_thanh_toan h ON v.ma_hinh_thuc = h.ma
+        WHERE v.ma_khach = #{maKhach} AND v.trang_thai = 'PAID'
+        ORDER BY v.thoi_gian_thanh_toan DESC
+    </select>
+</mapper>

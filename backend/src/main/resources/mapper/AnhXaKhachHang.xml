@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaKhachHang">
+
+    <resultMap id="banDoKhach" type="com.redbus.mohinh.KhachHang">
+        <id property="ma" column="ma"/>
+        <result property="maTaiKhoan" column="ma_tai_khoan"/>
+        <result property="hoTen" column="ho_ten"/>
+        <result property="soDienThoai" column="so_dien_thoai"/>
+        <result property="diaChi" column="dia_chi"/>
+    </resultMap>
+
+    <resultMap id="banDoKhachDayDu" type="com.redbus.truyen.ThongTinKhachHangPhanHoi">
+        <result property="maKhach" column="ma_khach"/>
+        <result property="maTaiKhoan" column="ma_tai_khoan"/>
+        <result property="hoTen" column="ho_ten"/>
+        <result property="soDienThoai" column="so_dien_thoai"/>
+        <result property="diaChi" column="dia_chi"/>
+        <result property="tenDangNhap" column="ten_dang_nhap"/>
+        <result property="email" column="email"/>
+        <result property="hoatDong" column="hoat_dong"/>
+    </resultMap>
+
+    <select id="timTheoMa" resultMap="banDoKhach">SELECT * FROM khach_hang WHERE ma = #{ma}</select>
+    <select id="timTheoMaTaiKhoan" resultMap="banDoKhach">SELECT * FROM khach_hang WHERE ma_tai_khoan = #{maTaiKhoan}</select>
+    <select id="tatCa" resultMap="banDoKhach">SELECT * FROM khach_hang ORDER BY ma DESC</select>
+
+    <select id="danhSachLienKetTaiKhoan" resultMap="banDoKhachDayDu">
+        SELECT k.ma AS ma_khach, k.ma_tai_khoan, k.ho_ten, k.so_dien_thoai, k.dia_chi,
+               t.ten_dang_nhap, t.email, t.hoat_dong
+        FROM khach_hang k
+        INNER JOIN tai_khoan t ON k.ma_tai_khoan = t.ma
+        ORDER BY k.ma DESC
+    </select>
+
+    <select id="timMotLienKetTaiKhoan" resultMap="banDoKhachDayDu">
+        SELECT k.ma AS ma_khach, k.ma_tai_khoan, k.ho_ten, k.so_dien_thoai, k.dia_chi,
+               t.ten_dang_nhap, t.email, t.hoat_dong
+        FROM khach_hang k
+        INNER JOIN tai_khoan t ON k.ma_tai_khoan = t.ma
+        WHERE k.ma = #{maKhach}
+    </select>
+
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO khach_hang (ma_tai_khoan, ho_ten, so_dien_thoai, dia_chi)
+        VALUES (#{maTaiKhoan}, #{hoTen}, #{soDienThoai}, #{diaChi})
+    </insert>
+
+    <update id="capNhat">
+        UPDATE khach_hang SET ho_ten = #{hoTen}, so_dien_thoai = #{soDienThoai}, dia_chi = #{diaChi}
+        WHERE ma = #{ma}
+    </update>
+</mapper>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaHoiDap">
+
+    <resultMap id="banDo" type="com.redbus.mohinh.HoiDap">
+        <id property="ma" column="ma"/>
+        <result property="maKhach" column="ma_khach"/>
+        <result property="tieuDe" column="tieu_de"/>
+        <result property="noiDungHoi" column="noi_dung_hoi"/>
+        <result property="noiDungTraLoi" column="noi_dung_tra_loi"/>
+        <result property="maNguoiTraLoi" column="ma_nguoi_tra_loi"/>
+        <result property="thoiGianHoi" column="thoi_gian_hoi"/>
+        <result property="thoiGianTraLoi" column="thoi_gian_tra_loi"/>
+        <result property="trangThai" column="trang_thai"/>
+    </resultMap>
+
+    <select id="timTheoMa" resultMap="banDo">SELECT * FROM hoi_dap WHERE ma = #{ma}</select>
+
+    <select id="congKhaiDaTraLoi" resultMap="banDo">
+        SELECT * FROM hoi_dap WHERE trang_thai = 'DA_TRA_LOI' ORDER BY thoi_gian_tra_loi DESC
+    </select>
+
+    <select id="tatCaChoQuanTri" resultMap="banDo">
+        SELECT * FROM hoi_dap ORDER BY thoi_gian_hoi DESC
+    </select>
+
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO hoi_dap (ma_khach, tieu_de, noi_dung_hoi, trang_thai)
+        VALUES (#{maKhach}, #{tieuDe}, #{noiDungHoi}, COALESCE(#{trangThai}, 'CHO_TRA_LOI'))
+    </insert>
+
+    <update id="capNhatTraLoi">
+        UPDATE hoi_dap SET
+            noi_dung_tra_loi = #{noiDungTraLoi},
+            ma_nguoi_tra_loi = #{maNguoiTraLoi},
+            thoi_gian_tra_loi = #{thoiGianTraLoi},
+            trang_thai = #{trangThai}
+        WHERE ma = #{ma}
+    </update>
+</mapper>

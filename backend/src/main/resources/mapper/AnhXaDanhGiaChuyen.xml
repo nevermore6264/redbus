@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaDanhGiaChuyen">
+
+    <resultMap id="banDo" type="com.redbus.mohinh.DanhGiaChuyen">
+        <id property="ma" column="ma"/>
+        <result property="maChuyen" column="ma_chuyen"/>
+        <result property="maKhach" column="ma_khach"/>
+        <result property="diemSo" column="diem_so"/>
+        <result property="nhanXet" column="nhan_xet"/>
+        <result property="thoiGianTao" column="thoi_gian_tao"/>
+    </resultMap>
+
+    <select id="theoMaChuyen" resultMap="banDo">
+        SELECT * FROM danh_gia_chuyen WHERE ma_chuyen = #{maChuyen} ORDER BY thoi_gian_tao DESC
+    </select>
+
+    <select id="timTheoMaChuyenVaMaKhach" resultMap="banDo">
+        SELECT * FROM danh_gia_chuyen WHERE ma_chuyen = #{maChuyen} AND ma_khach = #{maKhach}
+    </select>
+
+    <select id="demTatCa" resultType="long">SELECT COUNT(*) FROM danh_gia_chuyen</select>
+
+    <select id="demTheoMaChuyen" resultType="long">
+        SELECT COUNT(*) FROM danh_gia_chuyen WHERE ma_chuyen = #{maChuyen}
+    </select>
+
+    <select id="diemTrungBinh" resultType="java.math.BigDecimal">
+        SELECT AVG(diem_so) FROM danh_gia_chuyen
+    </select>
+
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO danh_gia_chuyen (ma_chuyen, ma_khach, diem_so, nhan_xet)
+        VALUES (#{maChuyen}, #{maKhach}, #{diemSo}, #{nhanXet})
+    </insert>
+</mapper>

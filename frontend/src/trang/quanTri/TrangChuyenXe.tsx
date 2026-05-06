@@ -1,0 +1,262 @@
+import { useEffect, useState } from 'react'
+import { khachHttp, moKhoiDuLieu } from '../../nguon/apiClient'
+import type { PhanHoi, ChuyenXe, TuyenDuong, XeKhach } from '../../nguon/kieu'
+import { dungNguoiDung } from '../../dinhDanh/boiCanhNguoiDung'
+import { dungThongBao } from '../../dinhDanh/boiCanhThongBao'
+import { TheChua, TieuDeThe } from '../../thanhPhan/theChua'
+import { NutBam, NutSuaQt, NutXoaQt } from '../../thanhPhan/nutBam'
+import { TruongNhap, TruongChon } from '../../thanhPhan/truongNhap'
+import { CuaSo } from '../../thanhPhan/cuaSo'
+import { dinhDangNgayGio, dinhDangVnd } from '../../tienIch/dinhDang'
+
+function chuyenDatetimeLocal(iso: string | undefined): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+function tenTrangThai(s: string) {
+  if (s === 'SCHEDULED') return 'Đã lên lịch'
+  if (s === 'CANCELLED') return 'Đã hủy'
+  return s
+}
+
+export function TrangChuyenXe() {
+  const { nguoiDung } = dungNguoiDung()
+  const { hienThi } = dungThongBao()
+  const laAdmin = nguoiDung?.vaiTro === 'ADMIN'
+  const [ds, datDs] = useState<ChuyenXe[]>([])
+  const [dsTuyen, datTuyen] = useState<TuyenDuong[]>([])
+  const [dsXe, datXe] = useState<XeKhach[]>([])
+  const [mo, datMo] = useState(false)
+  const [sua, datSua] = useState<ChuyenXe | null>(null)
+  const [bieu, datBieu] = useState({
+    maTuyen: '' as number | '',
+    maXe: '' as number | '',
+    thoiDiemKhoiHanh: '',
+    thoiDiemDen: '',
+    giaVe: 0,
+    trangThai: 'SCHEDULED',
+  })
+
+  async function taiDS() {
+    try {
+      const [cx, tuyen, xe] = await Promise.all([
+        moKhoiDuLieu(khachHttp.get<PhanHoi<ChuyenXe[]>>('/chuyen-xe/toan-bo')),
+        moKhoiDuLieu(khachHttp.get<PhanHoi<TuyenDuong[]>>('/tuyen-duong')),
+        moKhoiDuLieu(khachHttp.get<PhanHoi<XeKhach[]>>('/xe-khach')),
+      ])
+      datDs(cx)
+      datTuyen(tuyen)
+      datXe(xe)
+    } catch (e: unknown) {
+      hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi tải dữ liệu' })
+    }
+  }
+
+  useEffect(() => {
+    void taiDS()
+  }, [])
+
+  function tenTuyen(ma?: number) {
+    if (ma == null) return '—'
+    const t = dsTuyen.find((x) => x.ma === ma)
+    return t ? `${t.diemDi} → ${t.diemDen}` : `#${ma}`
+  }
+
+  function hienThiBienSoXe(ma?: number) {
+    if (ma == null) return '—'
+    const x = dsXe.find((z) => z.ma === ma)
+    return x?.bienSo ?? `#${ma}`
+  }
+
+  function moThe() {
+    datSua(null)
+    const macDinh = new Date()
+    macDinh.setMinutes(0, 0, 0)
+    datBieu({
+      maTuyen: dsTuyen[0]?.ma ?? '',
+      maXe: dsXe[0]?.ma ?? '',
+      thoiDiemKhoiHanh: chuyenDatetimeLocal(macDinh.toISOString()),
+      thoiDiemDen: '',
+      giaVe: 150000,
+      trangThai: 'SCHEDULED',
+    })
+    datMo(true)
+  }
+
+  function moSua(c: ChuyenXe) {
+    datSua(c)
+    datBieu({
+      maTuyen: c.maTuyen,
+      maXe: c.maXe,
+      thoiDiemKhoiHanh: chuyenDatetimeLocal(c.thoiDiemKhoiHanh),
+      thoiDiemDen: c.thoiDiemDen ? chuyenDatetimeLocal(c.thoiDiemDen) : '',
+      giaVe: Number(c.giaVe),
+      trangThai: c.trangThai || 'SCHEDULED',
+    })
+    datMo(true)
+  }
+
+  async function luu() {
+    if (bieu.maTuyen === '' || bieu.maXe === '' || !bieu.thoiDiemKhoiHanh) {
+      hienThi({ loai: 'loi', noiDung: 'Vui lòng chọn tuyến, xe và giờ khởi hành.' })
+      return
+    }
+    const than = {
+      maTuyen: Number(bieu.maTuyen),
+      maXe: Number(bieu.maXe),
+      thoiDiemKhoiHanh: new Date(bieu.thoiDiemKhoiHanh).toISOString(),
+      thoiDiemDen: bieu.thoiDiemDen ? new Date(bieu.thoiDiemDen).toISOString() : undefined,
+      giaVe: bieu.giaVe,
+      trangThai: bieu.trangThai,
+    }
+    try {
+      if (sua) {
+        await moKhoiDuLieu(
+          khachHttp.put<PhanHoi<ChuyenXe>>(`/chuyen-xe/${sua.ma}`, {
+            ...than,
+            ma: sua.ma,
+          }),
+        )
+      } else {
+        await moKhoiDuLieu(khachHttp.post<PhanHoi<ChuyenXe>>('/chuyen-xe', than))
+      }
+      datMo(false)
+      void taiDS()
+      hienThi({ loai: 'thanhCong', noiDung: 'Đã lưu chuyến.' })
+    } catch (e: unknown) {
+      hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi lưu' })
+    }
+  }
+
+  async function xoa(ma: number) {
+    if (!confirm('Xóa chuyến này?')) return
+    try {
+      await moKhoiDuLieu(khachHttp.delete<PhanHoi<unknown>>(`/chuyen-xe/${ma}`))
+      void taiDS()
+      hienThi({ loai: 'thanhCong', noiDung: 'Đã xóa chuyến.' })
+    } catch (e: unknown) {
+      hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi xóa' })
+    }
+  }
+
+  return (
+    <div className="admin-page">
+      <header className="admin-page__head">
+        <h1 className="admin-page__title">Chuyến xe</h1>
+        <p className="admin-page__sub">Gán tuyến, xe, giờ khởi hành và giá vé cho từng chuyến.</p>
+      </header>
+      <TheChua padding="none">
+        <div className="table-wrap-pad">
+          <TieuDeThe title="Danh sách chuyến" action={<NutBam bien="chinh" onClick={moThe} con="+ Thêm chuyến" />} />
+        </div>
+        <div className="table-scroll">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Mã</th>
+                <th>Tuyến</th>
+                <th>Xe</th>
+                <th>Khởi hành</th>
+                <th>Giá vé</th>
+                <th>Trạng thái</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {ds.map((r) => (
+                <tr key={r.ma}>
+                  <td className="mono">{r.ma}</td>
+                  <td title={`Mã tuyến: ${r.maTuyen}`}>
+                    <strong>{tenTuyen(r.maTuyen)}</strong>
+                  </td>
+                  <td title={`Mã xe: ${r.maXe}`}>{hienThiBienSoXe(r.maXe)}</td>
+                  <td>{dinhDangNgayGio(r.thoiDiemKhoiHanh)}</td>
+                  <td>{dinhDangVnd(r.giaVe)}</td>
+                  <td>
+                    <span className="muted">{tenTrangThai(r.trangThai)}</span>
+                    <span className="mono small muted"> ({r.trangThai})</span>
+                  </td>
+                  <td className="row-actions">
+                    <NutSuaQt onClick={() => moSua(r)} />
+                    {laAdmin ? <NutXoaQt onClick={() => void xoa(r.ma)} /> : null}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </TheChua>
+
+      <CuaSo
+        open={mo}
+        title={sua ? 'Sửa chuyến' : 'Thêm chuyến'}
+        onClose={() => datMo(false)}
+        footer={
+          <>
+            <NutBam bien="huy" onClick={() => datMo(false)} con="Hủy" />
+            <NutBam bien="chinh" onClick={() => void luu()} con="Lưu" />
+          </>
+        }
+      >
+        <div className="form-stack">
+          <TruongChon
+            nhan="Tuyến"
+            value={bieu.maTuyen === '' ? '' : String(bieu.maTuyen)}
+            onChange={(e) =>
+              datBieu({ ...bieu, maTuyen: e.target.value ? Number(e.target.value) : '' })
+            }
+          >
+            <option value="">— Chọn tuyến —</option>
+            {dsTuyen.map((t) => (
+              <option key={t.ma} value={t.ma}>
+                {t.diemDi} → {t.diemDen} ({t.ma})
+              </option>
+            ))}
+          </TruongChon>
+          <TruongChon
+            nhan="Xe"
+            value={bieu.maXe === '' ? '' : String(bieu.maXe)}
+            onChange={(e) => datBieu({ ...bieu, maXe: e.target.value ? Number(e.target.value) : '' })}
+          >
+            <option value="">— Chọn xe —</option>
+            {dsXe.map((x) => (
+              <option key={x.ma} value={x.ma}>
+                {x.bienSo} ({x.ma})
+              </option>
+            ))}
+          </TruongChon>
+          <TruongNhap
+            nhan="Khởi hành"
+            type="datetime-local"
+            value={bieu.thoiDiemKhoiHanh}
+            onChange={(e) => datBieu({ ...bieu, thoiDiemKhoiHanh: e.target.value })}
+            required
+          />
+          <TruongNhap
+            nhan="Đến (tùy chọn)"
+            type="datetime-local"
+            value={bieu.thoiDiemDen}
+            onChange={(e) => datBieu({ ...bieu, thoiDiemDen: e.target.value })}
+          />
+          <TruongNhap
+            nhan="Giá vé (VNĐ)"
+            type="number"
+            value={bieu.giaVe}
+            onChange={(e) => datBieu({ ...bieu, giaVe: Number(e.target.value) })}
+          />
+          <TruongChon
+            nhan="Trạng thái"
+            value={bieu.trangThai}
+            onChange={(e) => datBieu({ ...bieu, trangThai: e.target.value })}
+          >
+            <option value="SCHEDULED">Đã lên lịch (SCHEDULED)</option>
+            <option value="CANCELLED">Đã hủy (CANCELLED)</option>
+          </TruongChon>
+        </div>
+      </CuaSo>
+    </div>
+  )
+}

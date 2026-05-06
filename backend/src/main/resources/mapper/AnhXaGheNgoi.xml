@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaGheNgoi">
+
+    <resultMap id="banDo" type="com.redbus.mohinh.GheNgoi">
+        <id property="ma" column="ma"/>
+        <result property="maXe" column="ma_xe"/>
+        <result property="maGhe" column="ky_hieu_ghe"/>
+        <result property="hang" column="hang"/>
+        <result property="cot" column="cot"/>
+        <result property="tang" column="tang"/>
+        <result property="trangThai" column="trang_thai"/>
+    </resultMap>
+
+    <select id="timTheoMa" resultMap="banDo">SELECT * FROM ghe_ngoi WHERE ma = #{ma}</select>
+    <select id="timTheoMaXe" resultMap="banDo">
+        SELECT * FROM ghe_ngoi WHERE ma_xe = #{maXe}
+        ORDER BY tang ASC, hang ASC, cot ASC
+    </select>
+
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO ghe_ngoi (ma_xe, ky_hieu_ghe, hang, cot, tang, trang_thai)
+        VALUES (#{maXe}, #{maGhe}, #{hang}, #{cot}, #{tang}, #{trangThai})
+    </insert>
+
+    <update id="capNhatTrangThai">UPDATE ghe_ngoi SET trang_thai = #{trangThai} WHERE ma = #{ma}</update>
+
+    <delete id="xoaTheoMaXe">DELETE FROM ghe_ngoi WHERE ma_xe = #{maXe}</delete>
+</mapper>

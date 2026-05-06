@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaVeXe">
+
+    <resultMap id="banDo" type="com.redbus.mohinh.VeXe">
+        <id property="ma" column="ma"/>
+        <result property="maChuyen" column="ma_chuyen"/>
+        <result property="maKhach" column="ma_khach"/>
+        <result property="maGhe" column="ma_ghe_ngoi"/>
+        <result property="trangThai" column="trang_thai"/>
+        <result property="thoiGianDat" column="thoi_gian_dat"/>
+        <result property="maKhuyenMai" column="ma_khuyen_mai"/>
+        <result property="maHinhThuc" column="ma_hinh_thuc"/>
+        <result property="soTienThanhToan" column="so_tien_thanh_toan"/>
+        <result property="maDonPayOs" column="ma_don_payos"/>
+        <result property="thoiGianThanhToan" column="thoi_gian_thanh_toan"/>
+    </resultMap>
+
+    <select id="timTheoMa" resultMap="banDo">SELECT * FROM ve_xe WHERE ma = #{ma}</select>
+    <select id="timTheoMaKhach" resultMap="banDo">SELECT * FROM ve_xe WHERE ma_khach = #{maKhach} ORDER BY thoi_gian_dat DESC</select>
+    <select id="timTheoMaChuyen" resultMap="banDo">SELECT * FROM ve_xe WHERE ma_chuyen = #{maChuyen}</select>
+
+    <select id="demTheoTrangThai" resultType="int">
+        SELECT COUNT(*) FROM ve_xe WHERE UPPER(trang_thai) = UPPER(#{trangThai})
+    </select>
+
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO ve_xe (ma_chuyen, ma_khach, ma_ghe_ngoi, trang_thai)
+        VALUES (#{maChuyen}, #{maKhach}, #{maGhe}, #{trangThai})
+    </insert>
+
+    <update id="capNhatTrangThai">UPDATE ve_xe SET trang_thai = #{trangThai} WHERE ma = #{ma}</update>
+
+    <update id="capNhatThanhToan">
+        UPDATE ve_xe SET
+            ma_khuyen_mai = #{maKhuyenMai},
+            ma_hinh_thuc = #{maHinhThuc},
+            so_tien_thanh_toan = #{soTienThanhToan},
+            ma_don_payos = #{maDonPayOs},
+            thoi_gian_thanh_toan = #{thoiGianThanhToan},
+            trang_thai = #{trangThai}
+        WHERE ma = #{ma}
+    </update>
+</mapper>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaHinhThucThanhToan">
+
+    <resultMap id="banDo" type="com.redbus.mohinh.HinhThucThanhToan">
+        <id property="ma" column="ma"/>
+        <result property="maLoai" column="ma_loai"/>
+        <result property="ten" column="ten"/>
+        <result property="moTa" column="mo_ta"/>
+        <result property="hoatDong" column="hoat_dong"/>
+    </resultMap>
+
+    <select id="timTheoMa" resultMap="banDo">SELECT * FROM hinh_thuc_thanh_toan WHERE ma = #{ma}</select>
+    <select id="timTheoMaLoai" resultMap="banDo">
+        SELECT * FROM hinh_thuc_thanh_toan WHERE UPPER(TRIM(ma_loai)) = UPPER(TRIM(#{maLoai})) AND hoat_dong = 1 LIMIT 1
+    </select>
+    <select id="tatCaHoatDong" resultMap="banDo">
+        SELECT * FROM hinh_thuc_thanh_toan WHERE hoat_dong = 1 ORDER BY ma
+    </select>
+
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO hinh_thuc_thanh_toan (ma_loai, ten, mo_ta, hoat_dong)
+        VALUES (#{maLoai}, #{ten}, #{moTa}, #{hoatDong})
+    </insert>
+</mapper>

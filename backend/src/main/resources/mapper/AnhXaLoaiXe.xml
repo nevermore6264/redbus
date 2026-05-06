@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaLoaiXe">
+
+    <resultMap id="banDo" type="com.redbus.mohinh.LoaiXe">
+        <id property="ma" column="ma"/>
+        <result property="ten" column="ten"/>
+        <result property="moTa" column="mo_ta"/>
+        <result property="tienIch" column="tien_ich"/>
+        <result property="hoatDong" column="hoat_dong"/>
+    </resultMap>
+
+    <select id="timTheoMa" resultMap="banDo">SELECT * FROM loai_xe WHERE ma = #{ma}</select>
+    <select id="tatCa" resultMap="banDo">SELECT * FROM loai_xe ORDER BY ma</select>
+
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO loai_xe (ten, mo_ta, tien_ich, hoat_dong)
+        VALUES (#{ten}, #{moTa}, #{tienIch}, #{hoatDong})
+    </insert>
+
+    <update id="capNhat">
+        UPDATE loai_xe SET ten = #{ten}, mo_ta = #{moTa}, tien_ich = #{tienIch}, hoat_dong = #{hoatDong}
+        WHERE ma = #{ma}
+    </update>
+
+    <delete id="xoa">DELETE FROM loai_xe WHERE ma = #{ma}</delete>
+
+    <select id="demTatCa" resultType="long">SELECT COUNT(*) FROM loai_xe</select>
+</mapper>

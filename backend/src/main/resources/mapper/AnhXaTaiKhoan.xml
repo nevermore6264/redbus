@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaTaiKhoan">
+
+    <resultMap id="banDoTaiKhoan" type="com.redbus.mohinh.TaiKhoan">
+        <id property="ma" column="ma"/>
+        <result property="tenDangNhap" column="ten_dang_nhap"/>
+        <result property="email" column="email"/>
+        <result property="matKhauMaHoa" column="mat_khau_bam"/>
+        <result property="vaiTro" column="vai_tro"/>
+        <result property="hoatDong" column="hoat_dong"/>
+        <result property="thoiGianTao" column="thoi_gian_tao"/>
+    </resultMap>
+
+    <select id="timTheoMa" resultMap="banDoTaiKhoan">SELECT * FROM tai_khoan WHERE ma = #{ma}</select>
+    <select id="timTheoTenDangNhap" resultMap="banDoTaiKhoan">SELECT * FROM tai_khoan WHERE ten_dang_nhap = #{tenDangNhap}</select>
+    <select id="timTheoEmail" resultMap="banDoTaiKhoan">SELECT * FROM tai_khoan WHERE email = #{email}</select>
+
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO tai_khoan (ten_dang_nhap, email, mat_khau_bam, vai_tro, hoat_dong)
+        VALUES (#{tenDangNhap}, #{email}, #{matKhauMaHoa}, #{vaiTro}, #{hoatDong})
+    </insert>
+
+    <update id="capNhatMatKhau">
+        UPDATE tai_khoan SET mat_khau_bam = #{matKhauMaHoa} WHERE ma = #{ma}
+    </update>
+
+    <update id="capNhatEmailVaHoatDong">
+        UPDATE tai_khoan SET email = #{email}, hoat_dong = #{hoatDong} WHERE ma = #{ma}
+    </update>
+</mapper>

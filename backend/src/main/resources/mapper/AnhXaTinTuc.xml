@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaTinTuc">
+
+    <resultMap id="banDo" type="com.redbus.mohinh.TinTuc">
+        <id property="ma" column="ma"/>
+        <result property="tieuDe" column="tieu_de"/>
+        <result property="tomTat" column="tom_tat"/>
+        <result property="noiDung" column="noi_dung"/>
+        <result property="duongAnh" column="duong_anh"/>
+        <result property="ngayXuatBan" column="ngay_xuat_ban"/>
+        <result property="hoatDong" column="hoat_dong"/>
+    </resultMap>
+
+    <select id="timTheoMa" resultMap="banDo">SELECT * FROM tin_tuc WHERE ma = #{ma}</select>
+    <select id="tatCa" resultMap="banDo">SELECT * FROM tin_tuc ORDER BY IFNULL(ngay_xuat_ban, '1970-01-01') DESC, ma DESC</select>
+
+    <select id="congKhai" resultMap="banDo">
+        SELECT * FROM tin_tuc WHERE hoat_dong = 1
+        ORDER BY ngay_xuat_ban DESC, ma DESC
+        LIMIT #{gioiHan}
+    </select>
+
+    <select id="demHoatDong" resultType="long">SELECT COUNT(*) FROM tin_tuc WHERE hoat_dong = 1</select>
+
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO tin_tuc (tieu_de, tom_tat, noi_dung, duong_anh, ngay_xuat_ban, hoat_dong)
+        VALUES (#{tieuDe}, #{tomTat}, #{noiDung}, #{duongAnh}, #{ngayXuatBan}, #{hoatDong})
+    </insert>
+
+    <update id="capNhat">
+        UPDATE tin_tuc SET tieu_de = #{tieuDe}, tom_tat = #{tomTat}, noi_dung = #{noiDung},
+            duong_anh = #{duongAnh}, ngay_xuat_ban = #{ngayXuatBan}, hoat_dong = #{hoatDong}
+        WHERE ma = #{ma}
+    </update>
+
+    <delete id="xoa">DELETE FROM tin_tuc WHERE ma = #{ma}</delete>
+</mapper>
