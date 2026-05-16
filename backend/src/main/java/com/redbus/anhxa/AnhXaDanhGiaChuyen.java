@@ -1,6 +1,7 @@
 package com.redbus.anhxa;
 
 import com.redbus.mohinh.DanhGiaChuyen;
+import com.redbus.truyen.DanhGiaCongKhaiPhanHoi;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -21,4 +22,6 @@ public interface AnhXaDanhGiaChuyen {
     BigDecimal diemTrungBinh();
 
     long demTheoMaChuyen(@Param("maChuyen") Long maChuyen);
+
+    List<DanhGiaCongKhaiPhanHoi> congKhai(@Param("gioiHan") int gioiHan);
 }

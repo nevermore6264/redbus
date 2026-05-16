@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
+import { khachHttp, moKhoiDuLieu, urlTaiNguyen } from '../nguon/apiClient'
 import type { PhanHoi, TinTuc } from '../nguon/kieu'
+import { AnhCoFallback } from '../thanhPhan/AnhCoFallback'
 import { TheChua } from '../thanhPhan/theChua'
+import { anhTinFallback } from '../tienIch/anhTrang'
 import { dinhDangNgayGio } from '../tienIch/dinhDang'
 
 export function TrangTinChiTiet() {
@@ -30,7 +32,15 @@ export function TrangTinChiTiet() {
       <p className="muted small">
         <Link to="/tin-tuc">Tin tức</Link>
       </p>
-      <TheChua padding="lg">
+      <TheChua padding="lg" className="article-card">
+        {t.duongAnh || t.ma ? (
+          <AnhCoFallback
+            src={t.duongAnh ? urlTaiNguyen(t.duongAnh) : undefined}
+            fallback={anhTinFallback(t.ma)}
+            alt=""
+            className="article-card__cover"
+          />
+        ) : null}
         <p className="muted small">{dinhDangNgayGio(t.ngayXuatBan)}</p>
         <h1 className="page-title" style={{ marginTop: '0.5rem' }}>
           {t.tieuDe}

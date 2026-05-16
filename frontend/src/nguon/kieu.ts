@@ -107,6 +107,17 @@ export interface DanhGiaChuyen {
   thoiGianTao?: string
 }
 
+/** Đánh giá công khai trên trang chủ */
+export interface DanhGiaCongKhai {
+  ma: number
+  diemSo: number
+  nhanXet?: string
+  thoiGianTao?: string
+  tenKhach: string
+  diemDi: string
+  diemDen: string
+}
+
 export interface TinTuc {
   ma: number
   tieuDe: string

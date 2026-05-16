@@ -8,6 +8,7 @@ import com.redbus.mohinh.DanhGiaChuyen;
 import com.redbus.mohinh.KhachHang;
 import com.redbus.mohinh.TaiKhoan;
 import com.redbus.mohinh.VeXe;
+import com.redbus.truyen.DanhGiaCongKhaiPhanHoi;
 import com.redbus.truyen.YeuCauDanhGiaChuyen;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,11 @@ public class DichVuDanhGiaChuyen {
 
     public List<DanhGiaChuyen> theoMaChuyen(Long maChuyen) {
         return anhXaDanhGiaChuyen.theoMaChuyen(maChuyen);
+    }
+
+    public List<DanhGiaCongKhaiPhanHoi> congKhai(int gioiHan) {
+        int gioiHanAnToan = Math.min(Math.max(gioiHan, 1), 30);
+        return anhXaDanhGiaChuyen.congKhai(gioiHanAnToan);
     }
 
     @Transactional

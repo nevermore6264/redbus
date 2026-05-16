@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import {
   Armchair,
   ArrowRight,
@@ -17,6 +17,8 @@ import {
   Wallet,
 } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu, urlTaiNguyen } from '../nguon/apiClient'
+import { AnhCoFallback } from '../thanhPhan/AnhCoFallback'
+import { ANH_CO_DINH } from '../tienIch/anhTrang'
 import type { PhanHoi, ChuyenXe, DiemDungChan, GheNgoi, KhuyenMai, LoaiXe, TuyenDuong, XeKhach } from '../nguon/kieu'
 import { dungNguoiDung } from '../dinhDanh/boiCanhNguoiDung'
 import { dungThongBao } from '../dinhDanh/boiCanhThongBao'
@@ -29,8 +31,16 @@ import { NhanHieu } from '../thanhPhan/nhanHieu'
 import { dinhDangNgayGio, dinhDangVnd } from '../tienIch/dinhDang'
 import { trangThaiSangTiengViet } from '../tienIch/trangThai'
 
+function isoSangLocalInput(iso: string) {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return null
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
 export function TrangDatVe() {
   const viTri = useLocation()
+  const [searchParams] = useSearchParams()
   const { moDangNhap, moDangKy } = dungModalXacThuc()
   const { nguoiDung } = dungNguoiDung()
   const { hienThi } = dungThongBao()
@@ -53,6 +63,7 @@ export function TrangDatVe() {
   const [kmGoiY, datKmGoiY] = useState<KhuyenMai[]>([])
   const [dsLoaiXe, datDsLoaiXe] = useState<LoaiXe[]>([])
   const [dsXeKhach, datDsXeKhach] = useState<XeKhach[]>([])
+  const daTuDongTimTuUrl = useRef(false)
 
   const tuyenHienTai = useMemo(
     () => dsTuyen.find((t) => t.ma === maTuyen),
@@ -85,12 +96,29 @@ export function TrangDatVe() {
       try {
         const ds = await moKhoiDuLieu(khachHttp.get<PhanHoi<TuyenDuong[]>>('/tuyen-duong'))
         datTuyen(ds)
-        if (ds.length && maTuyen === '') datMaTuyen(ds[0].ma)
+        const maTuUrl = searchParams.get('tuyen')
+        const tuLucTuUrl = searchParams.get('tuLuc')
+        if (maTuUrl && ds.some((t) => t.ma === Number(maTuUrl))) {
+          datMaTuyen(Number(maTuUrl))
+        } else if (ds.length && maTuyen === '') {
+          datMaTuyen(ds[0].ma)
+        }
+        if (tuLucTuUrl) {
+          const local = isoSangLocalInput(tuLucTuUrl)
+          if (local) datTuNgay(local)
+        }
       } catch {
         hienThi({ loai: 'loi', noiDung: 'Không tải được danh sách tuyến' })
       }
     })()
   }, [])
+
+  useEffect(() => {
+    if (daTuDongTimTuUrl.current) return
+    if (!searchParams.get('tuLuc') || maTuyen === '' || dsTuyen.length === 0) return
+    daTuDongTimTuUrl.current = true
+    void timChuyen()
+  }, [dsTuyen.length, maTuyen, searchParams])
 
   useEffect(() => {
     void (async () => {
@@ -197,6 +225,13 @@ export function TrangDatVe() {
   return (
     <div className="booking-page">
       <section className="booking-hero" aria-labelledby="booking-hero-title">
+        <AnhCoFallback
+          src={ANH_CO_DINH.heroChinh}
+          fallback={ANH_CO_DINH.heroChinh}
+          alt=""
+          className="booking-hero__bg-img"
+          loading="eager"
+        />
         <div className="booking-hero__noise" aria-hidden />
         <div className="container booking-hero__inner">
           <p className="booking-hero__eyebrow">

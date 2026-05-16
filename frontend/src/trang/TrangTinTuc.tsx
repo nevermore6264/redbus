@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Newspaper } from 'lucide-react'
-import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
+import { khachHttp, moKhoiDuLieu, urlTaiNguyen } from '../nguon/apiClient'
 import type { PhanHoi, TinTuc } from '../nguon/kieu'
+import { AnhCoFallback } from '../thanhPhan/AnhCoFallback'
 import { NenTrangKhach } from '../thanhPhan/NenTrangKhach'
+import { anhTinFallback } from '../tienIch/anhTrang'
 import { dinhDangNgayGio } from '../tienIch/dinhDang'
 import { dungThongBao } from '../dinhDanh/boiCanhThongBao'
 
@@ -52,6 +54,12 @@ export function TrangTinTuc() {
         {!tai &&
           ds.map((t) => (
             <Link key={t.ma} to={`/tin-tuc/${t.ma}`} className="cust-news-card">
+              <AnhCoFallback
+                src={t.duongAnh ? urlTaiNguyen(t.duongAnh) : undefined}
+                fallback={anhTinFallback(t.ma)}
+                alt=""
+                className="cust-news-card__cover"
+              />
               <h2 className="cust-news-card__title">{t.tieuDe}</h2>
               {t.tomTat ? <p className="cust-news-card__sum muted">{t.tomTat}</p> : null}
               <span className="cust-news-card__date muted">{dinhDangNgayGio(t.ngayXuatBan)}</span>

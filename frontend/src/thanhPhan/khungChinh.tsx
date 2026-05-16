@@ -5,6 +5,7 @@ import {
   Bus,
   CalendarPlus,
   ClipboardList,
+  Home,
   LayoutDashboard,
   LogIn,
   LogOut,
@@ -49,6 +50,9 @@ export function KhungChinh() {
   const lopLk = (duong: string, them?: string) =>
     `nav-link ${viTri.pathname === duong ? 'nav-link--active' : ''} ${them ?? ''}`.trim()
 
+  const laKhach = nguoiDung?.vaiTro === 'CUSTOMER'
+  const laQuanTri = nguoiDung?.vaiTro === 'ADMIN' || nguoiDung?.vaiTro === 'STAFF'
+
   return (
     <div className="shell">
       <div
@@ -67,13 +71,23 @@ export function KhungChinh() {
           </Link>
 
           <nav className="header__nav" aria-label="Chính">
-            <Link className={lopLk('/dat-ve', 'nav-link--cta')} to="/dat-ve">
-              <span className="nav-link__ico" aria-hidden>
-                <CalendarPlus size={18} strokeWidth={2} />
-              </span>
-              <span className="nav-link__text">Đặt vé</span>
-            </Link>
-            {nguoiDung?.vaiTro === 'CUSTOMER' && (
+            {!laKhach && !laQuanTri ? (
+              <>
+                <Link className={lopLk('/')} to="/">
+                  <span className="nav-link__ico" aria-hidden>
+                    <Home size={18} strokeWidth={2} />
+                  </span>
+                  <span className="nav-link__text">Trang chủ</span>
+                </Link>
+                <Link className={lopLk('/tin-tuc')} to="/tin-tuc">
+                  <span className="nav-link__ico" aria-hidden>
+                    <Newspaper size={18} strokeWidth={2} />
+                  </span>
+                  <span className="nav-link__text">Tin tức</span>
+                </Link>
+              </>
+            ) : null}
+            {laKhach ? (
               <>
                 <Link className={lopLk('/ve-cua-toi')} to="/ve-cua-toi">
                   <span className="nav-link__ico" aria-hidden>
@@ -112,38 +126,57 @@ export function KhungChinh() {
                   <span className="nav-link__text">Đánh giá</span>
                 </Link>
               </>
-            )}
-            {(nguoiDung?.vaiTro === 'ADMIN' || nguoiDung?.vaiTro === 'STAFF') && (
+            ) : null}
+            {laQuanTri ? (
               <Link className={lopLk('/quan-tri/tong-quan')} to="/quan-tri/tong-quan">
                 <span className="nav-link__ico" aria-hidden>
                   <LayoutDashboard size={18} strokeWidth={2} />
                 </span>
                 <span className="nav-link__text">Quản trị</span>
               </Link>
-            )}
+            ) : null}
           </nav>
 
           <div className="header__actions">
-            {!nguoiDung ? (
+            {!laKhach && !laQuanTri ? (
               <>
+                <Link className="btn btn--primary btn--sm header__cta-book" to="/dat-ve">
+                  <CalendarPlus size={16} aria-hidden />
+                  Đặt vé
+                </Link>
                 <button type="button" className="btn btn--ghost btn--sm" onClick={() => moDangNhap()}>
-                  <LogIn size={16} />
+                  <LogIn size={16} aria-hidden />
                   Đăng nhập
                 </button>
                 <button type="button" className="btn btn--primary btn--sm" onClick={() => moDangKy()}>
                   Đăng ký
                 </button>
               </>
-            ) : (
+            ) : laKhach ? (
+              <>
+                <Link className="btn btn--primary btn--sm header__cta-book" to="/dat-ve">
+                  <CalendarPlus size={16} aria-hidden />
+                  Đặt vé
+                </Link>
+                <div className="user-menu">
+                  <span className="user-menu__role">{nguoiDung.vaiTro}</span>
+                  <span className="user-menu__name">{nguoiDung.tenDangNhap}</span>
+                  <button type="button" className="btn btn--ghost btn--sm" onClick={dangXuat}>
+                    <LogOut size={16} aria-hidden />
+                    Đăng xuất
+                  </button>
+                </div>
+              </>
+            ) : nguoiDung ? (
               <div className="user-menu">
                 <span className="user-menu__role">{nguoiDung.vaiTro}</span>
                 <span className="user-menu__name">{nguoiDung.tenDangNhap}</span>
                 <button type="button" className="btn btn--ghost btn--sm" onClick={dangXuat}>
-                  <LogOut size={16} />
+                  <LogOut size={16} aria-hidden />
                   Đăng xuất
                 </button>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </header>

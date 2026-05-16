@@ -33,4 +33,26 @@
         INSERT INTO danh_gia_chuyen (ma_chuyen, ma_khach, diem_so, nhan_xet)
         VALUES (#{maChuyen}, #{maKhach}, #{diemSo}, #{nhanXet})
     </insert>
+
+    <resultMap id="banDoCongKhai" type="com.redbus.truyen.DanhGiaCongKhaiPhanHoi">
+        <id property="ma" column="ma"/>
+        <result property="diemSo" column="diem_so"/>
+        <result property="nhanXet" column="nhan_xet"/>
+        <result property="thoiGianTao" column="thoi_gian_tao"/>
+        <result property="tenKhach" column="ho_ten"/>
+        <result property="diemDi" column="diem_di"/>
+        <result property="diemDen" column="diem_den"/>
+    </resultMap>
+
+    <select id="congKhai" resultMap="banDoCongKhai">
+        SELECT dg.ma, dg.diem_so, dg.nhan_xet, dg.thoi_gian_tao,
+               kh.ho_ten, td.diem_di, td.diem_den
+        FROM danh_gia_chuyen dg
+        INNER JOIN khach_hang kh ON dg.ma_khach = kh.ma
+        INNER JOIN chuyen_xe cx ON dg.ma_chuyen = cx.ma
+        INNER JOIN tuyen_duong td ON cx.ma_tuyen = td.ma
+        WHERE dg.nhan_xet IS NOT NULL AND TRIM(dg.nhan_xet) &lt;&gt; ''
+        ORDER BY dg.thoi_gian_tao DESC
+        LIMIT #{gioiHan}
+    </select>
 </mapper>

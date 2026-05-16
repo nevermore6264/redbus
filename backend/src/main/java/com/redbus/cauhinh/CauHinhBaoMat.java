@@ -58,6 +58,7 @@ public class CauHinhBaoMat {
                         .requestMatchers(HttpMethod.GET, "/tai-nguyen/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/diem-dung/tuyen/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/khuyen-mai/hien-thi").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/danh-gia/cong-khai").permitAll()
                         .requestMatchers(HttpMethod.GET, "/danh-gia/chuyen/**").permitAll()
                         .requestMatchers("/tin-tuc/quan-tri/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/tin-tuc/**").permitAll()

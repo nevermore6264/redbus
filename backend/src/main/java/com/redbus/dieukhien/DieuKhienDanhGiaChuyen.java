@@ -4,6 +4,7 @@ import com.redbus.anhxa.AnhXaDanhGiaChuyen;
 import com.redbus.dichvu.DichVuDanhGiaChuyen;
 import com.redbus.mohinh.DanhGiaChuyen;
 import com.redbus.truyen.PhanHoiChung;
+import com.redbus.truyen.DanhGiaCongKhaiPhanHoi;
 import com.redbus.truyen.YeuCauDanhGiaChuyen;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,12 @@ public class DieuKhienDanhGiaChuyen {
 
     private final DichVuDanhGiaChuyen dichVuDanhGiaChuyen;
     private final AnhXaDanhGiaChuyen anhXaDanhGiaChuyen;
+
+    @GetMapping("/cong-khai")
+    public PhanHoiChung<List<DanhGiaCongKhaiPhanHoi>> congKhai(
+            @RequestParam(defaultValue = "12") int gioiHan) {
+        return PhanHoiChung.ok(dichVuDanhGiaChuyen.congKhai(gioiHan));
+    }
 
     @GetMapping("/chuyen/{maChuyen}")
     public PhanHoiChung<List<DanhGiaChuyen>> theoChuyen(@PathVariable Long maChuyen) {
