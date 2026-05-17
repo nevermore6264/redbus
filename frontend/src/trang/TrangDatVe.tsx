@@ -25,10 +25,12 @@ import { dungThongBao } from '../dinhDanh/boiCanhThongBao'
 import { dungModalXacThuc } from '../dinhDanh/boiCanhModalXacThuc'
 import { SoDoGheXe } from '../thanhPhan/SoDoGheXe'
 import { TheChua, TieuDeThe } from '../thanhPhan/theChua'
-import { NutBam } from '../thanhPhan/nutBam'
+import { NutBam, NutVanBan } from '../thanhPhan/nutBam'
 import { TruongChon } from '../thanhPhan/truongNhap'
 import { NhanHieu } from '../thanhPhan/nhanHieu'
+import { LoTrinhTuyen } from '../thanhPhan/LoTrinhTuyen'
 import { dinhDangNgayGio, dinhDangVnd } from '../tienIch/dinhDang'
+import { chuoiLoTrinh, taiDiemDungTheoTuyen } from '../tienIch/loTrinhTuyen'
 import { trangThaiSangTiengViet } from '../tienIch/trangThai'
 
 function isoSangLocalInput(iso: string) {
@@ -59,6 +61,7 @@ export function TrangDatVe() {
   const [taiDS, datTaiDS] = useState(false)
   const [taiDat, datTaiDat] = useState(false)
   const [dsDiemDung, datDsDiemDung] = useState<DiemDungChan[]>([])
+  const [diemDungTheoTuyen, datDiemDungTheoTuyen] = useState<Record<number, DiemDungChan[]>>({})
   const [daTimChuyen, datDaTimChuyen] = useState(false)
   const [kmGoiY, datKmGoiY] = useState<KhuyenMai[]>([])
   const [dsLoaiXe, datDsLoaiXe] = useState<LoaiXe[]>([])
@@ -96,6 +99,7 @@ export function TrangDatVe() {
       try {
         const ds = await moKhoiDuLieu(khachHttp.get<PhanHoi<TuyenDuong[]>>('/tuyen-duong'))
         datTuyen(ds)
+        datDiemDungTheoTuyen(await taiDiemDungTheoTuyen(ds))
         const maTuUrl = searchParams.get('tuyen')
         const tuLucTuUrl = searchParams.get('tuLuc')
         if (maTuUrl && ds.some((t) => t.ma === Number(maTuUrl))) {
@@ -294,7 +298,7 @@ export function TrangDatVe() {
             >
               {dsTuyen.map((r) => (
                 <option key={r.ma} value={r.ma}>
-                  {r.diemDi} → {r.diemDen}
+                  {chuoiLoTrinh(r, diemDungTheoTuyen[r.ma] ?? [])}
                 </option>
               ))}
             </TruongChon>
@@ -326,20 +330,10 @@ export function TrangDatVe() {
                 : '—'}
             </p>
           ) : null}
-          {dsDiemDung.length > 0 ? (
+          {tuyenHienTai ? (
             <div className="route-stops">
-              <p className="route-stops__label">Điểm dừng chân trên tuyến</p>
-              <ol className="route-stops__list">
-                {dsDiemDung.map((d) => (
-                  <li key={d.ma}>
-                    <strong>{d.tenDiem}</strong>
-                    <span className="muted">
-                      {' '}
-                      (+{d.thoiGianDungPhut ?? 0} phút)
-                    </span>
-                  </li>
-                ))}
-              </ol>
+              <p className="route-stops__label">Lộ trình tuyến</p>
+              <LoTrinhTuyen tuyen={tuyenHienTai} diemDung={dsDiemDung} kieu="timeline" />
             </div>
           ) : null}
           <ul className={`trip-cards ${dsChuyen.length === 0 ? 'trip-cards--empty' : ''}`}>
@@ -417,9 +411,7 @@ export function TrangDatVe() {
           {chon && tuyenHienTai ? (
             <div className="booking-pick-summary">
               <div className="booking-pick-summary__route">
-                <span>{tuyenHienTai.diemDi}</span>
-                <ChevronRight size={16} className="booking-pick-summary__arrow" aria-hidden />
-                <span>{tuyenHienTai.diemDen}</span>
+                <LoTrinhTuyen tuyen={tuyenHienTai} diemDung={dsDiemDung} kieu="dong" />
               </div>
               <div className="booking-pick-summary__row">
                 <span className="booking-pick-summary__time">
@@ -481,13 +473,9 @@ export function TrangDatVe() {
                   />
                 ) : (
                   <p className="muted">
-                    <button type="button" className="btn-text" onClick={() => moDangKy(`${viTri.pathname}${viTri.search}`)}>
-                      Đăng ký
-                    </button>{' '}
+                    <NutVanBan onClick={() => moDangKy(`${viTri.pathname}${viTri.search}`)} con="Đăng ký" />{' '}
                     hoặc{' '}
-                    <button type="button" className="btn-text" onClick={() => moDangNhap(`${viTri.pathname}${viTri.search}`)}>
-                      đăng nhập
-                    </button>{' '}
+                    <NutVanBan onClick={() => moDangNhap(`${viTri.pathname}${viTri.search}`)} con="đăng nhập" />{' '}
                     tài khoản khách hàng (CUSTOMER).
                   </p>
                 )}

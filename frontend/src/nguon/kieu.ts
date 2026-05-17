@@ -14,6 +14,14 @@ export interface PhanHoiDangNhap {
   vaiTro: string
 }
 
+export interface DonViHanhChinh {
+  name: string
+  code: number
+  division_type?: string
+  codename?: string
+  province_code?: number
+}
+
 export interface TuyenDuong {
   ma: number
   diemDi: string

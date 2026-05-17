@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
-import { ArrowLeft, Bus, Home, Search } from 'lucide-react'
+import { Bus, Search } from 'lucide-react'
+import { NutBam, NutLienKet } from '../thanhPhan/nutBam'
 
 export function TrangKhongTimThay() {
   return (
@@ -22,17 +22,9 @@ export function TrangKhongTimThay() {
           Kiểm tra lại URL hoặc quay về trang chủ để đặt vé, tra cứu tin tức và thông báo.
         </p>
         <div className="not-found__actions">
-          <Link className="btn btn--primary btn--lg" to="/">
-            <Home size={18} aria-hidden />
-            Về trang chủ
-          </Link>
-          <Link className="btn btn--outline btn--lg" to="/dat-ve">
-            Đặt vé ngay
-          </Link>
-          <button type="button" className="btn btn--ghost btn--lg" onClick={() => window.history.back()}>
-            <ArrowLeft size={18} aria-hidden />
-            Quay lại
-          </button>
+          <NutLienKet bien="chinh" className="btn--lg" to="/" con="Về trang chủ" />
+          <NutLienKet bien="vien" className="btn--lg" to="/dat-ve" con="Đặt vé ngay" />
+          <NutBam bien="mo" className="btn--lg" onClick={() => window.history.back()} con="Quay lại" />
         </div>
       </div>
     </div>

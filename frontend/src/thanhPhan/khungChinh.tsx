@@ -3,12 +3,9 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   Bell,
   Bus,
-  CalendarPlus,
   ClipboardList,
   Home,
   LayoutDashboard,
-  LogIn,
-  LogOut,
   Mail,
   MapPin,
   Newspaper,
@@ -19,6 +16,7 @@ import {
 } from 'lucide-react'
 import { dungNguoiDung } from '../dinhDanh/boiCanhNguoiDung'
 import { dungModalXacThuc } from '../dinhDanh/boiCanhModalXacThuc'
+import { NutBam, NutLienKet, NutVanBan } from './nutBam'
 
 export function KhungChinh() {
   const { nguoiDung, dangXuat } = dungNguoiDung()
@@ -140,41 +138,24 @@ export function KhungChinh() {
           <div className="header__actions">
             {!laKhach && !laQuanTri ? (
               <>
-                <Link className="btn btn--primary btn--sm header__cta-book" to="/dat-ve">
-                  <CalendarPlus size={16} aria-hidden />
-                  Đặt vé
-                </Link>
-                <button type="button" className="btn btn--ghost btn--sm" onClick={() => moDangNhap()}>
-                  <LogIn size={16} aria-hidden />
-                  Đăng nhập
-                </button>
-                <button type="button" className="btn btn--primary btn--sm" onClick={() => moDangKy()}>
-                  Đăng ký
-                </button>
+                <NutLienKet bien="chinh" className="btn--sm header__cta-book" to="/dat-ve" con="Đặt vé" />
+                <NutBam bien="mo" className="btn--sm" onClick={() => moDangNhap()} con="Đăng nhập" />
+                <NutBam bien="chinh" className="btn--sm" onClick={() => moDangKy()} con="Đăng ký" />
               </>
             ) : laKhach ? (
               <>
-                <Link className="btn btn--primary btn--sm header__cta-book" to="/dat-ve">
-                  <CalendarPlus size={16} aria-hidden />
-                  Đặt vé
-                </Link>
+                <NutLienKet bien="chinh" className="btn--sm header__cta-book" to="/dat-ve" con="Đặt vé" />
                 <div className="user-menu">
                   <span className="user-menu__role">{nguoiDung.vaiTro}</span>
                   <span className="user-menu__name">{nguoiDung.tenDangNhap}</span>
-                  <button type="button" className="btn btn--ghost btn--sm" onClick={dangXuat}>
-                    <LogOut size={16} aria-hidden />
-                    Đăng xuất
-                  </button>
+                  <NutBam bien="mo" className="btn--sm" onClick={dangXuat} con="Đăng xuất" />
                 </div>
               </>
             ) : nguoiDung ? (
               <div className="user-menu">
                 <span className="user-menu__role">{nguoiDung.vaiTro}</span>
                 <span className="user-menu__name">{nguoiDung.tenDangNhap}</span>
-                <button type="button" className="btn btn--ghost btn--sm" onClick={dangXuat}>
-                  <LogOut size={16} aria-hidden />
-                  Đăng xuất
-                </button>
+                <NutBam bien="mo" className="btn--sm" onClick={dangXuat} con="Đăng xuất" />
               </div>
             ) : null}
           </div>
@@ -245,14 +226,10 @@ export function KhungChinh() {
                 ) : (
                   <>
                     <li>
-                      <button type="button" className="footer__link-btn" onClick={() => moDangNhap()}>
-                        Đăng nhập
-                      </button>
+                      <NutVanBan className="footer__link-btn" onClick={() => moDangNhap()} con="Đăng nhập" />
                     </li>
                     <li>
-                      <button type="button" className="footer__link-btn" onClick={() => moDangKy()}>
-                        Đăng ký tài khoản
-                      </button>
+                      <NutVanBan className="footer__link-btn" onClick={() => moDangKy()} con="Đăng ký tài khoản" />
                     </li>
                   </>
                 )}

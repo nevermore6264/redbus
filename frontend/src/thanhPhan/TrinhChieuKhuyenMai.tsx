@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowRight, ChevronLeft, ChevronRight, Copy, Percent, Tag } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Copy, Percent, Tag } from 'lucide-react'
 import type { KhuyenMai } from '../nguon/kieu'
+import { NutBam } from './nutBam'
 
 type Props = {
   ds: KhuyenMai[]
@@ -122,10 +123,7 @@ export function TrinhChieuKhuyenMai({ ds, onDatVe }: Props) {
 
       <div className="promo-showcase__foot">
         <p className="promo-showcase__hint">Nhập mã khi thanh toán vé đang chờ thanh toán.</p>
-        <button type="button" className="btn btn--primary promo-showcase__cta" onClick={onDatVe}>
-          Đặt vé ngay
-          <ArrowRight size={18} aria-hidden />
-        </button>
+        <NutBam bien="chinh" className="promo-showcase__cta" onClick={onDatVe} con="Đặt vé ngay" />
       </div>
     </div>
   )

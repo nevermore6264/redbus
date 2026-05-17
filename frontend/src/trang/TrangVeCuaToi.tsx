@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { Ticket } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
 import type { PhanHoi, VeXe, ChuyenXe, TuyenDuong, GheNgoi } from '../nguon/kieu'
 import { dungThongBao } from '../dinhDanh/boiCanhThongBao'
 import { NenTrangKhach } from '../thanhPhan/NenTrangKhach'
 import { TheChua, TieuDeThe } from '../thanhPhan/theChua'
-import { NutBam } from '../thanhPhan/nutBam'
+import { NutBam, NutLienKet } from '../thanhPhan/nutBam'
 import { TruongNhap } from '../thanhPhan/truongNhap'
 import { NhanHieu } from '../thanhPhan/nhanHieu'
 import { dinhDangNgayGio, dinhDangVnd } from '../tienIch/dinhDang'
@@ -192,9 +191,7 @@ export function TrangVeCuaToi() {
               Đặt vé online và quản lý thanh toán ngay tại đây.
             </p>
             <div className="cust-empty__cta">
-              <Link className="btn btn--primary btn--sm" to="/dat-ve">
-                Đặt vé ngay
-              </Link>
+              <NutLienKet bien="chinh" className="btn--sm" to="/dat-ve" con="Đặt vé ngay" />
             </div>
           </div>
         ) : null}

@@ -1,6 +1,8 @@
 package com.redbus.cauhinh;
 
 import com.redbus.truyen.PhanHoiChung;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -13,6 +15,8 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class XuLyLoiChung {
+
+    private static final Logger log = LoggerFactory.getLogger(XuLyLoiChung.class);
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<PhanHoiChung<Void>> loiThamSo(IllegalArgumentException ex) {
@@ -39,7 +43,11 @@ public class XuLyLoiChung {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<PhanHoiChung<Void>> chung(Exception ex) {
-        String td = ex.getMessage() != null ? ex.getMessage() : "Có vấn đề về hệ thông";
+        log.error("Loi he thong", ex);
+        String td = ex.getMessage();
+        if (td == null || td.isBlank()) {
+            td = ex.getClass().getSimpleName();
+        }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(PhanHoiChung.loi(td));
     }
 }

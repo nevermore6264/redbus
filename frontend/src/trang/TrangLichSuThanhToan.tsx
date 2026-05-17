@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { NutLienKet } from '../thanhPhan/nutBam'
 import { Receipt } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
 import type { PhanHoi, GiaoDichThanhToan } from '../nguon/kieu'
@@ -99,9 +99,7 @@ export function TrangLichSuThanhToan() {
             <p className="cust-empty__title">Chưa có giao dịch</p>
             <p className="muted">Sau khi thanh toán vé, lịch sử sẽ hiển thị tại đây.</p>
             <div className="cust-empty__cta">
-              <Link className="btn btn--outline btn--sm" to="/ve-cua-toi">
-                Xem vé của tôi
-              </Link>
+              <NutLienKet bien="vien" className="btn--sm" to="/ve-cua-toi" con="Xem vé của tôi" />
             </div>
           </div>
         ) : null}

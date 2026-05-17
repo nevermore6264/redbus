@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,10 @@ import java.util.stream.Collectors;
 public class DichVuLoaiXe {
 
     private static final String TIEN_TO_CONG_KHAI = "tai-nguyen/";
+
+    private static final Comparator<AnhLoaiXe> SAP_XEP_ANH = Comparator
+            .comparing(AnhLoaiXe::getThuTu, Comparator.nullsLast(Integer::compareTo))
+            .thenComparing(AnhLoaiXe::getMa, Comparator.nullsLast(Long::compareTo));
 
     private final AnhXaLoaiXe anhXaLoaiXe;
     private final AnhXaLoaiXeAnh anhXaLoaiXeAnh;
@@ -182,14 +187,14 @@ public class DichVuLoaiXe {
     }
 
     private void ganDuongAnhChoMot(LoaiXe lx) {
-        List<AnhLoaiXe> imgs = anhXaLoaiXeAnh.timTheoMaLoaiXe(lx.getMa());
-        imgs.sort(Comparator.comparing(AnhLoaiXe::getThuTu).thenComparing(AnhLoaiXe::getMa));
-        lx.setDsAnh(imgs.stream()
-                .map(a -> LoaiXeAnhTomTat.builder()
-                        .ma(a.getMa())
-                        .duongAnh(TIEN_TO_CONG_KHAI + a.getTep())
-                        .build())
-                .toList());
+        List<AnhLoaiXe> imgs;
+        try {
+            imgs = anhXaLoaiXeAnh.timTheoMaLoaiXe(lx.getMa());
+        } catch (Exception e) {
+            lx.setDsAnh(List.of());
+            return;
+        }
+        lx.setDsAnh(chuyenThanhTomTatAnh(imgs));
     }
 
     private void ganDuongAnhChoDanhSach(List<LoaiXe> ds) {
@@ -200,17 +205,30 @@ public class DichVuLoaiXe {
         if (mas.isEmpty()) {
             return;
         }
-        List<AnhLoaiXe> tatCa = anhXaLoaiXeAnh.timTheoDanhSachMaLoaiXe(mas);
-        Map<Long, List<AnhLoaiXe>> gom = tatCa.stream().collect(Collectors.groupingBy(AnhLoaiXe::getMaLoaiXe));
-        for (LoaiXe lx : ds) {
-            List<AnhLoaiXe> imgs = gom.getOrDefault(lx.getMa(), List.of());
-            imgs.sort(Comparator.comparing(AnhLoaiXe::getThuTu).thenComparing(AnhLoaiXe::getMa));
-            lx.setDsAnh(imgs.stream()
-                    .map(a -> LoaiXeAnhTomTat.builder()
-                            .ma(a.getMa())
-                            .duongAnh(TIEN_TO_CONG_KHAI + a.getTep())
-                            .build())
-                    .toList());
+        List<AnhLoaiXe> tatCaAnh;
+        try {
+            tatCaAnh = anhXaLoaiXeAnh.timTheoDanhSachMaLoaiXe(mas);
+        } catch (Exception e) {
+            for (LoaiXe lx : ds) {
+                lx.setDsAnh(List.of());
+            }
+            return;
         }
+        Map<Long, List<AnhLoaiXe>> gom = tatCaAnh.stream().collect(Collectors.groupingBy(AnhLoaiXe::getMaLoaiXe));
+        for (LoaiXe lx : ds) {
+            lx.setDsAnh(chuyenThanhTomTatAnh(gom.getOrDefault(lx.getMa(), List.of())));
+        }
+    }
+
+    private List<LoaiXeAnhTomTat> chuyenThanhTomTatAnh(List<AnhLoaiXe> imgs) {
+        List<AnhLoaiXe> sapXep = new ArrayList<>(imgs);
+        sapXep.sort(SAP_XEP_ANH);
+        return sapXep.stream()
+                .filter(a -> a.getTep() != null && !a.getTep().isBlank())
+                .map(a -> LoaiXeAnhTomTat.builder()
+                        .ma(a.getMa())
+                        .duongAnh(TIEN_TO_CONG_KHAI + a.getTep())
+                        .build())
+                .toList();
     }
 }

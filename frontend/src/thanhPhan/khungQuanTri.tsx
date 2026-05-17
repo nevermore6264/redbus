@@ -1,4 +1,5 @@
 import { NavLink, Outlet, Link } from 'react-router-dom'
+import { NutVanBan } from './nutBam'
 import {
   Bus,
   ChevronLeft,
@@ -100,9 +101,7 @@ export function KhungQuanTri() {
           </Link>
           <div className="admin-user">
             <span>{nguoiDung?.tenDangNhap}</span>
-            <button type="button" className="btn-text" onClick={dangXuat}>
-              Đăng xuất
-            </button>
+            <NutVanBan onClick={dangXuat} con="Đăng xuất" />
           </div>
         </div>
       </aside>

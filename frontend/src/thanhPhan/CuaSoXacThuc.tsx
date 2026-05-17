@@ -6,7 +6,7 @@ import type { PhanHoi, PhanHoiDangNhap } from '../nguon/kieu'
 import { dungModalXacThuc } from '../dinhDanh/boiCanhModalXacThuc'
 import { dungNguoiDung } from '../dinhDanh/boiCanhNguoiDung'
 import { TruongNhap } from './truongNhap'
-import { NutBam } from './nutBam'
+import { NutBam, NutVanBan } from './nutBam'
 import { CuaSo } from './cuaSo'
 
 export function CuaSoXacThuc() {
@@ -126,9 +126,7 @@ export function CuaSoXacThuc() {
             <NutBam bien="chinh" type="submit" className="btn--block" dangTai={taiDn} con="Đăng nhập" />
           </form>
           <p className="auth-card__foot muted" style={{ marginBottom: 0, marginTop: '1rem' }}>
-            <button type="button" className="btn-text" onClick={doiSangDangKy}>
-              Đăng ký tài khoản khách hàng
-            </button>
+            <NutVanBan onClick={doiSangDangKy} con="Đăng ký tài khoản khách hàng" />
           </p>
         </>
       ) : null}
@@ -180,9 +178,7 @@ export function CuaSoXacThuc() {
             </div>
           </form>
           <p className="auth-card__foot muted" style={{ marginBottom: 0, marginTop: '1rem' }}>
-            <button type="button" className="btn-text" onClick={doiSangDangNhap}>
-              Đã có tài khoản? Đăng nhập
-            </button>
+            <NutVanBan onClick={doiSangDangNhap} con="Đã có tài khoản? Đăng nhập" />
           </p>
         </>
       ) : null}

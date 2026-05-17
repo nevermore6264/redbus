@@ -31,6 +31,7 @@ import type {
   TuyenDuong,
 } from "../nguon/kieu";
 import { AnhCoFallback } from "../thanhPhan/AnhCoFallback";
+import { NutBam, NutLienKet } from "../thanhPhan/nutBam";
 import { TrinhChieuAnh } from "../thanhPhan/TrinhChieuAnh";
 import {
   TrinhChieuDanhGia,
@@ -47,6 +48,8 @@ import {
 import { dinhDangNgayGio } from "../tienIch/dinhDang";
 import { useKhoiHienKhiCuon } from "../tienIch/useKhoiHienKhiCuon";
 import { useDemSoKhiHien } from "../tienIch/useDemSoKhiHien";
+import { chuoiLoTrinh, taiDiemDungTheoTuyen } from "../tienIch/loTrinhTuyen";
+import type { DiemDungChan } from "../nguon/kieu";
 
 const BUOC_DAT_VE = [
   {
@@ -170,6 +173,9 @@ export function TrangChu() {
   const [tin, datTin] = useState<TinTuc[]>([]);
   const [km, datKm] = useState<KhuyenMai[]>([]);
   const [dsTuyen, datDsTuyen] = useState<TuyenDuong[]>([]);
+  const [diemDungTheoTuyen, datDiemDungTheoTuyen] = useState<
+    Record<number, DiemDungChan[]>
+  >({});
   const [maTuyenTim, datMaTuyenTim] = useState<number | "">("");
   const [tuLucTim, datTuLucTim] = useState(macDinhTuLuc);
   const [dsDanhGia, datDsDanhGia] = useState<DanhGiaHienThi[]>(DANH_GIA_MAU);
@@ -208,6 +214,7 @@ export function TrangChu() {
         datTin(a);
         datKm(b);
         datDsTuyen(c);
+        datDiemDungTheoTuyen(await taiDiemDungTheoTuyen(c));
         const tuApi = chuyenDanhGiaApi(dg);
         if (tuApi.length > 0) datDsDanhGia(tuApi);
         if (c.length && maTuyenTim === "") datMaTuyenTim(c[0].ma);
@@ -293,7 +300,7 @@ export function TrangChu() {
                   ) : (
                     dsTuyen.map((t) => (
                       <option key={t.ma} value={t.ma}>
-                        {t.diemDi} → {t.diemDen}
+                        {chuoiLoTrinh(t, diemDungTheoTuyen[t.ma] ?? [])}
                       </option>
                     ))
                   )}
@@ -395,10 +402,17 @@ export function TrangChu() {
                             className="home-route-card__arrow"
                             aria-hidden
                           />
-                          Tuyến xe khách
+                          {(diemDungTheoTuyen[t.ma]?.length ?? 0) > 0
+                            ? `${diemDungTheoTuyen[t.ma]!.length} điểm dừng`
+                            : "Tuyến xe khách"}
                         </span>
                         <span className="home-route-card__to">{t.diemDen}</span>
                       </div>
+                      {(diemDungTheoTuyen[t.ma]?.length ?? 0) > 0 ? (
+                        <p className="home-route-card__stops">
+                          {chuoiLoTrinh(t, diemDungTheoTuyen[t.ma] ?? [])}
+                        </p>
+                      ) : null}
                       <dl className="home-route-card__meta">
                         {t.khoangCachKm != null ? (
                           <div>
@@ -413,14 +427,12 @@ export function TrangChu() {
                           </div>
                         ) : null}
                       </dl>
-                      <button
-                        type="button"
-                        className="btn btn--ghost btn--sm home-route-card__cta"
+                      <NutBam
+                        bien="mo"
+                        className="btn--sm home-route-card__cta"
                         onClick={() => timVe(undefined, t.ma)}
-                      >
-                        Tìm chuyến
-                        <ArrowRight size={14} aria-hidden />
-                      </button>
+                        con="Tìm chuyến"
+                      />
                     </div>
                   </article>
                 ))}
@@ -743,13 +755,12 @@ export function TrangChu() {
                   đọc nhanh hoặc vào trang tin đầy đủ.
                 </p>
               </div>
-              <Link
-                className="btn btn--outline btn--sm home-news-spotlight__cta-top"
+              <NutLienKet
+                bien="vien"
+                className="btn--sm home-news-spotlight__cta-top"
                 to="/tin-tuc"
-              >
-                Xem tất cả tin
-                <ArrowRight size={16} aria-hidden />
-              </Link>
+                con="Xem tất cả tin"
+              />
             </div>
 
             {tin.length > 0 ? (
@@ -797,9 +808,7 @@ export function TrangChu() {
                   Chưa có bài tin trên hệ thống hoặc không tải được dữ liệu. Bạn
                   vẫn có thể vào trang tin để xem khi có cập nhật.
                 </p>
-                <Link className="btn btn--primary btn--sm" to="/tin-tuc">
-                  Đến trang tin tức
-                </Link>
+                <NutLienKet bien="chinh" className="btn--sm" to="/tin-tuc" con="Đến trang tin tức" />
               </div>
             )}
           </div>
@@ -850,13 +859,12 @@ export function TrangChu() {
                 <Search size={18} aria-hidden />
                 Tìm chuyến xe
               </button>
-              <button
-                type="button"
-                className="btn btn--outline btn--lg home-cta-band__outline"
+              <NutBam
+                bien="vien"
+                className="btn--lg home-cta-band__outline"
                 onClick={() => moDangKy()}
-              >
-                Đăng ký tài khoản
-              </button>
+                con="Đăng ký tài khoản"
+              />
             </div>
           </div>
         </section>

@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react'
 import { khachHttp, moKhoiDuLieu } from '../../nguon/apiClient'
-import type { PhanHoi, TuyenDuong } from '../../nguon/kieu'
+import type { DiemDungChan, PhanHoi, TuyenDuong } from '../../nguon/kieu'
+import { ChonDiaDanh } from '../../thanhPhan/ChonDiaDanh'
+import { LoTrinhTuyen } from '../../thanhPhan/LoTrinhTuyen'
+import { taiDiemDungTheoTuyen } from '../../tienIch/loTrinhTuyen'
 import { dungNguoiDung } from '../../dinhDanh/boiCanhNguoiDung'
 import { dungThongBao } from '../../dinhDanh/boiCanhThongBao'
 import { TheChua, TieuDeThe } from '../../thanhPhan/theChua'
-import { NutBam, NutSuaQt, NutXoaQt } from '../../thanhPhan/nutBam'
+import { KhungQuanLyDiemDung } from '../../thanhPhan/khungQuanLyDiemDung'
+import { NutBam, NutSuaQt, NutVanBan, NutXoaQt } from '../../thanhPhan/nutBam'
 import { TruongNhap } from '../../thanhPhan/truongNhap'
 import { CuaSo } from '../../thanhPhan/cuaSo'
 import { CuaSoXacNhanXoa } from '../../thanhPhan/cuaSoXacNhanXoa'
@@ -36,8 +40,8 @@ function kiemTraBieu(bieu: BieuTuyen, ds: TuyenDuong[], maLoaiTru?: number): Loi
   const diemDi = chuanHoaDiem(bieu.diemDi)
   const diemDen = chuanHoaDiem(bieu.diemDen)
 
-  if (!diemDi) loi.diemDi = 'Nhập điểm đi'
-  if (!diemDen) loi.diemDen = 'Nhập điểm đến'
+  if (!diemDi) loi.diemDi = 'Chọn đầy đủ địa danh cho điểm đi'
+  if (!diemDen) loi.diemDen = 'Chọn đầy đủ địa danh cho điểm đến'
 
   if (diemDi && diemDen && diemDi.toLowerCase() === diemDen.toLowerCase()) {
     loi.diemDen = 'Điểm đến phải khác điểm đi'
@@ -63,7 +67,9 @@ export function TrangTuyenDuong() {
   const { hienThi } = dungThongBao()
   const laAdmin = nguoiDung?.vaiTro === 'ADMIN'
   const [ds, datDs] = useState<TuyenDuong[]>([])
+  const [diemDungTheoTuyen, datDiemDungTheoTuyen] = useState<Record<number, DiemDungChan[]>>({})
   const [mo, datMo] = useState(false)
+  const [tuyenDiemDung, datTuyenDiemDung] = useState<TuyenDuong | null>(null)
   const [sua, datSua] = useState<TuyenDuong | null>(null)
   const [xoaChon, datXoaChon] = useState<TuyenDuong | null>(null)
   const [dangXoa, datDangXoa] = useState(false)
@@ -80,6 +86,7 @@ export function TrangTuyenDuong() {
     try {
       const x = await moKhoiDuLieu(khachHttp.get<PhanHoi<TuyenDuong[]>>('/tuyen-duong'))
       datDs(x)
+      datDiemDungTheoTuyen(await taiDiemDungTheoTuyen(x))
     } catch (e: unknown) {
       hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : String(e) })
     }
@@ -138,6 +145,14 @@ export function TrangTuyenDuong() {
     }
   }
 
+  function capNhatDiemDung(ma: number, dsDiem: DiemDungChan[]) {
+    datDiemDungTheoTuyen((prev) => ({ ...prev, [ma]: dsDiem }))
+  }
+
+  function moCauHinhDiemDung(t: TuyenDuong) {
+    datTuyenDiemDung(t)
+  }
+
   async function xacNhanXoa() {
     if (!xoaChon) return
     datDangXoa(true)
@@ -157,7 +172,9 @@ export function TrangTuyenDuong() {
     <div className="admin-page">
       <header className="admin-page__head">
         <h1 className="admin-page__title">Tuyến đường</h1>
-        <p className="admin-page__sub">Quản lý điểm đi — điểm đến, quãng đường và thời gian ước tính.</p>
+        <p className="admin-page__sub">
+          Quản lý lộ trình tuyến: điểm đi, các điểm dừng chân và điểm đến — cấu hình điểm dừng ngay trên từng tuyến.
+        </p>
       </header>
       <TheChua padding="none">
         <div className="table-wrap-pad">
@@ -172,9 +189,9 @@ export function TrangTuyenDuong() {
             <thead>
               <tr>
                 <th>Mã</th>
-                <th>Điểm đi</th>
-                <th>Điểm đến</th>
+                <th>Lộ trình</th>
                 <th>Km</th>
+                <th>Ước tính (phút)</th>
                 <th />
               </tr>
             </thead>
@@ -182,9 +199,28 @@ export function TrangTuyenDuong() {
               {ds.map((r) => (
                 <tr key={r.ma}>
                   <td className="mono">{r.ma}</td>
-                  <td>{r.diemDi}</td>
-                  <td>{r.diemDen}</td>
+                  <td className="admin-lo-trinh-cell">
+                    <LoTrinhTuyen
+                      tuyen={r}
+                      diemDung={diemDungTheoTuyen[r.ma] ?? []}
+                      kieu="dong"
+                    />
+                    <p className="admin-lo-trinh-cell__cfg muted small">
+                      {(diemDungTheoTuyen[r.ma]?.length ?? 0) === 0
+                        ? 'Chưa có điểm dừng — '
+                        : `${diemDungTheoTuyen[r.ma]!.length} điểm dừng · `}
+                      <NutVanBan
+                        con={
+                          (diemDungTheoTuyen[r.ma]?.length ?? 0) === 0
+                            ? 'Thêm điểm dừng'
+                            : 'Cấu hình điểm dừng'
+                        }
+                        onClick={() => moCauHinhDiemDung(r)}
+                      />
+                    </p>
+                  </td>
                   <td>{r.khoangCachKm}</td>
+                  <td>{r.thoiGianUocTinhPhut ?? '—'}</td>
                   <td className="row-actions">
                     <NutSuaQt onClick={() => moSua(r)} />
                     {laAdmin ? <NutXoaQt onClick={() => datXoaChon(r)} /> : null}
@@ -209,20 +245,22 @@ export function TrangTuyenDuong() {
       >
         <div className="form-stack">
           {loiBieu.chung ? <p className="form-alert form-alert--error">{loiBieu.chung}</p> : null}
-          <TruongNhap
-            nhan="Điểm đi"
-            value={bieu.diemDi}
-            onChange={(e) => datBieu({ ...bieu, diemDi: e.target.value })}
-            loi={loiBieu.diemDi}
-            required
-          />
-          <TruongNhap
-            nhan="Điểm đến"
-            value={bieu.diemDen}
-            onChange={(e) => datBieu({ ...bieu, diemDen: e.target.value })}
-            loi={loiBieu.diemDen}
-            required
-          />
+          <div className="form-dia-danh-cap">
+            <ChonDiaDanh
+              nhan="Điểm đi"
+              giaTri={bieu.diemDi}
+              onDoi={(chuoi) => datBieu({ ...bieu, diemDi: chuoi })}
+              loi={loiBieu.diemDi}
+              required
+            />
+            <ChonDiaDanh
+              nhan="Điểm đến"
+              giaTri={bieu.diemDen}
+              onDoi={(chuoi) => datBieu({ ...bieu, diemDen: chuoi })}
+              loi={loiBieu.diemDen}
+              required
+            />
+          </div>
           <TruongNhap
             nhan="Khoảng cách (km)"
             type="number"
@@ -249,7 +287,42 @@ export function TrangTuyenDuong() {
             />
             Hoạt động
           </label>
+          {sua ? (
+            <div className="admin-lo-trinh-preview">
+              <p className="muted small" style={{ margin: '0 0 0.5rem' }}>
+                Điểm dừng trên lộ trình
+              </p>
+              <KhungQuanLyDiemDung
+                maTuyen={sua.ma}
+                tuyen={sua}
+                onDsThayDoi={(dsDiem) => capNhatDiemDung(sua.ma, dsDiem)}
+              />
+            </div>
+          ) : (
+            <p className="muted small">
+              Lưu tuyến trước, sau đó mở <strong>Cấu hình điểm dừng</strong> để bổ sung lộ trình.
+            </p>
+          )}
         </div>
+      </CuaSo>
+
+      <CuaSo
+        open={tuyenDiemDung !== null}
+        title={
+          tuyenDiemDung
+            ? `Điểm dừng — ${tuyenDiemDung.diemDi} → ${tuyenDiemDung.diemDen}`
+            : 'Điểm dừng'
+        }
+        onClose={() => datTuyenDiemDung(null)}
+        footer={<NutBam bien="huy" onClick={() => datTuyenDiemDung(null)} con="Đóng" />}
+      >
+        {tuyenDiemDung ? (
+          <KhungQuanLyDiemDung
+            maTuyen={tuyenDiemDung.ma}
+            tuyen={tuyenDiemDung}
+            onDsThayDoi={(dsDiem) => capNhatDiemDung(tuyenDiemDung.ma, dsDiem)}
+          />
+        ) : null}
       </CuaSo>
 
       <CuaSoXacNhanXoa

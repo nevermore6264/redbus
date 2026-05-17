@@ -1,25 +1,25 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { khachHttp, moKhoiDuLieu } from '../../nguon/apiClient'
-import type { DiemDungChan, PhanHoi, TuyenDuong } from '../../nguon/kieu'
-import { dungNguoiDung } from '../../dinhDanh/boiCanhNguoiDung'
-import { dungThongBao } from '../../dinhDanh/boiCanhThongBao'
-import { TheChua, TieuDeThe } from '../../thanhPhan/theChua'
-import { NutBam, NutSuaQt, NutXoaQt } from '../../thanhPhan/nutBam'
-import { TruongNhap, TruongChon } from '../../thanhPhan/truongNhap'
-import { CuaSo } from '../../thanhPhan/cuaSo'
-import { CuaSoXacNhanXoa } from '../../thanhPhan/cuaSoXacNhanXoa'
-import { LoTrinhTuyen } from '../../thanhPhan/LoTrinhTuyen'
-import { chuoiLoTrinh } from '../../tienIch/loTrinhTuyen'
-import { chuanHoaChuoi, soSanhKhongPhanBiet } from '../../tienIch/kiemTraQuanTri'
+import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
+import type { DiemDungChan, PhanHoi, TuyenDuong } from '../nguon/kieu'
+import { LoTrinhTuyen } from './LoTrinhTuyen'
+import { NutBam, NutSuaQt, NutXoaQt } from './nutBam'
+import { TruongNhap } from './truongNhap'
+import { CuaSo } from './cuaSo'
+import { CuaSoXacNhanXoa } from './cuaSoXacNhanXoa'
+import { chuanHoaChuoi, soSanhKhongPhanBiet } from '../tienIch/kiemTraQuanTri'
+import { dungThongBao } from '../dinhDanh/boiCanhThongBao'
+import { dungNguoiDung } from '../dinhDanh/boiCanhNguoiDung'
 
-export function TrangDiemDungChan() {
-  const [searchParams] = useSearchParams()
-  const { nguoiDung } = dungNguoiDung()
+interface Props {
+  maTuyen: number
+  tuyen: Pick<TuyenDuong, 'diemDi' | 'diemDen'>
+  onDsThayDoi?: (ds: DiemDungChan[]) => void
+}
+
+export function KhungQuanLyDiemDung({ maTuyen, tuyen, onDsThayDoi }: Props) {
   const { hienThi } = dungThongBao()
+  const { nguoiDung } = dungNguoiDung()
   const laAdmin = nguoiDung?.vaiTro === 'ADMIN'
-  const [dsTuyen, datTuyen] = useState<TuyenDuong[]>([])
-  const [maTuyen, datMaTuyen] = useState<number | ''>('')
   const [ds, datDs] = useState<DiemDungChan[]>([])
   const [mo, datMo] = useState(false)
   const [sua, datSua] = useState<DiemDungChan | null>(null)
@@ -44,44 +44,23 @@ export function TrangDiemDungChan() {
     })
   }
 
-  async function taiTuyen() {
-    try {
-      const t = await moKhoiDuLieu(khachHttp.get<PhanHoi<TuyenDuong[]>>('/tuyen-duong'))
-      datTuyen(t)
-      const maTuUrl = searchParams.get('tuyen')
-      if (maTuUrl) {
-        const ma = Number(maTuUrl)
-        if (t.some((x) => x.ma === ma)) datMaTuyen(ma)
-      } else if (t.length && maTuyen === '') {
-        datMaTuyen(t[0].ma)
-      }
-    } catch (e: unknown) {
-      hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi tải tuyến' })
-    }
-  }
-
   async function taiDiem() {
-    if (maTuyen === '') return
     try {
       const d = await moKhoiDuLieu(
         khachHttp.get<PhanHoi<DiemDungChan[]>>(`/diem-dung/tuyen/${maTuyen}`),
       )
       datDs(d)
+      onDsThayDoi?.(d)
     } catch (e: unknown) {
       hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi tải điểm dừng' })
     }
   }
 
   useEffect(() => {
-    void taiTuyen()
-  }, [])
-
-  useEffect(() => {
     void taiDiem()
   }, [maTuyen])
 
   function moThe() {
-    if (maTuyen === '') return
     datSua(null)
     datLoiBieu({})
     datBieu({ tenDiem: '', thuTu: ds.length, thoiGianDungPhut: 5 })
@@ -100,7 +79,6 @@ export function TrangDiemDungChan() {
   }
 
   async function luu() {
-    if (maTuyen === '') return
     const tenDiem = chuanHoaChuoi(bieu.tenDiem)
     const loi: Partial<Record<'tenDiem' | 'thuTu' | 'thoiGianDungPhut' | 'chung', string>> = {}
     if (!tenDiem) loi.tenDiem = 'Nhập tên điểm dừng'
@@ -112,9 +90,16 @@ export function TrangDiemDungChan() {
     if (Object.keys(loi).length > 0) return
 
     try {
-      const than = { tenDiem, thuTu: bieu.thuTu, thoiGianDungPhut: bieu.thoiGianDungPhut, maTuyen: Number(maTuyen) }
+      const than = {
+        tenDiem,
+        thuTu: bieu.thuTu,
+        thoiGianDungPhut: bieu.thoiGianDungPhut,
+        maTuyen,
+      }
       if (sua) {
-        await moKhoiDuLieu(khachHttp.put<PhanHoi<DiemDungChan>>(`/diem-dung/${sua.ma}`, { ...than, ma: sua.ma }))
+        await moKhoiDuLieu(
+          khachHttp.put<PhanHoi<DiemDungChan>>(`/diem-dung/${sua.ma}`, { ...than, ma: sua.ma }),
+        )
       } else {
         await moKhoiDuLieu(khachHttp.post<PhanHoi<DiemDungChan>>('/diem-dung', than))
       }
@@ -141,46 +126,15 @@ export function TrangDiemDungChan() {
     }
   }
 
-  const tuyenChon = dsTuyen.find((t) => t.ma === maTuyen)
-
   return (
-    <div className="admin-page">
-      <header className="admin-page__head">
-        <h1 className="admin-page__title">Điểm dừng chân</h1>
-        <p className="admin-page__sub">Quản lý các điểm dừng trên lộ trình từng tuyến (theo thứ tự đi qua).</p>
-      </header>
-      <TheChua padding="lg">
-        <TieuDeThe
-          title="Chọn tuyến"
-          action={
-            <TruongChon
-              nhan="Tuyến"
-              value={maTuyen === '' ? '' : String(maTuyen)}
-              onChange={(e) => datMaTuyen(e.target.value ? Number(e.target.value) : '')}
-            >
-              {dsTuyen.map((t) => (
-                <option key={t.ma} value={t.ma}>
-                  {chuoiLoTrinh(t, t.ma === maTuyen ? ds : [])}
-                </option>
-              ))}
-            </TruongChon>
-          }
-        />
-        {tuyenChon ? (
-          <div className="admin-lo-trinh-preview" style={{ marginTop: '0.75rem' }}>
-            <p className="muted small" style={{ margin: '0 0 0.5rem' }}>
-              Lộ trình tuyến đang chọn
-            </p>
-            <LoTrinhTuyen tuyen={tuyenChon} diemDung={ds} kieu="timeline" />
-          </div>
-        ) : null}
-        <p style={{ marginTop: '0.75rem' }}>
-          <NutBam bien="chinh" onClick={moThe} con="+ Thêm điểm dừng" />
-        </p>
-      </TheChua>
-      <TheChua padding="none">
-        <div className="table-scroll">
-          <table className="data-table">
+    <div className="khung-diem-dung">
+      <LoTrinhTuyen tuyen={tuyen} diemDung={ds} kieu="timeline" />
+      <p style={{ margin: '0.75rem 0' }}>
+        <NutBam bien="chinh" className="btn--sm" onClick={moThe} con="Thêm điểm dừng" />
+      </p>
+      {ds.length > 0 ? (
+        <div className="table-scroll khung-diem-dung__bang">
+          <table className="data-table data-table--compact">
             <thead>
               <tr>
                 <th>Thứ tự</th>
@@ -204,7 +158,10 @@ export function TrangDiemDungChan() {
             </tbody>
           </table>
         </div>
-      </TheChua>
+      ) : (
+        <p className="muted small">Chưa có điểm dừng trên tuyến này.</p>
+      )}
+
       <CuaSo
         open={mo}
         title={sua ? 'Sửa điểm dừng' : 'Thêm điểm dừng'}

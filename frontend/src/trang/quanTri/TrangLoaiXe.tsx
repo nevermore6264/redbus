@@ -4,7 +4,7 @@ import type { LoaiXe, PhanHoi } from '../../nguon/kieu'
 import { dungNguoiDung } from '../../dinhDanh/boiCanhNguoiDung'
 import { dungThongBao } from '../../dinhDanh/boiCanhThongBao'
 import { TheChua, TieuDeThe } from '../../thanhPhan/theChua'
-import { NutBam, NutSuaQt, NutXoaQt } from '../../thanhPhan/nutBam'
+import { NutBam, NutSuaQt, NutVanBan, NutXoaQt } from '../../thanhPhan/nutBam'
 import { TruongNhap } from '../../thanhPhan/truongNhap'
 import { CuaSo } from '../../thanhPhan/cuaSo'
 import { CuaSoXacNhanXoa } from '../../thanhPhan/cuaSoXacNhanXoa'
@@ -235,13 +235,11 @@ export function TrangLoaiXe() {
                 {(sua.dsAnh ?? []).map((a) => (
                   <div key={a.ma} className="loai-xe-anh-item">
                     <img src={urlTaiNguyen(a.duongAnh)} alt="" />
-                    <button
-                      type="button"
-                      className="btn-text loai-xe-anh-item__del"
+                    <NutVanBan
+                      className="loai-xe-anh-item__del"
                       onClick={() => datXoaAnhMa(a.ma)}
-                    >
-                      Xóa
-                    </button>
+                      con="Xóa"
+                    />
                   </div>
                 ))}
               </div>
