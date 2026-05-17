@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { khachHttp, moKhoiDuLieu } from '../../nguon/apiClient'
-import type { PhanHoi, ChuyenXe, TuyenDuong, XeKhach } from '../../nguon/kieu'
+import type { KetQuaGenLich, PhanHoi, ChuyenXe, TuyenDuong, XeKhach } from '../../nguon/kieu'
 import { dungNguoiDung } from '../../dinhDanh/boiCanhNguoiDung'
 import { dungThongBao } from '../../dinhDanh/boiCanhThongBao'
 import { TheChua, TieuDeThe } from '../../thanhPhan/theChua'
@@ -37,6 +37,15 @@ export function TrangChuyenXe() {
   const [loiBieu, datLoiBieu] = useState<
     Partial<Record<'maTuyen' | 'maXe' | 'thoiDiemKhoiHanh' | 'thoiDiemDen' | 'giaVe' | 'chung', string>>
   >({})
+  const [tuNgayGen, datTuNgayGen] = useState(() => {
+    const d = new Date()
+    return d.toISOString().slice(0, 10)
+  })
+  const [soNgayGen, datSoNgayGen] = useState(7)
+  const [maTuyenGen, datMaTuyenGen] = useState<number | ''>('')
+  const [dangGen, datDangGen] = useState(false)
+  const [ketQuaGen, datKetQuaGen] = useState<string | null>(null)
+
   const [bieu, datBieu] = useState({
     maTuyen: '' as number | '',
     maXe: '' as number | '',
@@ -169,6 +178,32 @@ export function TrangChuyenXe() {
     }
   }
 
+  async function genLich() {
+    datDangGen(true)
+    datKetQuaGen(null)
+    try {
+      const kq = await moKhoiDuLieu(
+        khachHttp.post<PhanHoi<KetQuaGenLich>>('/chuyen-xe/gen-lich', {
+          tuNgay: tuNgayGen,
+          soNgay: soNgayGen,
+          maTuyen: maTuyenGen === '' ? null : maTuyenGen,
+        }),
+      )
+      const boQua =
+        kq.cacNgayDaBoQua?.length > 0 ? ` · Bỏ qua ${kq.soNgayDaBoQua} ngày đã có lịch` : ''
+      datKetQuaGen(
+        `Đã tạo ${kq.soChuyenDaTao} chuyến trên ${kq.soNgayDaGen} ngày${boQua}.` +
+          (kq.cacNgayDaGen?.length ? ` Ngày gen: ${kq.cacNgayDaGen.join(', ')}.` : ''),
+      )
+      void taiDS()
+      hienThi({ loai: 'thanhCong', noiDung: `Đã gen ${kq.soChuyenDaTao} chuyến.` })
+    } catch (e: unknown) {
+      hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi gen lịch' })
+    } finally {
+      datDangGen(false)
+    }
+  }
+
   async function xacNhanXoa() {
     if (!xoaChon) return
     datDangXoa(true)
@@ -190,6 +225,45 @@ export function TrangChuyenXe() {
         <h1 className="admin-page__title">Chuyến xe</h1>
         <p className="admin-page__sub">Gán tuyến, xe, giờ khởi hành và giá vé cho từng chuyến.</p>
       </header>
+      <TheChua padding="lg">
+        <TieuDeThe
+          title="Gen lịch tự động"
+          subtitle="Chỉ gen các ngày chưa có chuyến (6h, 9h, 13h, 17h, 21h mỗi tuyến)"
+        />
+        <div className="gen-lich-panel">
+          <TruongNhap
+            nhan="Từ ngày"
+            type="date"
+            value={tuNgayGen}
+            onChange={(e) => datTuNgayGen(e.target.value)}
+          />
+          <TruongNhap
+            nhan="Số ngày"
+            type="number"
+            min={1}
+            max={31}
+            value={soNgayGen}
+            onChange={(e) => datSoNgayGen(Math.max(1, Math.min(31, Number(e.target.value) || 1)))}
+          />
+          <TruongChon
+            nhan="Tuyến (tùy chọn)"
+            value={maTuyenGen === '' ? '' : String(maTuyenGen)}
+            onChange={(e) => datMaTuyenGen(e.target.value ? Number(e.target.value) : '')}
+          >
+            <option value="">Tất cả tuyến</option>
+            {dsTuyen.map((t) => (
+              <option key={t.ma} value={t.ma}>
+                {t.diemDi} → {t.diemDen}
+              </option>
+            ))}
+          </TruongChon>
+          <div className="gen-lich-panel__nut">
+            <NutBam bien="chinh" dangTai={dangGen} onClick={() => void genLich()} con="Gen lịch" />
+          </div>
+        </div>
+        {ketQuaGen ? <p className="gen-lich-panel__ket-qua muted small">{ketQuaGen}</p> : null}
+      </TheChua>
+
       <TheChua padding="none">
         <div className="table-wrap-pad">
           <TieuDeThe title="Danh sách chuyến" action={<NutBam bien="chinh" onClick={moThe} con="+ Thêm chuyến" />} />

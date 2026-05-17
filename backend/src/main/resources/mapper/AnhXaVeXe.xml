@@ -41,4 +41,20 @@
             trang_thai = #{trangThai}
         WHERE ma = #{ma}
     </update>
+
+    <update id="capNhatMaDonPayOs">
+        UPDATE ve_xe SET ma_don_payos = #{maDonPayOs} WHERE ma = #{ma}
+    </update>
+
+    <update id="capNhatTamPayOs">
+        UPDATE ve_xe SET
+            ma_don_payos = #{maDonPayOs},
+            ma_khuyen_mai = #{maKhuyenMai},
+            so_tien_thanh_toan = #{soTien}
+        WHERE ma = #{ma} AND trang_thai = 'PENDING'
+    </update>
+
+    <select id="timTheoMaDonPayOs" resultMap="banDo">
+        SELECT * FROM ve_xe WHERE ma_don_payos = #{maDonPayOs} LIMIT 1
+    </select>
 </mapper>

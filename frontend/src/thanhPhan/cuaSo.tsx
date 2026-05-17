@@ -15,7 +15,7 @@ export function CuaSo({
   children: ReactNode
   footer?: ReactNode
   onClose: () => void
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg' | 'xl'
 }) {
   useEffect(() => {
     if (!open) return

@@ -4,6 +4,7 @@ import com.redbus.mohinh.ChuyenXe;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,4 +32,6 @@ public interface AnhXaChuyenXe {
     List<Long> danhSachMaGheDaGiu(@Param("maChuyen") Long maChuyen);
 
     int demTheoTrangThai(@Param("trangThai") String trangThai);
+
+    int demTrongNgay(@Param("ngay") LocalDate ngay, @Param("maTuyen") Long maTuyen);
 }

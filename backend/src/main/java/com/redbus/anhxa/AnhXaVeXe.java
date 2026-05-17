@@ -21,5 +21,15 @@ public interface AnhXaVeXe {
 
     int capNhatThanhToan(VeXe veXe);
 
+    int capNhatMaDonPayOs(@Param("ma") Long ma, @Param("maDonPayOs") String maDonPayOs);
+
+    int capNhatTamPayOs(
+            @Param("ma") Long ma,
+            @Param("maDonPayOs") String maDonPayOs,
+            @Param("maKhuyenMai") Long maKhuyenMai,
+            @Param("soTien") java.math.BigDecimal soTien);
+
+    VeXe timTheoMaDonPayOs(@Param("maDonPayOs") String maDonPayOs);
+
     int demTheoTrangThai(@Param("trangThai") String trangThai);
 }

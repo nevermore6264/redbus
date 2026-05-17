@@ -9,6 +9,7 @@ import { TrangVeCuaToi } from './trang/TrangVeCuaToi'
 import { TrangHoSo } from './trang/TrangHoSo'
 import { TrangThongBao } from './trang/TrangThongBao'
 import { TrangLichSuThanhToan } from './trang/TrangLichSuThanhToan'
+import { TrangKetQuaThanhToan } from './trang/TrangKetQuaThanhToan'
 import { TrangTongQuan } from './trang/quanTri/TrangTongQuan'
 import { TrangTuyenDuong } from './trang/quanTri/TrangTuyenDuong'
 import { TrangXeKhach } from './trang/quanTri/TrangXeKhach'
@@ -42,6 +43,10 @@ export function UngDung() {
         <Route
           path="lich-su-thanh-toan"
           element={<CanVaiTro vaiTro={['CUSTOMER']} con={<TrangLichSuThanhToan />} />}
+        />
+        <Route
+          path="thanh-toan/ket-qua"
+          element={<CanVaiTro vaiTro={['CUSTOMER']} con={<TrangKetQuaThanhToan />} />}
         />
         <Route path="*" element={<TrangKhongTimThay />} />
       </Route>

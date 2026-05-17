@@ -31,6 +31,28 @@ export interface TuyenDuong {
   hoatDong?: boolean
 }
 
+export interface PhanHoiLinkPayOs {
+  checkoutUrl: string
+  orderCode: number
+  maVe: number
+  soTien: number
+}
+
+export interface KetQuaThanhToanPayOs {
+  orderCode: number
+  maVe: number
+  trangThaiVe: string
+  daThanhToan: boolean
+}
+
+export interface KetQuaGenLich {
+  soChuyenDaTao: number
+  soNgayDaGen: number
+  soNgayDaBoQua: number
+  cacNgayDaGen: string[]
+  cacNgayDaBoQua: string[]
+}
+
 export interface ChuyenXe {
   ma: number
   maTuyen: number

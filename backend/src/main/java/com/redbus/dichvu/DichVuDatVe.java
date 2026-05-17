@@ -1,20 +1,23 @@
 package com.redbus.dichvu;
 
 import com.redbus.anhxa.AnhXaChuyenXe;
+import com.redbus.anhxa.AnhXaGheNgoi;
 import com.redbus.anhxa.AnhXaKhachHang;
 import com.redbus.anhxa.AnhXaTaiKhoan;
+import com.redbus.anhxa.AnhXaTuyenDuong;
 import com.redbus.anhxa.AnhXaVeXe;
-import com.redbus.anhxa.AnhXaGheNgoi;
 import com.redbus.mohinh.ChuyenXe;
 import com.redbus.mohinh.GheNgoi;
 import com.redbus.mohinh.KhachHang;
 import com.redbus.mohinh.TaiKhoan;
+import com.redbus.mohinh.TuyenDuong;
 import com.redbus.mohinh.VeXe;
 import com.redbus.truyen.YeuCauDatVe;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -26,7 +29,11 @@ public class DichVuDatVe {
     private final AnhXaChuyenXe anhXaChuyenXe;
     private final AnhXaGheNgoi anhXaGheNgoi;
     private final AnhXaVeXe anhXaVeXe;
+    private final AnhXaTuyenDuong anhXaTuyenDuong;
     private final DichVuThongBao dichVuThongBao;
+    private final DichVuGuiMail dichVuGuiMail;
+
+    private static final DateTimeFormatter FMT_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     public List<VeXe> veCuaTaiKhoan(String tenDangNhap) {
         TaiKhoan tk = anhXaTaiKhoan.timTheoTenDangNhap(tenDangNhap);
@@ -78,6 +85,15 @@ public class DichVuDatVe {
                 tk.getMa(),
                 "Đặt vé thành công",
                 "Bạn đã giữ vé số " + luu.getMa() + " cho chuyến " + cx.getMa() + ".");
+        TuyenDuong tuyen = anhXaTuyenDuong.timTheoMa(cx.getMaTuyen());
+        String tenTuyen =
+                tuyen != null ? tuyen.getDiemDi() + " → " + tuyen.getDiemDen() : "Chuyến #" + cx.getMa();
+        dichVuGuiMail.guiDatVeThanhCong(
+                tk.getEmail(),
+                luu.getMa(),
+                tenTuyen,
+                cx.getThoiDiemKhoiHanh().format(FMT_GIO),
+                ghe.getMaGhe());
         return luu;
     }
 

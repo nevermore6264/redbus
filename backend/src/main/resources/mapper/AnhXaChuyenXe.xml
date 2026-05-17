@@ -36,6 +36,12 @@
         SELECT COUNT(*) FROM chuyen_xe WHERE UPPER(trang_thai) = UPPER(#{trangThai})
     </select>
 
+    <select id="demTrongNgay" resultType="int">
+        SELECT COUNT(*) FROM chuyen_xe
+        WHERE DATE(thoi_diem_khoi_hanh) = #{ngay}
+        <if test="maTuyen != null">AND ma_tuyen = #{maTuyen}</if>
+    </select>
+
     <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
         INSERT INTO chuyen_xe (ma_tuyen, ma_xe, thoi_diem_khoi_hanh, thoi_diem_den, gia_ve, trang_thai)
         VALUES (#{maTuyen}, #{maXe}, #{thoiDiemKhoiHanh}, #{thoiDiemDen}, #{giaVe}, #{trangThai})

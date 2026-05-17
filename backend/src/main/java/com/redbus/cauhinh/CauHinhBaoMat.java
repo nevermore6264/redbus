@@ -64,6 +64,7 @@ public class CauHinhBaoMat {
                         .requestMatchers("/tin-tuc/quan-tri/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/tin-tuc/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/hinh-thuc-thanh-toan/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/thanh-toan/payos/webhook").permitAll()
                         .requestMatchers(HttpMethod.GET, "/hoi-dap/cong-khai").permitAll()
                         .anyRequest().authenticated()
                 )

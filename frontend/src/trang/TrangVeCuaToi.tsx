@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Ticket } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
-import type { PhanHoi, VeXe, ChuyenXe, TuyenDuong, GheNgoi } from '../nguon/kieu'
+import type { PhanHoi, PhanHoiLinkPayOs, VeXe, ChuyenXe, TuyenDuong, GheNgoi } from '../nguon/kieu'
 import { dungThongBao } from '../dinhDanh/boiCanhThongBao'
 import { NenTrangKhach } from '../thanhPhan/NenTrangKhach'
 import { TheChua, TieuDeThe } from '../thanhPhan/theChua'
@@ -56,16 +56,32 @@ export function TrangVeCuaToi() {
     void lamMoi()
   }, [])
 
-  async function thanhToan(maVe: number) {
+  async function thanhToanTienMat(maVe: number) {
     try {
       const than = maKhuyenMai.trim() ? { maKhuyenMai: maKhuyenMai.trim() } : {}
       await moKhoiDuLieu(
         khachHttp.post<PhanHoi<unknown>>(`/thanh-toan/ve/${maVe}/tien-mat`, than),
       )
-      hienThi({ loai: 'thanhCong', noiDung: 'Thanh toán thành công' })
+      hienThi({ loai: 'thanhCong', noiDung: 'Thanh toán tiền mặt thành công' })
       void lamMoi()
     } catch (e: unknown) {
-      hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Có lỗi tải dữ liệu' })
+      hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Thanh toán thất bại' })
+    }
+  }
+
+  async function thanhToanPayOs(maVe: number) {
+    try {
+      const than = maKhuyenMai.trim() ? { maKhuyenMai: maKhuyenMai.trim() } : {}
+      const link = await moKhoiDuLieu(
+        khachHttp.post<PhanHoi<PhanHoiLinkPayOs>>(`/thanh-toan/ve/${maVe}/payos`, than),
+      )
+      if (link.checkoutUrl) {
+        window.location.href = link.checkoutUrl
+      } else {
+        hienThi({ loai: 'loi', noiDung: 'Không nhận được link PayOS' })
+      }
+    } catch (e: unknown) {
+      hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Không tạo được link PayOS' })
     }
   }
 
@@ -84,7 +100,7 @@ export function TrangVeCuaToi() {
     <NenTrangKhach
       Icon={Ticket}
       tieuDe="Vé của tôi"
-      moTa="Theo dõi trạng thái vé, thanh toán tiền mặt hoặc hủy khi còn ở trạng thái chờ."
+      moTa="Thanh toán PayOS (QR/chuyển khoản) hoặc tiền mặt tại quầy. Email xác nhận gửi sau khi thanh toán."
     >
       <TheChua padding="none" className="cust-panel" aria-busy={tai}>
         <div className="table-wrap-pad cust-promo">
@@ -163,8 +179,14 @@ export function TrangVeCuaToi() {
                           <NutBam
                             bien="chinh"
                             className="btn--sm"
-                            onClick={() => void thanhToan(t.ma)}
-                            con="Thanh toán"
+                            onClick={() => void thanhToanPayOs(t.ma)}
+                            con="PayOS"
+                          />
+                          <NutBam
+                            bien="vien"
+                            className="btn--sm"
+                            onClick={() => void thanhToanTienMat(t.ma)}
+                            con="Tiền mặt"
                           />
                           <NutBam
                             bien="huy"

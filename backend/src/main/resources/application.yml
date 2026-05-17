@@ -1,6 +1,19 @@
 spring:
+  config:
+    import: optional:classpath:application-local.yml
   application:
     name: redbus-api
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:redbus}?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&characterEncoding=utf8
     username: ${DB_USER:root}
@@ -34,6 +47,16 @@ server:
     context-path: /api
 
 app:
+  mail:
+    enabled: ${MAIL_ENABLED:true}
+    from: ${MAIL_FROM:${spring.mail.username}}
+    ten-hien-thi: ${MAIL_DISPLAY_NAME:RedBus}
+  payos:
+    client-id: ${PAYOS_CLIENT_ID:}
+    api-key: ${PAYOS_API_KEY:}
+    checksum-key: ${PAYOS_CHECKSUM_KEY:}
+    return-url: ${PAYOS_RETURN_URL:http://localhost:5173/thanh-toan/ket-qua}
+    cancel-url: ${PAYOS_CANCEL_URL:http://localhost:5173/ve-cua-toi}
   upload:
     thu-muc: ${UPLOAD_DIR:uploads}
   jwt:

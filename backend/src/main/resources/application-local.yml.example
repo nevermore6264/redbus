@@ -1,0 +1,17 @@
+# Sao chép thành application-local.yml và điền giá trị thật.
+
+spring:
+  mail:
+    username: your@gmail.com
+    password: your-gmail-app-password
+
+app:
+  mail:
+    from: your@gmail.com
+    enabled: true
+  payos:
+    client-id: your-payos-client-id
+    api-key: your-payos-api-key
+    checksum-key: your-payos-checksum-key
+    return-url: http://localhost:5173/thanh-toan/ket-qua
+    cancel-url: http://localhost:5173/ve-cua-toi

@@ -234,6 +234,7 @@ export function TrangTuyenDuong() {
 
       <CuaSo
         open={mo}
+        size="xl"
         title={sua ? 'Sửa tuyến' : 'Thêm tuyến'}
         onClose={() => datMo(false)}
         footer={
@@ -274,24 +275,26 @@ export function TrangTuyenDuong() {
               />
             </div>
           </section>
-          <TruongNhap
-            nhan="Khoảng cách (km)"
-            type="number"
-            min={1}
-            value={bieu.khoangCachKm || ''}
-            onChange={(e) => datBieu({ ...bieu, khoangCachKm: Number(e.target.value) })}
-            loi={loiBieu.khoangCachKm}
-            required
-          />
-          <TruongNhap
-            nhan="Thời gian ước tính (phút)"
-            type="number"
-            min={1}
-            value={bieu.thoiGianUocTinhPhut || ''}
-            onChange={(e) => datBieu({ ...bieu, thoiGianUocTinhPhut: Number(e.target.value) })}
-            loi={loiBieu.thoiGianUocTinhPhut}
-            required
-          />
+          <div className="form-row-2">
+            <TruongNhap
+              nhan="Khoảng cách (km)"
+              type="number"
+              min={1}
+              value={bieu.khoangCachKm || ''}
+              onChange={(e) => datBieu({ ...bieu, khoangCachKm: Number(e.target.value) })}
+              loi={loiBieu.khoangCachKm}
+              required
+            />
+            <TruongNhap
+              nhan="Thời gian ước tính (phút)"
+              type="number"
+              min={1}
+              value={bieu.thoiGianUocTinhPhut || ''}
+              onChange={(e) => datBieu({ ...bieu, thoiGianUocTinhPhut: Number(e.target.value) })}
+              loi={loiBieu.thoiGianUocTinhPhut}
+              required
+            />
+          </div>
           <label className="check">
             <input
               type="checkbox"
@@ -301,19 +304,25 @@ export function TrangTuyenDuong() {
             Hoạt động
           </label>
           {sua ? (
-            <div className="admin-lo-trinh-preview">
-              <p className="muted small" style={{ margin: '0 0 0.5rem' }}>
-                Điểm dừng trên lộ trình
-              </p>
-              <KhungQuanLyDiemDung
-                maTuyen={sua.ma}
-                tuyen={sua}
-                onDsThayDoi={(dsDiem) => capNhatDiemDung(sua.ma, dsDiem)}
-              />
+            <div className="admin-tuyen-dung-goi-y">
+              <div className="admin-tuyen-dung-goi-y__head">
+                <div>
+                  <p className="admin-tuyen-dung-goi-y__title">Điểm dừng trên lộ trình</p>
+                  <p className="muted small">
+                    {(diemDungTheoTuyen[sua.ma]?.length ?? 0) > 0
+                      ? `${diemDungTheoTuyen[sua.ma]!.length} điểm dừng đã cấu hình`
+                      : 'Chưa có điểm dừng — mở quản lý để thêm'}
+                  </p>
+                </div>
+                <NutBam bien="mo" onClick={() => datTuyenDiemDung(sua)} con="Quản lý điểm dừng" />
+              </div>
+              {(diemDungTheoTuyen[sua.ma]?.length ?? 0) > 0 ? (
+                <LoTrinhTuyen tuyen={sua} diemDung={diemDungTheoTuyen[sua.ma] ?? []} kieu="timeline" />
+              ) : null}
             </div>
           ) : (
             <p className="muted small">
-              Lưu tuyến trước, sau đó mở <strong>Cấu hình điểm dừng</strong> để bổ sung lộ trình.
+              Lưu tuyến trước, sau đó mở <strong>Quản lý điểm dừng</strong> để bổ sung lộ trình.
             </p>
           )}
         </div>
@@ -321,6 +330,7 @@ export function TrangTuyenDuong() {
 
       <CuaSo
         open={tuyenDiemDung !== null}
+        size="xl"
         title={
           tuyenDiemDung
             ? `Điểm dừng — ${tuyenDiemDung.diemDi} → ${tuyenDiemDung.diemDen}`

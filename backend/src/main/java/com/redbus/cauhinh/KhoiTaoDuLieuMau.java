@@ -105,7 +105,7 @@ public class KhoiTaoDuLieuMau {
             anhXaHinhThucThanhToan.them(HinhThucThanhToan.builder()
                     .maLoai("CHUYEN_KHOAN")
                     .ten("Chuyển khoản ngân hàng")
-                    .moTa("Demo: liên kết PayOS sau này")
+                    .moTa("Thanh toán qua PayOS (QR / chuyển khoản)")
                     .hoatDong(true)
                     .build());
         }

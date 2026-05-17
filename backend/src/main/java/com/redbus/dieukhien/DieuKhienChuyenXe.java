@@ -2,7 +2,9 @@ package com.redbus.dieukhien;
 
 import com.redbus.dichvu.DichVuChuyenXe;
 import com.redbus.mohinh.ChuyenXe;
+import com.redbus.truyen.KetQuaGenLich;
 import com.redbus.truyen.PhanHoiChung;
+import com.redbus.truyen.YeuCauGenLich;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,6 +47,13 @@ public class DieuKhienChuyenXe {
     @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public PhanHoiChung<ChuyenXe> them(@RequestBody ChuyenXe cx) {
         return PhanHoiChung.ok(dichVuChuyenXe.them(cx));
+    }
+
+    /** Gen lịch chuyến: chỉ các ngày chưa có chuyến nào (6h, 9h, 13h, 17h, 21h mỗi tuyến). */
+    @PostMapping("/gen-lich")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    public PhanHoiChung<KetQuaGenLich> genLich(@RequestBody YeuCauGenLich yeuCau) {
+        return PhanHoiChung.ok(dichVuChuyenXe.genLich(yeuCau));
     }
 
     @PutMapping("/{ma}")

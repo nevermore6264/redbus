@@ -165,7 +165,7 @@ export function KhungQuanLyDiemDung({ maTuyen, tuyen, onDsThayDoi }: Props) {
 
       <CuaSo
         open={mo}
-        size="lg"
+        size="xl"
         title={sua ? 'Sửa điểm dừng' : 'Thêm điểm dừng'}
         onClose={() => datMo(false)}
         footer={
