@@ -212,6 +212,7 @@ export function TrangDiemDungChan() {
             value={bieu.thuTu}
             onChange={(e) => datBieu({ ...bieu, thuTu: Number(e.target.value) })}
             loi={loiBieu.thuTu}
+            required
           />
           <TruongNhap
             type="number"

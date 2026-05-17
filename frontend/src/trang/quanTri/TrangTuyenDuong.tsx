@@ -230,6 +230,7 @@ export function TrangTuyenDuong() {
             value={bieu.khoangCachKm || ''}
             onChange={(e) => datBieu({ ...bieu, khoangCachKm: Number(e.target.value) })}
             loi={loiBieu.khoangCachKm}
+            required
           />
           <TruongNhap
             nhan="Thời gian ước tính (phút)"
@@ -238,6 +239,7 @@ export function TrangTuyenDuong() {
             value={bieu.thoiGianUocTinhPhut || ''}
             onChange={(e) => datBieu({ ...bieu, thoiGianUocTinhPhut: Number(e.target.value) })}
             loi={loiBieu.thoiGianUocTinhPhut}
+            required
           />
           <label className="check">
             <input

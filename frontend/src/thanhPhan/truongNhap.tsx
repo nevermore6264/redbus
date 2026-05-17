@@ -6,6 +6,20 @@ export function goiYPlaceholderTuNhan(nhan?: string) {
   return `Nhập ${t.charAt(0).toLowerCase()}${t.slice(1)}`
 }
 
+function NhanTruong({ nhan, batBuoc }: { nhan: string; batBuoc?: boolean }) {
+  return (
+    <>
+      {nhan}
+      {batBuoc ? (
+        <span className="field__req" aria-hidden="true">
+          {' '}
+          *
+        </span>
+      ) : null}
+    </>
+  )
+}
+
 export function TruongNhap({
   nhan,
   goiY,
@@ -14,6 +28,7 @@ export function TruongNhap({
   id,
   className = '',
   placeholder,
+  required,
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & {
   nhan?: string
@@ -27,7 +42,7 @@ export function TruongNhap({
     <div className={`field ${loi ? 'field--error' : ''}`.trim()}>
       {nhan ? (
         <label className="field__label" htmlFor={idTruong}>
-          {nhan}
+          <NhanTruong nhan={nhan} batBuoc={required} />
         </label>
       ) : null}
       <div className="field__control">
@@ -36,6 +51,7 @@ export function TruongNhap({
           id={idTruong}
           className={`field__input ${className}`.trim()}
           placeholder={placeholderCuoi}
+          required={required}
           {...props}
         />
       </div>
@@ -53,6 +69,7 @@ export function TruongVanBan({
   className = '',
   placeholder,
   rows = 4,
+  required,
   ...props
 }: TextareaHTMLAttributes<HTMLTextAreaElement> & {
   nhan?: string
@@ -65,7 +82,7 @@ export function TruongVanBan({
     <div className={`field ${loi ? 'field--error' : ''}`.trim()}>
       {nhan ? (
         <label className="field__label" htmlFor={idTruong}>
-          {nhan}
+          <NhanTruong nhan={nhan} batBuoc={required} />
         </label>
       ) : null}
       <textarea
@@ -73,6 +90,7 @@ export function TruongVanBan({
         className={`field__input ${className}`.trim()}
         rows={rows}
         placeholder={placeholderCuoi}
+        required={required}
         {...props}
       />
       {goiY && !loi ? <p className="field__hint">{goiY}</p> : null}
@@ -87,6 +105,7 @@ export function TruongChon({
   id,
   children,
   className = '',
+  required,
   ...props
 }: React.ComponentProps<'select'> & { nhan?: string; loi?: string }) {
   const sid = id ?? props.name
@@ -94,10 +113,15 @@ export function TruongChon({
     <div className={`field ${loi ? 'field--error' : ''}`.trim()}>
       {nhan ? (
         <label className="field__label" htmlFor={sid}>
-          {nhan}
+          <NhanTruong nhan={nhan} batBuoc={required} />
         </label>
       ) : null}
-      <select id={sid} className={`field__input field__select ${className}`.trim()} {...props}>
+      <select
+        id={sid}
+        className={`field__input field__select ${className}`.trim()}
+        required={required}
+        {...props}
+      >
         {children}
       </select>
       {loi ? <p className="field__err">{loi}</p> : null}

@@ -740,6 +740,11 @@ code {
   color: var(--text);
 }
 
+.field__req {
+  color: var(--danger, #dc2626);
+  font-weight: 700;
+}
+
 .field__control {
   position: relative;
 }

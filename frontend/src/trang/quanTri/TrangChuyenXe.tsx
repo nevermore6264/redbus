@@ -251,6 +251,8 @@ export function TrangChuyenXe() {
             onChange={(e) =>
               datBieu({ ...bieu, maTuyen: e.target.value ? Number(e.target.value) : '' })
             }
+            loi={loiBieu.maTuyen}
+            required
           >
             <option value="">— Chọn tuyến —</option>
             {dsTuyen.map((t) => (
@@ -263,6 +265,8 @@ export function TrangChuyenXe() {
             nhan="Xe"
             value={bieu.maXe === '' ? '' : String(bieu.maXe)}
             onChange={(e) => datBieu({ ...bieu, maXe: e.target.value ? Number(e.target.value) : '' })}
+            loi={loiBieu.maXe}
+            required
           >
             <option value="">— Chọn xe —</option>
             {dsXe.map((x) => (
@@ -293,6 +297,7 @@ export function TrangChuyenXe() {
             value={bieu.giaVe}
             onChange={(e) => datBieu({ ...bieu, giaVe: Number(e.target.value) })}
             loi={loiBieu.giaVe}
+            required
           />
           <TruongChon
             nhan="Trạng thái"

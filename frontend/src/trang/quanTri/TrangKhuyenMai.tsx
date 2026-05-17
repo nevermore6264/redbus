@@ -242,6 +242,7 @@ export function TrangKhuyenMai() {
             value={bieu.phanTramGiam}
             onChange={(e) => datBieu({ ...bieu, phanTramGiam: Number(e.target.value) })}
             loi={loiBieu.phanTramGiam}
+            required
           />
           <TruongNhap
             type="number"
@@ -255,6 +256,7 @@ export function TrangKhuyenMai() {
             value={bieu.ngayBatDau}
             onChange={(e) => datBieu({ ...bieu, ngayBatDau: e.target.value })}
             loi={loiBieu.ngayBatDau}
+            required
           />
           <TruongNhap
             type="datetime-local"
@@ -262,6 +264,7 @@ export function TrangKhuyenMai() {
             value={bieu.ngayKetThuc}
             onChange={(e) => datBieu({ ...bieu, ngayKetThuc: e.target.value })}
             loi={loiBieu.ngayKetThuc}
+            required
           />
           <TruongNhap
             type="number"

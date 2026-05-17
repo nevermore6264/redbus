@@ -198,6 +198,8 @@ export function TrangXeKhach() {
             onChange={(e) =>
               datBieu({ ...bieu, maLoaiXe: e.target.value ? Number(e.target.value) : '' })
             }
+            loi={loiBieu.maLoaiXe}
+            required
           >
             <option value="">— Chọn loại —</option>
             {dsLoai.map((l) => (
