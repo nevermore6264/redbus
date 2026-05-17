@@ -16,7 +16,7 @@ public class GheNgoi {
     private String maGhe;
     private Integer hang;
     private Integer cot;
-    /** 1 = tầng dưới, 2 = tầng trên (xe giường nằm hai tầng) */
+
     private Integer tang;
     private String trangThai;
 }

@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/** Đánh giá hiển thị công khai trên trang chủ */
 @Data
 @Builder
 @NoArgsConstructor

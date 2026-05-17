@@ -1,6 +1,5 @@
 import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'react'
 
-/** Gợi ý trong ô nhập khi không truyền `placeholder` thủ công */
 export function goiYPlaceholderTuNhan(nhan?: string) {
   if (!nhan?.trim()) return undefined
   const t = nhan.trim()

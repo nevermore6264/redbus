@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 
-/** Khung hero + container cho các trang tài khoản khách (vé, hồ sơ, tin…) */
+
 export function NenTrangKhach({
   tieuDe,
   moTa,
@@ -13,7 +13,7 @@ export function NenTrangKhach({
   moTa?: string
   Icon: LucideIcon
   children: ReactNode
-  /** Giới hạn chiều rộng (form đánh giá, v.v.) */
+  
   hep?: boolean
 }) {
   return (

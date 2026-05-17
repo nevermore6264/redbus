@@ -13,7 +13,7 @@ public class AnhLoaiXe {
 
     private Long ma;
     private Long maLoaiXe;
-    /** Đường dẫn tệp so với thư mục upload (vd: loai-xe/5/uuid.jpg) */
+    
     private String tep;
     private Integer thuTu;
 }

@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class LoaiXeAnhTomTat {
 
     private Long ma;
-    /** ví dụ tai-nguyen/loai-xe/3/uuid.jpg */
+    
     private String duongAnh;
 }

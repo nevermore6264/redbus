@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { dungModalXacThuc } from '../dinhDanh/boiCanhModalXacThuc'
 
-/** Mở modal đăng nhập/đăng ký rồi chuyển về trang chủ (giữ URL cũ không còn dùng). */
+
 export function HuongDenModalXacThuc({ cheDo }: { cheDo: 'dang-nhap' | 'dang-ky' }) {
   const navigate = useNavigate()
   const location = useLocation()

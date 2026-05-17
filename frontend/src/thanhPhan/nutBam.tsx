@@ -37,7 +37,6 @@ export function NutBam({
   )
 }
 
-/** Nút « Sửa » trong bảng quản trị — icon + màu xanh */
 export function NutSuaQt({
   className = '',
   ...props
@@ -57,7 +56,6 @@ export function NutSuaQt({
   )
 }
 
-/** Nút « Xóa » trong bảng quản trị — icon + màu đỏ nhạt */
 export function NutXoaQt({
   className = '',
   ...props

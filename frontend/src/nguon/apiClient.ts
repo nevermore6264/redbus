@@ -8,7 +8,6 @@ export const khachHttp = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-/** Ghép đường dẫn API trả về (vd tai-nguyen/...) thành URL đầy đủ cho thẻ img */
 export function urlTaiNguyen(duongTuongDoi: string): string {
   if (!duongTuongDoi) return ''
   if (duongTuongDoi.startsWith('http')) return duongTuongDoi
@@ -17,7 +16,6 @@ export function urlTaiNguyen(duongTuongDoi: string): string {
   return `${base}/${p}`
 }
 
-/** POST multipart/form-data, Authorization giống khachHttp */
 export async function guiMultipart<T>(path: string, formData: FormData): Promise<T> {
   const token = localStorage.getItem('token')
   const headers: HeadersInit = {}

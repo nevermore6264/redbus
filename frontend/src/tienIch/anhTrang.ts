@@ -1,4 +1,4 @@
-/** Ảnh minh họa xe khách — lưu cục bộ trong public/ (tải nhanh, không phụ thuộc CDN ngoài) */
+
 
 const GOC = '/images/xe-khach'
 
@@ -21,7 +21,6 @@ export type SlideXeKhach = {
   chu?: string
 }
 
-/** Slide hero — xe khách, bến, nội thất */
 export const SLIDE_HERO: SlideXeKhach[] = [
   { src: `${GOC}/xe-ngoai-1.jpg`, alt: 'Xe khách liên tỉnh', chu: 'Đội xe đối tác' },
   { src: `${GOC}/xe-ngoai-2.jpg`, alt: 'Xe giường nằm cao cấp', chu: 'Ghế ngả thoải mái' },
@@ -30,7 +29,6 @@ export const SLIDE_HERO: SlideXeKhach[] = [
   { src: `${GOC}/duong-cao-toc.jpg`, alt: 'Hành trình trên cao tốc', chu: 'An toàn & tiện lợi' },
 ]
 
-/** Chỉ ảnh xe khách / hành trình — không dùng ảnh du lịch lạ */
 const ANH_TUYEN = [
   `${GOC}/xe-ngoai-1.jpg`,
   `${GOC}/xe-ngoai-2.jpg`,

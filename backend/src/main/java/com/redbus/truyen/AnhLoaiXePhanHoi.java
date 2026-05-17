@@ -13,6 +13,6 @@ public class AnhLoaiXePhanHoi {
 
     private Long ma;
     private Long maLoaiXe;
-    /** Đường dẫn dùng cho thẻ img khi ghép với base URL API */
+    
     private String duongAnh;
 }

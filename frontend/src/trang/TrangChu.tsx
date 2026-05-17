@@ -27,7 +27,6 @@ import { khachHttp, moKhoiDuLieu, urlTaiNguyen } from "../nguon/apiClient";
 import type {
   DanhGiaCongKhai,
   KhuyenMai,
-  LoaiXe,
   PhanHoi,
   TinTuc,
   TuyenDuong,
@@ -38,7 +37,6 @@ import {
   TrinhChieuDanhGia,
   type DanhGiaHienThi,
 } from "../thanhPhan/TrinhChieuDanhGia";
-import { TheChua } from "../thanhPhan/theChua";
 import { TruongChon } from "../thanhPhan/truongNhap";
 import {
   ANH_CO_DINH,
@@ -149,7 +147,6 @@ export function TrangChu() {
   const [tin, datTin] = useState<TinTuc[]>([]);
   const [km, datKm] = useState<KhuyenMai[]>([]);
   const [dsTuyen, datDsTuyen] = useState<TuyenDuong[]>([]);
-  const [dsLoaiXe, datDsLoaiXe] = useState<LoaiXe[]>([]);
   const [maTuyenTim, datMaTuyenTim] = useState<number | "">("");
   const [tuLucTim, datTuLucTim] = useState(macDinhTuLuc);
   const [dsDanhGia, datDsDanhGia] = useState<DanhGiaHienThi[]>(DANH_GIA_MAU);
@@ -158,7 +155,6 @@ export function TrangChu() {
     tin.length,
     km.length,
     dsTuyen.length,
-    dsLoaiXe.length,
     dsDanhGia.length,
   ]);
   const soTuyenHt = Math.max(dsTuyen.length, 1);
@@ -170,7 +166,7 @@ export function TrangChu() {
   useEffect(() => {
     void (async () => {
       try {
-        const [a, b, c, loai, dg] = await Promise.all([
+        const [a, b, c, dg] = await Promise.all([
           moKhoiDuLieu(
             khachHttp.get<PhanHoi<TinTuc[]>>("/tin-tuc", {
               params: { gioiHan: 6 },
@@ -180,9 +176,6 @@ export function TrangChu() {
             khachHttp.get<PhanHoi<KhuyenMai[]>>("/khuyen-mai/hien-thi"),
           ),
           moKhoiDuLieu(khachHttp.get<PhanHoi<TuyenDuong[]>>("/tuyen-duong")),
-          moKhoiDuLieu(khachHttp.get<PhanHoi<LoaiXe[]>>("/loai-xe")).catch(
-            () => [] as LoaiXe[],
-          ),
           moKhoiDuLieu(
             khachHttp.get<PhanHoi<DanhGiaCongKhai[]>>("/danh-gia/cong-khai", {
               params: { gioiHan: 12 },
@@ -192,7 +185,6 @@ export function TrangChu() {
         datTin(a);
         datKm(b);
         datDsTuyen(c);
-        datDsLoaiXe(loai);
         const tuApi = chuyenDanhGiaApi(dg);
         if (tuApi.length > 0) datDsDanhGia(tuApi);
         if (c.length && maTuyenTim === "") datMaTuyenTim(c[0].ma);
@@ -213,16 +205,6 @@ export function TrangChu() {
     "Đặt vé online 24/7 · Giá minh bạch · Chọn ghế trực quan · Vé điện tử · Mã khuyến mãi · Thanh toán linh hoạt ·";
 
   const tuyenPhoBien = dsTuyen.slice(0, 4);
-
-  const anhLoaiXe = dsLoaiXe
-    .flatMap((l) =>
-      (l.dsAnh ?? []).slice(0, 2).map((a) => ({
-        ma: a.ma,
-        ten: l.ten,
-        url: urlTaiNguyen(a.duongAnh),
-      })),
-    )
-    .slice(0, 8);
 
   return (
     <div className="home">
@@ -434,29 +416,17 @@ export function TrangChu() {
               </p>
             </div>
             <div className="home-bus-gallery__grid home-reveal">
-              {anhLoaiXe.length > 0
-                ? anhLoaiXe.map((a) => (
-                    <figure key={a.ma} className="home-bus-gallery__item">
-                      <AnhCoFallback
-                        src={a.url}
-                        fallback={ANH_CO_DINH.heroChinh}
-                        alt={a.ten}
-                        className="home-bus-gallery__img"
-                      />
-                      <figcaption>{a.ten}</figcaption>
-                    </figure>
-                  ))
-                : SLIDE_HERO.map((s, i) => (
-                    <figure key={i} className="home-bus-gallery__item">
-                      <AnhCoFallback
-                        src={s.src}
-                        fallback={s.src}
-                        alt={s.alt}
-                        className="home-bus-gallery__img"
-                      />
-                      <figcaption>{s.chu ?? s.alt}</figcaption>
-                    </figure>
-                  ))}
+              {SLIDE_HERO.map((s, i) => (
+                <figure key={i} className="home-bus-gallery__item">
+                  <AnhCoFallback
+                    src={s.src}
+                    fallback={ANH_CO_DINH.heroChinh}
+                    alt={s.alt}
+                    className="home-bus-gallery__img"
+                  />
+                  <figcaption>{s.chu ?? s.alt}</figcaption>
+                </figure>
+              ))}
             </div>
           </div>
         </section>
@@ -707,45 +677,38 @@ export function TrangChu() {
                 toán.
               </p>
             </div>
-            <TheChua
-              padding="lg"
-              className="feature-card feature-card--border home-reveal home-promo-card home-promo-card--img"
-            >
-              <AnhCoFallback
-                src={ANH_CO_DINH.khuyenMai}
-                fallback={ANH_CO_DINH.khuyenMai}
-                alt=""
-                className="home-promo-card__banner"
-              />
-              <div className="home-promo-card__body">
+            <div className="home-promo-band home-reveal">
+              <div className="home-promo-band__visual">
+                <AnhCoFallback
+                  src={ANH_CO_DINH.khuyenMai}
+                  fallback={ANH_CO_DINH.heroChinh}
+                  alt="Xe khách RedBus"
+                  className="home-promo-band__img"
+                />
+              </div>
+              <div className="home-promo-band__content">
                 <div className="feature-card__icon">
                   <Sparkles size={22} />
                 </div>
-                <h3 className="home-promo-card__title">Mã đang áp dụng</h3>
-                <ul className="home-mini-list home-promo-card__list">
+                <h3 className="home-promo-band__title">Mã đang áp dụng</h3>
+                <div className="home-promo-codes">
                   {km.map((k) => (
-                    <li key={k.ma}>
-                      <strong className="mono">{k.maCode}</strong>
-                      <span className="muted">
-                        {" "}
-                        −{k.phanTramGiam}% {k.tieuDe ? `· ${k.tieuDe}` : ""}
-                      </span>
-                    </li>
+                    <article key={k.ma} className="home-promo-code">
+                      <strong className="mono home-promo-code__ma">{k.maCode}</strong>
+                      <span className="home-promo-code__giam">−{k.phanTramGiam}%</span>
+                      {k.tieuDe ? <span className="muted small home-promo-code__tieuDe">{k.tieuDe}</span> : null}
+                    </article>
                   ))}
-                </ul>
-                <p className="muted small">
+                </div>
+                <p className="muted small home-promo-band__hint">
                   Nhập mã khi thanh toán vé đang chờ thanh toán.
                 </p>
-                <button
-                  type="button"
-                  className="btn btn--primary btn--sm home-promo-card__btn"
-                  onClick={() => timVe()}
-                >
+                <button type="button" className="btn btn--primary btn--sm" onClick={() => timVe()}>
                   Đặt vé ngay
                   <ArrowRight size={16} aria-hidden />
                 </button>
               </div>
-            </TheChua>
+            </div>
           </section>
         ) : null}
 

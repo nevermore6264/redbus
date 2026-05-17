@@ -1,4 +1,4 @@
-/** Kiểu dữ liệu trùng khớp JSON backend (tiếng Việt không dấu) */
+
 
 export interface PhanHoi<T> {
   thanhCong: boolean
@@ -39,7 +39,7 @@ export interface GheNgoi {
   maGhe: string
   hang?: number
   cot?: number
-  /** 1 tầng dưới · 2 tầng trên */
+
   tang?: number
   trangThai: string
 }
@@ -64,7 +64,7 @@ export interface XeKhach {
 
 export interface LoaiXeAnhTomTat {
   ma: number
-  /** ví dụ tai-nguyen/loai-xe/3/uuid.jpg — dùng urlTaiNguyen() */
+
   duongAnh: string
 }
 
@@ -107,7 +107,6 @@ export interface DanhGiaChuyen {
   thoiGianTao?: string
 }
 
-/** Đánh giá công khai trên trang chủ */
 export interface DanhGiaCongKhai {
   ma: number
   diemSo: number
@@ -180,6 +179,6 @@ export interface ThongTinKhachHang {
   diaChi?: string
   tenDangNhap: string
   email: string
-  /** Khóa/mở đăng nhập (đọc từ tài khoản) */
+
   hoatDong?: boolean
 }

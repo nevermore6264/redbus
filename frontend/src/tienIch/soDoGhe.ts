@@ -2,16 +2,13 @@ import type { GheNgoi } from '../nguon/kieu'
 
 export type HangGhe = (GheNgoi | null)[][]
 
-/** Ghép maGhe thành số để sắp — tránh lỗi "10" trước "2". */
+
 function soThuTu(g: GheNgoi): number {
   const n = Number(g.maGhe)
   return Number.isFinite(n) ? n : 0
 }
 
-/**
- * Lối đi giữa hai cụm ghế: cột 1…leftCols | lối đi | leftCols+1…maxCot
- * Ví dụ 4 cột → 2 + 2; 5 cột → 2 | 3; 3 cột → 1 | 2.
- */
+
 export function tinSoCotTrai(maxCot: number): number {
   if (maxCot <= 1) return 1
   return Math.floor(maxCot / 2)

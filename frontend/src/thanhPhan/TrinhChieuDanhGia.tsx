@@ -38,10 +38,10 @@ export function TrinhChieuDanhGia({ ds }: Props) {
 
   if (so === 0) return null
 
-  if (so <= 3) {
+  if (so <= 6) {
     return (
-      <div className="review-carousel__grid">
-        {ds.map((d) => (
+      <div className="home-testimonials__grid">
+        {ds.slice(0, 6).map((d) => (
           <TheDanhGia key={d.ma} d={d} />
         ))}
       </div>
@@ -51,7 +51,7 @@ export function TrinhChieuDanhGia({ ds }: Props) {
   const d = ds[chiSo]
 
   return (
-    <div className="review-carousel" role="region" aria-label="Đánh giá hành khách">
+    <div className="review-carousel review-carousel--single" role="region" aria-label="Đánh giá hành khách">
       <div className="review-carousel__track">
         <TheDanhGia key={d.ma} d={d} />
       </div>

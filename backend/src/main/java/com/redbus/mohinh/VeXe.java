@@ -20,7 +20,7 @@ public class VeXe {
     private Long maGhe;
     private String trangThai;
     private LocalDateTime thoiGianDat;
-    /** Thong tin thanh toan gop vao ve (sau khi PAID) */
+
     private Long maKhuyenMai;
     private Long maHinhThuc;
     private BigDecimal soTienThanhToan;

@@ -20,7 +20,6 @@ public class LoaiXe {
     private String tienIch;
     private Boolean hoatDong;
 
-    /** Ảnh minh họa (mã để xóa trong quản trị) — chỉ đọc JSON */
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<LoaiXeAnhTomTat> dsAnh;
 }

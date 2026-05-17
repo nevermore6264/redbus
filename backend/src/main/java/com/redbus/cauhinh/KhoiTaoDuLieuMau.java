@@ -132,7 +132,6 @@ public class KhoiTaoDuLieuMau {
         }
     }
 
-    /** 5 tai khoan khach + ho so — dung cho demo dat ve / danh gia */
     private List<KhachHang> layHoacTaoKhachDemo() {
         String[][] nhom = {
                 {"khach1", "Nguyễn Văn An", "0909111001", "Đà Nẵng"},
@@ -233,7 +232,7 @@ public class KhoiTaoDuLieuMau {
     }
 
     private List<XeKhach> taoXeVaGhe(List<LoaiXe> loai) {
-        /* bien, soCho, soCot — soCot = số ghế một hàng (lối đi giữa chia trái/phải) */
+
         Object[][] xeRaw = {
                 {loai.get(0).getMa(), "43A-12345", "Mercedes-Benz", 34, 4},
                 {loai.get(1).getMa(), "51B-77889", "Hyundai Universe", 40, 4},
@@ -258,9 +257,6 @@ public class KhoiTaoDuLieuMau {
         return ds;
     }
 
-    /**
-     * Chia đều ghế lên 2 tầng (tang 1 / 2). Trên mỗi tầng: hàng × cột có lối đi giữa (UI).
-     */
     private void taoGheChoXe(Long maXe, int soCho, int soCot) {
         int half = (soCho + 1) / 2;
         for (int i = 1; i <= soCho; i++) {
@@ -279,7 +275,6 @@ public class KhoiTaoDuLieuMau {
         }
     }
 
-    /** ~300 chuyen: 6 tuyen x 5 khung gio x 10 ngay */
     private List<ChuyenXe> taoLichChuyen(
             List<TuyenDuong> tuyen, List<XeKhach> xe, int[] phutUocTinh, BigDecimal[] giaVe) {
         int[] gio = {6, 9, 13, 17, 21};
@@ -420,7 +415,7 @@ public class KhoiTaoDuLieuMau {
                 .toList();
 
         int iKhach = 0;
-        /* Ve PAID + vai danh gia — chuyen da khoi hanh (hom qua / sang som) */
+
         int chiSoChuyen = 0;
         for (ChuyenXe cx : chuyenQuaKhu) {
             if (chiSoChuyen >= 35) {
@@ -453,7 +448,6 @@ public class KhoiTaoDuLieuMau {
             chiSoChuyen++;
         }
 
-        /* Ve PENDING — sap khoi hanh */
         for (int i = 0; i < Math.min(28, chuyenTuongLai.size()); i++) {
             ChuyenXe cx = chuyenTuongLai.get(i);
             List<GheNgoi> ghe = anhXaGheNgoi.timTheoMaXe(cx.getMaXe());
@@ -464,7 +458,6 @@ public class KhoiTaoDuLieuMau {
             themVeCho(cx.getMa(), kh.getMa(), ghe.get(i % ghe.size()).getMa(), "PENDING");
         }
 
-        /* Ve da huy */
         for (int i = 0; i < Math.min(8, chuyenTuongLai.size()); i++) {
             ChuyenXe cx = chuyenTuongLai.get((i + 3) % chuyenTuongLai.size());
             List<GheNgoi> ghe = anhXaGheNgoi.timTheoMaXe(cx.getMaXe());
@@ -479,7 +472,6 @@ public class KhoiTaoDuLieuMau {
             anhXaVeXe.capNhatTrangThai(ve.getMa(), "CANCELLED");
         }
 
-        /* Thong bao mau */
         int tb = 0;
         for (KhachHang k : khach) {
             Long maTk = k.getMaTaiKhoan();

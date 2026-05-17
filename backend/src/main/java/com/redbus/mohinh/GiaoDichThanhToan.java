@@ -16,7 +16,7 @@ public class GiaoDichThanhToan {
 
     private Long ma;
     private Long maVe;
-    /** Lien ket promotion.id khi ap dung ma giam gia */
+    
     private Long maKhuyenMai;
     private BigDecimal soTien;
     private String phuongThuc;

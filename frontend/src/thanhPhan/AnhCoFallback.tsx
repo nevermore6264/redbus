@@ -6,7 +6,7 @@ type Props = {
   alt: string
   className?: string
   loading?: 'lazy' | 'eager'
-  /** Bật skeleton khi đang tải */
+
   hienSkeleton?: boolean
 }
 

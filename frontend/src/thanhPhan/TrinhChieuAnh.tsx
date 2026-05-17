@@ -12,7 +12,7 @@ type Props = {
   dsSlide: readonly SlideAnh[]
   className?: string
   tuDongMs?: number
-  /** Chiều cao khung slide (CSS), mặc định qua class */
+
   variant?: 'hero' | 'compact'
 }
 
