@@ -245,22 +245,35 @@ export function TrangTuyenDuong() {
       >
         <div className="form-stack">
           {loiBieu.chung ? <p className="form-alert form-alert--error">{loiBieu.chung}</p> : null}
-          <div className="form-dia-danh-cap">
-            <ChonDiaDanh
-              nhan="Điểm đi"
-              giaTri={bieu.diemDi}
-              onDoi={(chuoi) => datBieu({ ...bieu, diemDi: chuoi })}
-              loi={loiBieu.diemDi}
-              required
-            />
-            <ChonDiaDanh
-              nhan="Điểm đến"
-              giaTri={bieu.diemDen}
-              onDoi={(chuoi) => datBieu({ ...bieu, diemDen: chuoi })}
-              loi={loiBieu.diemDen}
-              required
-            />
-          </div>
+          <section className="form-dia-danh-cap" aria-labelledby="lo-trinh-tuyen-label">
+            <h3 id="lo-trinh-tuyen-label" className="form-dia-danh-cap__title">
+              Lộ trình tuyến
+            </h3>
+            <p className="form-dia-danh-cap__sub muted small">
+              Đơn vị hành chính sau sáp nhập 07/2025 — 34 tỉnh, phường/xã trực thuộc
+            </p>
+            <div className="form-dia-danh-cap__hang">
+              <ChonDiaDanh
+                bien="di"
+                nhan="Điểm đi"
+                giaTri={bieu.diemDi}
+                onDoi={(chuoi) => datBieu({ ...bieu, diemDi: chuoi })}
+                loi={loiBieu.diemDi}
+                required
+              />
+              <div className="form-dia-danh-cap__moc" aria-hidden>
+                <span className="form-dia-danh-cap__moc-ico">→</span>
+              </div>
+              <ChonDiaDanh
+                bien="den"
+                nhan="Điểm đến"
+                giaTri={bieu.diemDen}
+                onDoi={(chuoi) => datBieu({ ...bieu, diemDen: chuoi })}
+                loi={loiBieu.diemDen}
+                required
+              />
+            </div>
+          </section>
           <TruongNhap
             nhan="Khoảng cách (km)"
             type="number"

@@ -5002,68 +5002,249 @@ code {
 }
 
 .form-dia-danh-cap {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  padding: 0.85rem 1rem;
+  margin-bottom: 0.25rem;
+  padding: 1rem 1.1rem 1.15rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  background: var(--surface-2);
+  background: linear-gradient(165deg, #fafbfc 0%, #f1f5f9 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
-.chon-dia-danh .field__label {
-  display: block;
-  margin-bottom: 0.35rem;
+.form-dia-danh-cap__title {
+  margin: 0 0 0.2rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
 }
 
-.chon-dia-danh__cu {
-  margin: 0 0 0.4rem;
+.form-dia-danh-cap__sub {
+  margin: 0 0 1rem;
 }
 
-.chon-dia-danh__hang {
+.form-dia-danh-cap__hang {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
-  gap: 0.4rem 0.5rem;
+  gap: 0.65rem;
+  align-items: stretch;
+}
+
+.form-dia-danh-cap__moc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 2.5rem;
+}
+
+.form-dia-danh-cap__moc-ico {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--primary);
+  background: var(--primary-soft);
+  border: 1px solid rgba(225, 29, 72, 0.2);
+  box-shadow: 0 2px 8px rgba(225, 29, 72, 0.12);
+}
+
+.chon-dia-danh-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.85rem 0.9rem;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.chon-dia-danh-card--di {
+  --dia-accent: #059669;
+  --dia-accent-soft: rgba(5, 150, 105, 0.12);
+  --dia-accent-border: rgba(5, 150, 105, 0.28);
+}
+
+.chon-dia-danh-card--den {
+  --dia-accent: var(--primary);
+  --dia-accent-soft: var(--primary-soft);
+  --dia-accent-border: rgba(225, 29, 72, 0.28);
+}
+
+.chon-dia-danh-card--dung {
+  --dia-accent: #d97706;
+  --dia-accent-soft: rgba(217, 119, 6, 0.12);
+  --dia-accent-border: rgba(217, 119, 6, 0.32);
+}
+
+.chon-dia-danh-card--done {
+  border-color: var(--dia-accent-border);
+  box-shadow:
+    0 0 0 1px var(--dia-accent-soft),
+    var(--shadow);
+}
+
+.chon-dia-danh-card--error {
+  border-color: rgba(220, 38, 38, 0.45);
+}
+
+.chon-dia-danh-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.chon-dia-danh-card__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  color: var(--dia-accent);
+  background: var(--dia-accent-soft);
+}
+
+.chon-dia-danh-card__meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.chon-dia-danh-card__title {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.chon-dia-danh-card__hint,
+.chon-dia-danh-card__legacy {
+  margin: 0.15rem 0 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.chon-dia-danh-card__legacy {
+  font-style: italic;
+}
+
+.chon-dia-danh-card__done {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.3rem;
+  margin: 0.25rem 0 0;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--dia-accent);
+}
+
+.chon-dia-danh-card__done svg {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.chon-dia-danh-card__err {
+  margin: 0;
+}
+
+.chon-dia-danh-card__flow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0.35rem 0.4rem;
   align-items: end;
 }
 
-.chon-dia-danh__hang .field {
-  margin: 0;
+.chon-dia-danh-card__step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
   min-width: 0;
 }
 
-.chon-dia-danh__hang .field__label {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--muted);
-  margin-bottom: 0.25rem;
-}
-
-.chon-dia-danh__moc {
-  align-self: center;
-  padding-bottom: 0.55rem;
-  color: var(--muted);
-  font-weight: 700;
-  font-size: 0.9rem;
-}
-
-.chon-dia-danh__ket-qua {
-  margin: 0.4rem 0 0;
-  padding: 0.35rem 0.55rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text);
-  background: #fff;
+.chon-dia-danh-card__step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
   border-radius: 4px;
-  border: 1px solid var(--border);
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--dia-accent);
+  background: var(--dia-accent-soft);
 }
 
-@media (max-width: 520px) {
-  .chon-dia-danh__hang {
+.chon-dia-danh-card__lbl {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.chon-dia-danh-card__wrap {
+  position: relative;
+}
+
+.chon-dia-danh-card__sel {
+  width: 100%;
+  min-height: 2.5rem;
+  padding-right: 2rem;
+  font-size: 0.86rem;
+}
+
+.chon-dia-danh-card__sel:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.chon-dia-danh-card__arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 0.65rem;
+  color: var(--muted);
+}
+
+.chon-dia-danh-card__spin {
+  position: absolute;
+  right: 0.55rem;
+  top: 50%;
+  margin-top: -8px;
+  color: var(--muted);
+  animation: spin 0.8s linear infinite;
+}
+
+@media (max-width: 640px) {
+  .form-dia-danh-cap__hang {
     grid-template-columns: 1fr;
   }
 
-  .chon-dia-danh__moc {
+  .form-dia-danh-cap__moc {
+    padding: 0;
+    order: 2;
+  }
+
+  .form-dia-danh-cap__moc-ico {
+    transform: rotate(90deg);
+  }
+
+  .chon-dia-danh-card__flow {
+    grid-template-columns: 1fr;
+  }
+
+  .chon-dia-danh-card__arrow {
     display: none;
   }
 }

@@ -3,6 +3,7 @@ import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
 import type { DiemDungChan, PhanHoi, TuyenDuong } from '../nguon/kieu'
 import { LoTrinhTuyen } from './LoTrinhTuyen'
 import { NutBam, NutSuaQt, NutXoaQt } from './nutBam'
+import { ChonDiaDanh } from './ChonDiaDanh'
 import { TruongNhap } from './truongNhap'
 import { CuaSo } from './cuaSo'
 import { CuaSoXacNhanXoa } from './cuaSoXacNhanXoa'
@@ -81,7 +82,7 @@ export function KhungQuanLyDiemDung({ maTuyen, tuyen, onDsThayDoi }: Props) {
   async function luu() {
     const tenDiem = chuanHoaChuoi(bieu.tenDiem)
     const loi: Partial<Record<'tenDiem' | 'thuTu' | 'thoiGianDungPhut' | 'chung', string>> = {}
-    if (!tenDiem) loi.tenDiem = 'Nhập tên điểm dừng'
+    if (!tenDiem) loi.tenDiem = 'Chọn tỉnh và phường/xã cho điểm dừng'
     if (bieu.thuTu < 0) loi.thuTu = 'Thứ tự phải từ 0 trở lên'
     if (bieu.thoiGianDungPhut < 0) loi.thoiGianDungPhut = 'Thời gian dừng không hợp lệ'
     if (trungThuTu(bieu.thuTu, sua?.ma)) loi.thuTu = `Thứ tự ${bieu.thuTu} đã có trên tuyến này`
@@ -164,6 +165,7 @@ export function KhungQuanLyDiemDung({ maTuyen, tuyen, onDsThayDoi }: Props) {
 
       <CuaSo
         open={mo}
+        size="lg"
         title={sua ? 'Sửa điểm dừng' : 'Thêm điểm dừng'}
         onClose={() => datMo(false)}
         footer={
@@ -175,10 +177,11 @@ export function KhungQuanLyDiemDung({ maTuyen, tuyen, onDsThayDoi }: Props) {
       >
         <div className="form-stack">
           {loiBieu.chung ? <p className="form-alert form-alert--error">{loiBieu.chung}</p> : null}
-          <TruongNhap
-            nhan="Tên điểm"
-            value={bieu.tenDiem}
-            onChange={(e) => datBieu({ ...bieu, tenDiem: e.target.value })}
+          <ChonDiaDanh
+            bien="dung"
+            nhan="Vị trí điểm dừng"
+            giaTri={bieu.tenDiem}
+            onDoi={(chuoi) => datBieu({ ...bieu, tenDiem: chuoi })}
             loi={loiBieu.tenDiem}
             required
           />

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
+import { ArrowRight, CheckCircle2, Loader2, MapPin } from 'lucide-react'
 import type { DonViHanhChinh } from '../nguon/kieu'
 import { layDanhSachTinh, layXaTheoTinh, taoChuoiDiaDanh } from '../tienIch/diaDanh'
-import { TruongChon } from './truongNhap'
 
 interface Props {
   nhan: string
@@ -9,9 +9,10 @@ interface Props {
   onDoi: (chuoi: string) => void
   loi?: string
   required?: boolean
+  bien?: 'di' | 'den' | 'dung'
 }
 
-export function ChonDiaDanh({ nhan, giaTri, onDoi, loi, required }: Props) {
+export function ChonDiaDanh({ nhan, giaTri, onDoi, loi, required, bien = 'di' }: Props) {
   const [dsTinh, datDsTinh] = useState<DonViHanhChinh[]>([])
   const [dsXa, datDsXa] = useState<DonViHanhChinh[]>([])
   const [maTinh, datMaTinh] = useState<number | ''>('')
@@ -63,69 +64,100 @@ export function ChonDiaDanh({ nhan, giaTri, onDoi, loi, required }: Props) {
   }, [maTinh, maXa, dsTinh, dsXa, giaTri, onDoi])
 
   const daChonDayDu = maTinh !== '' && maXa !== ''
+  const lopThe = `chon-dia-danh-card chon-dia-danh-card--${bien}${daChonDayDu ? ' chon-dia-danh-card--done' : ''}${loi ? ' chon-dia-danh-card--error' : ''}`
+
+  const placeholderXa =
+    maTinh === ''
+      ? 'Chọn tỉnh trước'
+      : taiXa
+        ? 'Đang tải…'
+        : dsXa.length === 0
+          ? 'Không có dữ liệu'
+          : 'Chọn phường / xã'
 
   return (
-    <div className={`field chon-dia-danh ${loi ? 'field--error' : ''}`.trim()}>
-      <span className="field__label">
-        {nhan}
-        {required ? (
-          <span className="field__req" aria-hidden="true">
-            {' '}
-            *
-          </span>
-        ) : null}
-      </span>
-      {giaTri && !daChonDayDu ? (
-        <p className="chon-dia-danh__cu muted small">
-          Hiện tại: <strong>{giaTri}</strong>
-        </p>
-      ) : null}
-      {loiTai ? <p className="field__err">{loiTai}</p> : null}
-      <div className="chon-dia-danh__hang">
-        <TruongChon
-          nhan="Tỉnh / TP"
-          value={maTinh === '' ? '' : String(maTinh)}
-          onChange={(e) => datMaTinh(e.target.value ? Number(e.target.value) : '')}
-          disabled={taiTinh || !!loiTai}
-          required={required}
-        >
-          <option value="">{taiTinh ? 'Đang tải…' : 'Chọn tỉnh'}</option>
-          {dsTinh.map((t) => (
-            <option key={t.code} value={t.code}>
-              {t.name}
-            </option>
-          ))}
-        </TruongChon>
-        <span className="chon-dia-danh__moc" aria-hidden>
-          →
+    <article className={lopThe}>
+      <header className="chon-dia-danh-card__head">
+        <span className="chon-dia-danh-card__badge" aria-hidden>
+          <MapPin size={16} strokeWidth={2.25} />
         </span>
-        <TruongChon
-          nhan="Phường / xã"
-          value={maXa === '' ? '' : String(maXa)}
-          onChange={(e) => datMaXa(e.target.value ? Number(e.target.value) : '')}
-          disabled={maTinh === '' || taiXa || dsXa.length === 0}
-          required={required}
-        >
-          <option value="">
-            {maTinh === ''
-              ? 'Chọn tỉnh trước'
-              : taiXa
-                ? 'Đang tải…'
-                : dsXa.length === 0
-                  ? 'Không có dữ liệu'
-                  : 'Chọn phường/xã'}
-          </option>
-          {dsXa.map((x) => (
-            <option key={x.code} value={x.code}>
-              {x.name}
-            </option>
-          ))}
-        </TruongChon>
+        <div className="chon-dia-danh-card__meta">
+          <h3 className="chon-dia-danh-card__title">
+            {nhan}
+            {required ? <span className="field__req"> *</span> : null}
+          </h3>
+          {daChonDayDu && giaTri ? (
+            <p className="chon-dia-danh-card__done">
+              <CheckCircle2 size={13} aria-hidden />
+              {giaTri}
+            </p>
+          ) : giaTri && !daChonDayDu ? (
+            <p className="chon-dia-danh-card__legacy">Đang lưu: {giaTri}</p>
+          ) : (
+            <p className="chon-dia-danh-card__hint">Chọn tỉnh và phường/xã</p>
+          )}
+        </div>
+      </header>
+
+      {loiTai ? <p className="field__err chon-dia-danh-card__err">{loiTai}</p> : null}
+
+      <div className="chon-dia-danh-card__flow">
+        <div className="chon-dia-danh-card__step">
+          <span className="chon-dia-danh-card__step-num">1</span>
+          <label className="chon-dia-danh-card__lbl" htmlFor={`${bien}-tinh`}>
+            Tỉnh / Thành phố
+          </label>
+          <div className="chon-dia-danh-card__wrap">
+            <select
+              id={`${bien}-tinh`}
+              className="field__input field__select chon-dia-danh-card__sel"
+              value={maTinh === '' ? '' : String(maTinh)}
+              onChange={(e) => datMaTinh(e.target.value ? Number(e.target.value) : '')}
+              disabled={taiTinh || !!loiTai}
+              required={required}
+            >
+              <option value="">{taiTinh ? 'Đang tải…' : 'Chọn tỉnh'}</option>
+              {dsTinh.map((t) => (
+                <option key={t.code} value={t.code}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+            {taiTinh ? <Loader2 className="chon-dia-danh-card__spin" size={16} aria-hidden /> : null}
+          </div>
+        </div>
+
+        <span className="chon-dia-danh-card__arrow" aria-hidden>
+          <ArrowRight size={16} strokeWidth={2.5} />
+        </span>
+
+        <div className="chon-dia-danh-card__step">
+          <span className="chon-dia-danh-card__step-num">2</span>
+          <label className="chon-dia-danh-card__lbl" htmlFor={`${bien}-xa`}>
+            Phường / Xã
+          </label>
+          <div className="chon-dia-danh-card__wrap">
+            <select
+              id={`${bien}-xa`}
+              className="field__input field__select chon-dia-danh-card__sel"
+              value={maXa === '' ? '' : String(maXa)}
+              onChange={(e) => datMaXa(e.target.value ? Number(e.target.value) : '')}
+              disabled={maTinh === '' || taiXa || dsXa.length === 0}
+              required={required}
+            >
+              <option value="">{placeholderXa}</option>
+              {dsXa.map((x) => (
+                <option key={x.code} value={x.code}>
+                  {x.name}
+                </option>
+              ))}
+            </select>
+            {taiXa ? <Loader2 className="chon-dia-danh-card__spin" size={16} aria-hidden /> : null}
+          </div>
+        </div>
       </div>
-      {daChonDayDu && giaTri ? (
-        <p className="chon-dia-danh__ket-qua">{giaTri}</p>
-      ) : null}
+
       {loi ? <p className="field__err">{loi}</p> : null}
-    </div>
+    </article>
   )
 }
