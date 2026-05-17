@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
-import { ChevronLeft, ChevronRight, Star } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
+import { ChevronLeft, ChevronRight, Quote, Star } from 'lucide-react'
 import { anhAvatar } from '../tienIch/anhTrang'
 import { dinhDangNgayGio } from '../tienIch/dinhDang'
 
@@ -16,80 +16,163 @@ type Props = {
   ds: DanhGiaHienThi[]
 }
 
+function soTheMoiTrang() {
+  const w = window.innerWidth
+  if (w < 640) return 1
+  if (w < 1024) return 2
+  return 3
+}
+
 export function TrinhChieuDanhGia({ ds }: Props) {
-  const [chiSo, datChiSo] = useState(0)
   const so = ds.length
+  const [chiSo, datChiSo] = useState(0)
+  const [moiTrang, datMoiTrang] = useState(soTheMoiTrang)
+  const [buocPx, datBuocPx] = useState(0)
+  const [dangDung, datDangDung] = useState(false)
+  const khungRef = useRef<HTMLDivElement>(null)
 
-  const sau = useCallback(() => {
-    if (so < 2) return
-    datChiSo((i) => (i + 1) % so)
-  }, [so])
-
-  const truoc = useCallback(() => {
-    if (so < 2) return
-    datChiSo((i) => (i - 1 + so) % so)
-  }, [so])
+  const chiSoToiDa = Math.max(0, so - moiTrang)
 
   useEffect(() => {
-    if (so < 2) return
-    const id = window.setInterval(sau, 7000)
+    const capNhat = () => datMoiTrang(soTheMoiTrang())
+    capNhat()
+    window.addEventListener('resize', capNhat)
+    return () => window.removeEventListener('resize', capNhat)
+  }, [])
+
+  useEffect(() => {
+    if (chiSo > chiSoToiDa) datChiSo(chiSoToiDa)
+  }, [chiSo, chiSoToiDa])
+
+  useEffect(() => {
+    datChiSo(0)
+  }, [so, moiTrang])
+
+  useEffect(() => {
+    const el = khungRef.current
+    if (!el || so === 0) return
+
+    const doLuong = () => {
+      const gap = parseFloat(getComputedStyle(el).gap) || 20
+      const rong = el.clientWidth
+      const rongThe = (rong - gap * (moiTrang - 1)) / moiTrang
+      datBuocPx(rongThe + gap)
+    }
+
+    doLuong()
+    const ro = new ResizeObserver(doLuong)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [moiTrang, so])
+
+  const sau = useCallback(() => {
+    if (so <= moiTrang) return
+    datChiSo((i) => (i >= chiSoToiDa ? 0 : i + 1))
+  }, [so, moiTrang, chiSoToiDa])
+
+  const truoc = useCallback(() => {
+    if (so <= moiTrang) return
+    datChiSo((i) => (i <= 0 ? chiSoToiDa : i - 1))
+  }, [so, moiTrang, chiSoToiDa])
+
+  useEffect(() => {
+    if (so <= moiTrang || dangDung) return
+    const id = window.setInterval(sau, 6000)
     return () => window.clearInterval(id)
-  }, [so, sau])
+  }, [so, moiTrang, sau, dangDung])
 
   if (so === 0) return null
 
-  if (so <= 6) {
-    return (
-      <div className="home-testimonials__grid">
-        {ds.slice(0, 6).map((d) => (
-          <TheDanhGia key={d.ma} d={d} />
-        ))}
-      </div>
-    )
-  }
-
-  const d = ds[chiSo]
+  const hienDieuHuong = so > moiTrang
+  const bienTrang = { '--slides-per-page': String(moiTrang) } as CSSProperties
 
   return (
-    <div className="review-carousel review-carousel--single" role="region" aria-label="Đánh giá hành khách">
-      <div className="review-carousel__track">
-        <TheDanhGia key={d.ma} d={d} />
+    <div
+      className="review-slideshow"
+      role="region"
+      aria-label="Đánh giá hành khách"
+      aria-roledescription="carousel"
+      onMouseEnter={() => datDangDung(true)}
+      onMouseLeave={() => datDangDung(false)}
+      onFocus={() => datDangDung(true)}
+      onBlur={() => datDangDung(false)}
+    >
+      {hienDieuHuong ? (
+        <button
+          type="button"
+          className="review-slideshow__nav review-slideshow__nav--prev"
+          onClick={truoc}
+          aria-label="Đánh giá trước"
+        >
+          <ChevronLeft size={22} strokeWidth={2.25} />
+        </button>
+      ) : null}
+
+      <div className="review-slideshow__viewport" style={bienTrang}>
+        <div
+          ref={khungRef}
+          className="review-slideshow__track"
+          style={{
+            transform: buocPx > 0 ? `translate3d(-${chiSo * buocPx}px, 0, 0)` : undefined,
+          }}
+        >
+          {ds.map((d) => (
+            <TheDanhGia key={d.ma} d={d} />
+          ))}
+        </div>
       </div>
-      <button type="button" className="review-carousel__nav review-carousel__nav--prev" onClick={truoc} aria-label="Đánh giá trước">
-        <ChevronLeft size={20} />
-      </button>
-      <button type="button" className="review-carousel__nav review-carousel__nav--next" onClick={sau} aria-label="Đánh giá sau">
-        <ChevronRight size={20} />
-      </button>
-      <div className="review-carousel__dots">
-        {ds.map((item, i) => (
-          <button
-            key={item.ma}
-            type="button"
-            className={`review-carousel__dot${i === chiSo ? ' review-carousel__dot--on' : ''}`}
-            aria-label={`Đánh giá ${i + 1}`}
-            onClick={() => datChiSo(i)}
-          />
-        ))}
-      </div>
+
+      {hienDieuHuong ? (
+        <button
+          type="button"
+          className="review-slideshow__nav review-slideshow__nav--next"
+          onClick={sau}
+          aria-label="Đánh giá sau"
+        >
+          <ChevronRight size={22} strokeWidth={2.25} />
+        </button>
+      ) : null}
+
+      {hienDieuHuong ? (
+        <div className="review-slideshow__dots" role="tablist" aria-label="Chọn đánh giá">
+          {Array.from({ length: chiSoToiDa + 1 }, (_, i) => (
+            <button
+              key={i}
+              type="button"
+              role="tab"
+              aria-selected={i === chiSo}
+              className={`review-slideshow__dot${i === chiSo ? ' review-slideshow__dot--on' : ''}`}
+              aria-label={`Nhóm đánh giá ${i + 1}`}
+              onClick={() => datChiSo(i)}
+            />
+          ))}
+        </div>
+      ) : null}
     </div>
   )
 }
 
 function TheDanhGia({ d }: { d: DanhGiaHienThi }) {
   return (
-    <blockquote className="home-quote review-card">
-      <img className="home-quote__avatar" src={anhAvatar(d.ten)} alt="" />
-      <div className="home-quote__stars" aria-label={`${d.sao} sao`}>
-        {Array.from({ length: 5 }, (_, j) => (
-          <Star key={j} size={16} className={j < d.sao ? 'home-quote__star--on' : ''} />
-        ))}
-      </div>
-      <p className="home-quote__text">&ldquo;{d.loi}&rdquo;</p>
-      <footer>
-        <strong>{d.ten}</strong>
-        <span className="muted small">{d.tuyen}</span>
-        {d.thoiGian ? <time className="muted small review-card__time">{dinhDangNgayGio(d.thoiGian)}</time> : null}
+    <blockquote className="review-slide-card">
+      <Quote className="review-slide-card__mark" size={28} aria-hidden />
+      <p className="review-slide-card__text">&ldquo;{d.loi}&rdquo;</p>
+      <footer className="review-slide-card__foot">
+        <img className="review-slide-card__avatar" src={anhAvatar(d.ten)} alt="" />
+        <div className="review-slide-card__meta">
+          <div className="review-slide-card__who">
+            <strong>{d.ten}</strong>
+            <span className="review-slide-card__route">{d.tuyen}</span>
+          </div>
+          <div className="review-slide-card__stars" aria-label={`${d.sao} sao`}>
+            {Array.from({ length: 5 }, (_, j) => (
+              <Star key={j} size={15} className={j < d.sao ? 'review-slide-card__star--on' : ''} />
+            ))}
+          </div>
+        </div>
+        {d.thoiGian ? (
+          <time className="review-slide-card__time">{dinhDangNgayGio(d.thoiGian)}</time>
+        ) : null}
       </footer>
     </blockquote>
   )

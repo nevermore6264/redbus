@@ -18,7 +18,6 @@ import {
   Search,
   ShieldCheck,
   Smartphone,
-  Sparkles,
   Ticket,
   Wifi,
   Zap,
@@ -37,6 +36,7 @@ import {
   TrinhChieuDanhGia,
   type DanhGiaHienThi,
 } from "../thanhPhan/TrinhChieuDanhGia";
+import { TrinhChieuKhuyenMai } from "../thanhPhan/TrinhChieuKhuyenMai";
 import { TruongChon } from "../thanhPhan/truongNhap";
 import {
   ANH_CO_DINH,
@@ -455,67 +455,44 @@ export function TrangChu() {
         </section>
 
         <section className="home-steps-section home-steps-section--early">
-          <div className="container home-steps-layout">
-            <div className="home-steps-layout__media home-reveal">
+          <div className="container home-steps-band">
+            <div className="home-steps-band__intro home-reveal">
+              <div className="home-steps-band__copy">
+                <p className="home-steps-band__eyebrow">Quy trình đặt vé</p>
+                <h2 className="home-steps-band__title">Đặt vé chỉ 4 bước</h2>
+                <p className="home-steps-band__lead">
+                  Từ chọn tuyến đến khi có vé điện tử — không cần gọi điện hay ra bến.
+                </p>
+              </div>
               <AnhCoFallback
                 src={ANH_CO_DINH.ghe}
                 fallback={ANH_CO_DINH.heroChinh}
-                alt="Nội thất xe khách — chọn ghế ngồi"
-                className="home-steps-layout__img"
+                alt="Nội thất xe khách"
+                className="home-steps-band__visual"
               />
             </div>
-            <div className="home-steps-layout__content">
-              <div className="section-head home-reveal">
-                <h2 className="section-title section-title--light">
-                  Đặt vé chỉ 4 bước
-                </h2>
-                <p className="section-desc section-desc--light">
-                  Từ lúc chọn tuyến đến khi có vé — quy trình đơn giản, không
-                  cần gọi điện.
-                </p>
-              </div>
-              <ol className="home-steps">
-                <li className="home-reveal">
-                  <span className="home-steps__num">1</span>
-                  <div>
-                    <strong>Chọn tuyến &amp; thời gian</strong>
-                    <p>
-                      Lọc chuyến khởi hành phù hợp, xem điểm dừng trên tuyến
-                      (nếu có).
-                    </p>
-                  </div>
-                </li>
-                <li className="home-reveal">
-                  <span className="home-steps__num">2</span>
-                  <div>
-                    <strong>Chọn ghế</strong>
-                    <p>
-                      Sơ đồ xe hiển thị ghế trống và ghế đã giữ — chọn một ghế
-                      còn trống.
-                    </p>
-                  </div>
-                </li>
-                <li className="home-reveal">
-                  <span className="home-steps__num">3</span>
-                  <div>
-                    <strong>Xác nhận đặt vé</strong>
-                    <p>
-                      Đăng nhập tài khoản khách hàng để tạo vé ở trạng thái chờ.
-                    </p>
-                  </div>
-                </li>
-                <li className="home-reveal">
-                  <span className="home-steps__num">4</span>
-                  <div>
-                    <strong>Thanh toán &amp; đi xe</strong>
-                    <p>
-                      Thanh toán theo hình thức hệ thống hỗ trợ; theo dõi vé và
-                      thông báo trong tài khoản.
-                    </p>
-                  </div>
-                </li>
-              </ol>
-            </div>
+            <ol className="home-steps-track home-reveal">
+              {BUOC_DAT_VE.map((buoc, i) => {
+                const Icon = buoc.icon
+                return (
+                  <li key={buoc.title} className="home-steps-card">
+                    <div className="home-steps-card__top">
+                      <span className="home-steps-card__num" aria-hidden>
+                        {i + 1}
+                      </span>
+                      {i < BUOC_DAT_VE.length - 1 ? (
+                        <span className="home-steps-card__rail" aria-hidden />
+                      ) : null}
+                    </div>
+                    <span className="home-steps-card__icon" aria-hidden>
+                      <Icon size={20} strokeWidth={2} />
+                    </span>
+                    <h3 className="home-steps-card__title">{buoc.title}</h3>
+                    <p className="home-steps-card__desc">{buoc.moTa}</p>
+                  </li>
+                )
+              })}
+            </ol>
           </div>
         </section>
 
@@ -700,38 +677,7 @@ export function TrangChu() {
                 toán.
               </p>
             </div>
-            <div className="home-promo-band home-reveal">
-              <div className="home-promo-band__visual">
-                <AnhCoFallback
-                  src={ANH_CO_DINH.khuyenMai}
-                  fallback={ANH_CO_DINH.heroChinh}
-                  alt="Xe khách RedBus"
-                  className="home-promo-band__img"
-                />
-              </div>
-              <div className="home-promo-band__content">
-                <div className="feature-card__icon">
-                  <Sparkles size={22} />
-                </div>
-                <h3 className="home-promo-band__title">Mã đang áp dụng</h3>
-                <div className="home-promo-codes">
-                  {km.map((k) => (
-                    <article key={k.ma} className="home-promo-code">
-                      <strong className="mono home-promo-code__ma">{k.maCode}</strong>
-                      <span className="home-promo-code__giam">−{k.phanTramGiam}%</span>
-                      {k.tieuDe ? <span className="muted small home-promo-code__tieuDe">{k.tieuDe}</span> : null}
-                    </article>
-                  ))}
-                </div>
-                <p className="muted small home-promo-band__hint">
-                  Nhập mã khi thanh toán vé đang chờ thanh toán.
-                </p>
-                <button type="button" className="btn btn--primary btn--sm" onClick={() => timVe()}>
-                  Đặt vé ngay
-                  <ArrowRight size={16} aria-hidden />
-                </button>
-              </div>
-            </div>
+            <TrinhChieuKhuyenMai ds={km} onDatVe={() => timVe()} />
           </section>
         ) : null}
 
