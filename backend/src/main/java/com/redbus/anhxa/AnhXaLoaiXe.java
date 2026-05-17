@@ -11,6 +11,8 @@ public interface AnhXaLoaiXe {
 
     LoaiXe timTheoMa(@Param("ma") Long ma);
 
+    LoaiXe timTheoTen(@Param("ten") String ten, @Param("maLoaiTru") Long maLoaiTru);
+
     List<LoaiXe> tatCa();
 
     int them(LoaiXe x);

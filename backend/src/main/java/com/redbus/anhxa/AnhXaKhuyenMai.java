@@ -12,7 +12,7 @@ public interface AnhXaKhuyenMai {
 
     KhuyenMai timTheoMa(@Param("ma") Long ma);
 
-    KhuyenMai timTheoMaCode(@Param("maCode") String maCode);
+    KhuyenMai timTheoMaCode(@Param("maCode") String maCode, @Param("maLoaiTru") Long maLoaiTru);
 
     List<KhuyenMai> tatCa();
 

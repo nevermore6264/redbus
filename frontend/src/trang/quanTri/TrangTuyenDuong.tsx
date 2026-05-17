@@ -7,6 +7,56 @@ import { TheChua, TieuDeThe } from '../../thanhPhan/theChua'
 import { NutBam, NutSuaQt, NutXoaQt } from '../../thanhPhan/nutBam'
 import { TruongNhap } from '../../thanhPhan/truongNhap'
 import { CuaSo } from '../../thanhPhan/cuaSo'
+import { CuaSoXacNhanXoa } from '../../thanhPhan/cuaSoXacNhanXoa'
+import { chuanHoaChuoi } from '../../tienIch/kiemTraQuanTri'
+
+type BieuTuyen = {
+  diemDi: string
+  diemDen: string
+  khoangCachKm: number
+  thoiGianUocTinhPhut: number
+  hoatDong: boolean
+}
+
+type LoiBieu = Partial<Record<keyof BieuTuyen | 'chung', string>>
+
+const chuanHoaDiem = chuanHoaChuoi
+
+function trungTuyen(ds: TuyenDuong[], diemDi: string, diemDen: string, maLoaiTru?: number) {
+  const a = diemDi.toLowerCase()
+  const b = diemDen.toLowerCase()
+  return ds.some((t) => {
+    if (maLoaiTru != null && t.ma === maLoaiTru) return false
+    return chuanHoaDiem(t.diemDi).toLowerCase() === a && chuanHoaDiem(t.diemDen).toLowerCase() === b
+  })
+}
+
+function kiemTraBieu(bieu: BieuTuyen, ds: TuyenDuong[], maLoaiTru?: number): LoiBieu {
+  const loi: LoiBieu = {}
+  const diemDi = chuanHoaDiem(bieu.diemDi)
+  const diemDen = chuanHoaDiem(bieu.diemDen)
+
+  if (!diemDi) loi.diemDi = 'Nhập điểm đi'
+  if (!diemDen) loi.diemDen = 'Nhập điểm đến'
+
+  if (diemDi && diemDen && diemDi.toLowerCase() === diemDen.toLowerCase()) {
+    loi.diemDen = 'Điểm đến phải khác điểm đi'
+  }
+
+  if (!Number.isFinite(bieu.khoangCachKm) || bieu.khoangCachKm <= 0) {
+    loi.khoangCachKm = 'Khoảng cách phải lớn hơn 0'
+  }
+
+  if (!Number.isFinite(bieu.thoiGianUocTinhPhut) || bieu.thoiGianUocTinhPhut <= 0) {
+    loi.thoiGianUocTinhPhut = 'Thời gian ước tính phải lớn hơn 0'
+  }
+
+  if (diemDi && diemDen && trungTuyen(ds, diemDi, diemDen, maLoaiTru)) {
+    loi.chung = `Tuyến « ${diemDi} — ${diemDen} » đã tồn tại trong hệ thống`
+  }
+
+  return loi
+}
 
 export function TrangTuyenDuong() {
   const { nguoiDung } = dungNguoiDung()
@@ -15,13 +65,17 @@ export function TrangTuyenDuong() {
   const [ds, datDs] = useState<TuyenDuong[]>([])
   const [mo, datMo] = useState(false)
   const [sua, datSua] = useState<TuyenDuong | null>(null)
-  const [bieu, datBieu] = useState({
+  const [xoaChon, datXoaChon] = useState<TuyenDuong | null>(null)
+  const [dangXoa, datDangXoa] = useState(false)
+  const [loiBieu, datLoiBieu] = useState<LoiBieu>({})
+  const [bieu, datBieu] = useState<BieuTuyen>({
     diemDi: '',
     diemDen: '',
     khoangCachKm: 0,
     thoiGianUocTinhPhut: 0,
     hoatDong: true,
   })
+
   async function taiDS() {
     try {
       const x = await moKhoiDuLieu(khachHttp.get<PhanHoi<TuyenDuong[]>>('/tuyen-duong'))
@@ -37,12 +91,14 @@ export function TrangTuyenDuong() {
 
   function moThe() {
     datSua(null)
+    datLoiBieu({})
     datBieu({ diemDi: '', diemDen: '', khoangCachKm: 0, thoiGianUocTinhPhut: 0, hoatDong: true })
     datMo(true)
   }
 
   function moSua(t: TuyenDuong) {
     datSua(t)
+    datLoiBieu({})
     datBieu({
       diemDi: t.diemDi,
       diemDen: t.diemDen,
@@ -54,13 +110,25 @@ export function TrangTuyenDuong() {
   }
 
   async function luu() {
+    const loi = kiemTraBieu(bieu, ds, sua?.ma)
+    datLoiBieu(loi)
+    if (Object.keys(loi).length > 0) return
+
+    const than = {
+      diemDi: chuanHoaDiem(bieu.diemDi),
+      diemDen: chuanHoaDiem(bieu.diemDen),
+      khoangCachKm: Math.round(bieu.khoangCachKm),
+      thoiGianUocTinhPhut: Math.round(bieu.thoiGianUocTinhPhut),
+      hoatDong: bieu.hoatDong,
+    }
+
     try {
       if (sua) {
         await moKhoiDuLieu(
-          khachHttp.put<PhanHoi<TuyenDuong>>(`/tuyen-duong/${sua.ma}`, { ...bieu, ma: sua.ma }),
+          khachHttp.put<PhanHoi<TuyenDuong>>(`/tuyen-duong/${sua.ma}`, { ...than, ma: sua.ma }),
         )
       } else {
-        await moKhoiDuLieu(khachHttp.post<PhanHoi<TuyenDuong>>('/tuyen-duong', bieu))
+        await moKhoiDuLieu(khachHttp.post<PhanHoi<TuyenDuong>>('/tuyen-duong', than))
       }
       datMo(false)
       void taiDS()
@@ -70,14 +138,18 @@ export function TrangTuyenDuong() {
     }
   }
 
-  async function xoa(ma: number) {
-    if (!confirm('Xóa tuyến này? Thao tác không hoàn tác.')) return
+  async function xacNhanXoa() {
+    if (!xoaChon) return
+    datDangXoa(true)
     try {
-      await moKhoiDuLieu(khachHttp.delete<PhanHoi<unknown>>(`/tuyen-duong/${ma}`))
+      await moKhoiDuLieu(khachHttp.delete<PhanHoi<unknown>>(`/tuyen-duong/${xoaChon.ma}`))
+      datXoaChon(null)
       void taiDS()
       hienThi({ loai: 'thanhCong', noiDung: 'Đã xóa tuyến.' })
     } catch (e: unknown) {
       hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi xóa' })
+    } finally {
+      datDangXoa(false)
     }
   }
 
@@ -115,7 +187,7 @@ export function TrangTuyenDuong() {
                   <td>{r.khoangCachKm}</td>
                   <td className="row-actions">
                     <NutSuaQt onClick={() => moSua(r)} />
-                    {laAdmin ? <NutXoaQt onClick={() => void xoa(r.ma)} /> : null}
+                    {laAdmin ? <NutXoaQt onClick={() => datXoaChon(r)} /> : null}
                   </td>
                 </tr>
               ))}
@@ -136,29 +208,36 @@ export function TrangTuyenDuong() {
         }
       >
         <div className="form-stack">
+          {loiBieu.chung ? <p className="form-alert form-alert--error">{loiBieu.chung}</p> : null}
           <TruongNhap
             nhan="Điểm đi"
             value={bieu.diemDi}
             onChange={(e) => datBieu({ ...bieu, diemDi: e.target.value })}
+            loi={loiBieu.diemDi}
             required
           />
           <TruongNhap
             nhan="Điểm đến"
             value={bieu.diemDen}
             onChange={(e) => datBieu({ ...bieu, diemDen: e.target.value })}
+            loi={loiBieu.diemDen}
             required
           />
           <TruongNhap
             nhan="Khoảng cách (km)"
             type="number"
-            value={bieu.khoangCachKm}
+            min={1}
+            value={bieu.khoangCachKm || ''}
             onChange={(e) => datBieu({ ...bieu, khoangCachKm: Number(e.target.value) })}
+            loi={loiBieu.khoangCachKm}
           />
           <TruongNhap
             nhan="Thời gian ước tính (phút)"
             type="number"
-            value={bieu.thoiGianUocTinhPhut}
+            min={1}
+            value={bieu.thoiGianUocTinhPhut || ''}
             onChange={(e) => datBieu({ ...bieu, thoiGianUocTinhPhut: Number(e.target.value) })}
+            loi={loiBieu.thoiGianUocTinhPhut}
           />
           <label className="check">
             <input
@@ -170,6 +249,25 @@ export function TrangTuyenDuong() {
           </label>
         </div>
       </CuaSo>
+
+      <CuaSoXacNhanXoa
+        open={xoaChon !== null}
+        title="Xóa tuyến đường"
+        nhanNutXoa="Xóa tuyến"
+        dangXoa={dangXoa}
+        onClose={() => datXoaChon(null)}
+        onConfirm={() => void xacNhanXoa()}
+      >
+        {xoaChon ? (
+          <p className="modal-confirm-text">
+            Bạn có chắc muốn xóa tuyến{' '}
+            <strong>
+              {xoaChon.diemDi} — {xoaChon.diemDen}
+            </strong>
+            ? Thao tác không thể hoàn tác.
+          </p>
+        ) : null}
+      </CuaSoXacNhanXoa>
     </div>
   )
 }

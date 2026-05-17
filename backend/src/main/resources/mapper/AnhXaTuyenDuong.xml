@@ -33,4 +33,14 @@
     </update>
 
     <delete id="xoa">DELETE FROM tuyen_duong WHERE ma = #{ma}</delete>
+
+    <select id="timTheoCapDiem" resultMap="banDo">
+        SELECT * FROM tuyen_duong
+        WHERE LOWER(TRIM(diem_di)) = LOWER(TRIM(#{diemDi}))
+          AND LOWER(TRIM(diem_den)) = LOWER(TRIM(#{diemDen}))
+        <if test="maLoaiTru != null">
+            AND ma != #{maLoaiTru}
+        </if>
+        LIMIT 1
+    </select>
 </mapper>

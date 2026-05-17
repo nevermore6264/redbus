@@ -30,6 +30,7 @@ public class DichVuTinTuc {
     }
 
     public TinTuc them(TinTuc t) {
+        chuanHoaVaKiemTra(t);
         if (t.getHoatDong() == null) {
             t.setHoatDong(true);
         }
@@ -38,9 +39,31 @@ public class DichVuTinTuc {
     }
 
     public TinTuc capNhat(TinTuc t) {
+        if (t.getMa() == null) {
+            throw new IllegalArgumentException("Thiếu mã tin");
+        }
         layTheoMa(t.getMa());
+        chuanHoaVaKiemTra(t);
         anhXaTinTuc.capNhat(t);
         return layTheoMa(t.getMa());
+    }
+
+    private void chuanHoaVaKiemTra(TinTuc t) {
+        if (t.getTieuDe() != null) {
+            t.setTieuDe(t.getTieuDe().trim().replaceAll("\\s+", " "));
+        }
+        if (t.getTomTat() != null) {
+            t.setTomTat(t.getTomTat().trim());
+        }
+        if (t.getNoiDung() != null) {
+            t.setNoiDung(t.getNoiDung().trim());
+        }
+        if (t.getTieuDe() == null || t.getTieuDe().isBlank()) {
+            throw new IllegalArgumentException("Tiêu đề không được để trống");
+        }
+        if (t.getNoiDung() == null || t.getNoiDung().isBlank()) {
+            throw new IllegalArgumentException("Nội dung không được để trống");
+        }
     }
 
     public void xoa(Long ma) {

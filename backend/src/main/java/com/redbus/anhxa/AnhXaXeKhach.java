@@ -11,6 +11,8 @@ public interface AnhXaXeKhach {
 
     XeKhach timTheoMa(@Param("ma") Long ma);
 
+    XeKhach timTheoBienSo(@Param("bienSo") String bienSo, @Param("maLoaiTru") Long maLoaiTru);
+
     List<XeKhach> tatCa();
 
     int them(XeKhach xeKhach);

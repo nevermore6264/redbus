@@ -12,6 +12,16 @@
     <select id="theoMaTuyen" resultMap="banDo">
         SELECT * FROM diem_dung_chan WHERE ma_tuyen = #{maTuyen} ORDER BY thu_tu ASC, ma ASC
     </select>
+    <select id="timTheoTuyenVaThuTu" resultMap="banDo">
+        SELECT * FROM diem_dung_chan WHERE ma_tuyen = #{maTuyen} AND thu_tu = #{thuTu}
+        <if test="maLoaiTru != null">AND ma != #{maLoaiTru}</if>
+        LIMIT 1
+    </select>
+    <select id="timTheoTuyenVaTenDiem" resultMap="banDo">
+        SELECT * FROM diem_dung_chan WHERE ma_tuyen = #{maTuyen} AND LOWER(TRIM(ten_diem)) = LOWER(TRIM(#{tenDiem}))
+        <if test="maLoaiTru != null">AND ma != #{maLoaiTru}</if>
+        LIMIT 1
+    </select>
     <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
         INSERT INTO diem_dung_chan (ma_tuyen, ten_diem, thu_tu, thoi_gian_dung_phut)
         VALUES (#{maTuyen}, #{tenDiem}, #{thuTu}, #{thoiGianDungPhut})

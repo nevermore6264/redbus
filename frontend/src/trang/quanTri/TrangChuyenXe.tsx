@@ -7,6 +7,7 @@ import { TheChua, TieuDeThe } from '../../thanhPhan/theChua'
 import { NutBam, NutSuaQt, NutXoaQt } from '../../thanhPhan/nutBam'
 import { TruongNhap, TruongChon } from '../../thanhPhan/truongNhap'
 import { CuaSo } from '../../thanhPhan/cuaSo'
+import { CuaSoXacNhanXoa } from '../../thanhPhan/cuaSoXacNhanXoa'
 import { dinhDangNgayGio, dinhDangVnd } from '../../tienIch/dinhDang'
 
 function chuyenDatetimeLocal(iso: string | undefined): string {
@@ -31,6 +32,11 @@ export function TrangChuyenXe() {
   const [dsXe, datXe] = useState<XeKhach[]>([])
   const [mo, datMo] = useState(false)
   const [sua, datSua] = useState<ChuyenXe | null>(null)
+  const [xoaChon, datXoaChon] = useState<ChuyenXe | null>(null)
+  const [dangXoa, datDangXoa] = useState(false)
+  const [loiBieu, datLoiBieu] = useState<
+    Partial<Record<'maTuyen' | 'maXe' | 'thoiDiemKhoiHanh' | 'thoiDiemDen' | 'giaVe' | 'chung', string>>
+  >({})
   const [bieu, datBieu] = useState({
     maTuyen: '' as number | '',
     maXe: '' as number | '',
@@ -39,6 +45,15 @@ export function TrangChuyenXe() {
     giaVe: 0,
     trangThai: 'SCHEDULED',
   })
+
+  function trungChuyen(maTuyen: number, maXe: number, thoiDiemKhoiHanh: string, maLoaiTru?: number) {
+    const luc = new Date(thoiDiemKhoiHanh).getTime()
+    return ds.some((c) => {
+      if (maLoaiTru != null && c.ma === maLoaiTru) return false
+      if (c.maTuyen !== maTuyen || c.maXe !== maXe) return false
+      return new Date(c.thoiDiemKhoiHanh).getTime() === luc
+    })
+  }
 
   async function taiDS() {
     try {
@@ -73,6 +88,7 @@ export function TrangChuyenXe() {
 
   function moThe() {
     datSua(null)
+    datLoiBieu({})
     const macDinh = new Date()
     macDinh.setMinutes(0, 0, 0)
     datBieu({
@@ -88,6 +104,7 @@ export function TrangChuyenXe() {
 
   function moSua(c: ChuyenXe) {
     datSua(c)
+    datLoiBieu({})
     datBieu({
       maTuyen: c.maTuyen,
       maXe: c.maXe,
@@ -100,10 +117,31 @@ export function TrangChuyenXe() {
   }
 
   async function luu() {
-    if (bieu.maTuyen === '' || bieu.maXe === '' || !bieu.thoiDiemKhoiHanh) {
-      hienThi({ loai: 'loi', noiDung: 'Vui lòng chọn tuyến, xe và giờ khởi hành.' })
-      return
+    const loi: Partial<
+      Record<'maTuyen' | 'maXe' | 'thoiDiemKhoiHanh' | 'thoiDiemDen' | 'giaVe' | 'chung', string>
+    > = {}
+    if (bieu.maTuyen === '') loi.maTuyen = 'Chọn tuyến'
+    if (bieu.maXe === '') loi.maXe = 'Chọn xe'
+    if (!bieu.thoiDiemKhoiHanh) loi.thoiDiemKhoiHanh = 'Chọn giờ khởi hành'
+    if (!Number.isFinite(bieu.giaVe) || bieu.giaVe <= 0) loi.giaVe = 'Giá vé phải lớn hơn 0'
+    if (
+      bieu.thoiDiemDen &&
+      bieu.thoiDiemKhoiHanh &&
+      new Date(bieu.thoiDiemDen) <= new Date(bieu.thoiDiemKhoiHanh)
+    ) {
+      loi.thoiDiemDen = 'Giờ đến phải sau giờ khởi hành'
     }
+    if (
+      bieu.maTuyen !== '' &&
+      bieu.maXe !== '' &&
+      bieu.thoiDiemKhoiHanh &&
+      trungChuyen(Number(bieu.maTuyen), Number(bieu.maXe), bieu.thoiDiemKhoiHanh, sua?.ma)
+    ) {
+      loi.chung = 'Chuyến trùng tuyến, xe và giờ khởi hành đã tồn tại'
+    }
+    datLoiBieu(loi)
+    if (Object.keys(loi).length > 0) return
+
     const than = {
       maTuyen: Number(bieu.maTuyen),
       maXe: Number(bieu.maXe),
@@ -131,14 +169,18 @@ export function TrangChuyenXe() {
     }
   }
 
-  async function xoa(ma: number) {
-    if (!confirm('Xóa chuyến này?')) return
+  async function xacNhanXoa() {
+    if (!xoaChon) return
+    datDangXoa(true)
     try {
-      await moKhoiDuLieu(khachHttp.delete<PhanHoi<unknown>>(`/chuyen-xe/${ma}`))
+      await moKhoiDuLieu(khachHttp.delete<PhanHoi<unknown>>(`/chuyen-xe/${xoaChon.ma}`))
+      datXoaChon(null)
       void taiDS()
       hienThi({ loai: 'thanhCong', noiDung: 'Đã xóa chuyến.' })
     } catch (e: unknown) {
       hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi xóa' })
+    } finally {
+      datDangXoa(false)
     }
   }
 
@@ -181,7 +223,7 @@ export function TrangChuyenXe() {
                   </td>
                   <td className="row-actions">
                     <NutSuaQt onClick={() => moSua(r)} />
-                    {laAdmin ? <NutXoaQt onClick={() => void xoa(r.ma)} /> : null}
+                    {laAdmin ? <NutXoaQt onClick={() => datXoaChon(r)} /> : null}
                   </td>
                 </tr>
               ))}
@@ -202,6 +244,7 @@ export function TrangChuyenXe() {
         }
       >
         <div className="form-stack">
+          {loiBieu.chung ? <p className="form-alert form-alert--error">{loiBieu.chung}</p> : null}
           <TruongChon
             nhan="Tuyến"
             value={bieu.maTuyen === '' ? '' : String(bieu.maTuyen)}
@@ -233,6 +276,7 @@ export function TrangChuyenXe() {
             type="datetime-local"
             value={bieu.thoiDiemKhoiHanh}
             onChange={(e) => datBieu({ ...bieu, thoiDiemKhoiHanh: e.target.value })}
+            loi={loiBieu.thoiDiemKhoiHanh}
             required
           />
           <TruongNhap
@@ -240,12 +284,15 @@ export function TrangChuyenXe() {
             type="datetime-local"
             value={bieu.thoiDiemDen}
             onChange={(e) => datBieu({ ...bieu, thoiDiemDen: e.target.value })}
+            loi={loiBieu.thoiDiemDen}
           />
           <TruongNhap
             nhan="Giá vé (VNĐ)"
             type="number"
+            min={1}
             value={bieu.giaVe}
             onChange={(e) => datBieu({ ...bieu, giaVe: Number(e.target.value) })}
+            loi={loiBieu.giaVe}
           />
           <TruongChon
             nhan="Trạng thái"
@@ -257,6 +304,22 @@ export function TrangChuyenXe() {
           </TruongChon>
         </div>
       </CuaSo>
+
+      <CuaSoXacNhanXoa
+        open={xoaChon !== null}
+        title="Xóa chuyến xe"
+        nhanNutXoa="Xóa chuyến"
+        dangXoa={dangXoa}
+        onClose={() => datXoaChon(null)}
+        onConfirm={() => void xacNhanXoa()}
+      >
+        {xoaChon ? (
+          <p className="modal-confirm-text">
+            Bạn có chắc muốn xóa chuyến <strong>#{xoaChon.ma}</strong> ({tenTuyen(xoaChon.maTuyen)},{' '}
+            {hienThiBienSoXe(xoaChon.maXe)})? Thao tác không thể hoàn tác.
+          </p>
+        ) : null}
+      </CuaSoXacNhanXoa>
     </div>
   )
 }

@@ -51,6 +51,7 @@ public class DichVuLoaiXe {
     }
 
     public LoaiXe them(LoaiXe x) {
+        chuanHoaVaKiemTra(x, null);
         if (x.getHoatDong() == null) {
             x.setHoatDong(true);
         }
@@ -60,10 +61,30 @@ public class DichVuLoaiXe {
     }
 
     public LoaiXe capNhat(LoaiXe x) {
+        if (x.getMa() == null) {
+            throw new IllegalArgumentException("Thiếu mã loại xe");
+        }
         layTheoMa(x.getMa());
+        chuanHoaVaKiemTra(x, x.getMa());
         x.setDsAnh(null);
         anhXaLoaiXe.capNhat(x);
         return layTheoMa(x.getMa());
+    }
+
+    private void chuanHoaVaKiemTra(LoaiXe x, Long maLoaiTru) {
+        if (x.getTen() != null) {
+            x.setTen(x.getTen().trim().replaceAll("\\s+", " "));
+        }
+        if (x.getMoTa() != null) {
+            x.setMoTa(x.getMoTa().trim());
+        }
+        if (x.getTen() == null || x.getTen().isBlank()) {
+            throw new IllegalArgumentException("Tên loại xe không được để trống");
+        }
+        LoaiXe trung = anhXaLoaiXe.timTheoTen(x.getTen(), maLoaiTru);
+        if (trung != null) {
+            throw new IllegalArgumentException("Loại xe « " + trung.getTen() + " » đã tồn tại");
+        }
     }
 
     @Transactional

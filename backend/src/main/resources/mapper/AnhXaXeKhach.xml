@@ -12,6 +12,11 @@
     </resultMap>
 
     <select id="timTheoMa" resultMap="banDo">SELECT * FROM xe_khach WHERE ma = #{ma}</select>
+    <select id="timTheoBienSo" resultMap="banDo">
+        SELECT * FROM xe_khach WHERE UPPER(REPLACE(TRIM(bien_so), ' ', '')) = UPPER(REPLACE(TRIM(#{bienSo}), ' ', ''))
+        <if test="maLoaiTru != null">AND ma != #{maLoaiTru}</if>
+        LIMIT 1
+    </select>
     <select id="tatCa" resultMap="banDo">SELECT * FROM xe_khach ORDER BY ma DESC</select>
 
     <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">

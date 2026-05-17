@@ -7,6 +7,8 @@ import { TheChua, TieuDeThe } from '../../thanhPhan/theChua'
 import { NutBam, NutSuaQt, NutXoaQt } from '../../thanhPhan/nutBam'
 import { TruongNhap, TruongVanBan } from '../../thanhPhan/truongNhap'
 import { CuaSo } from '../../thanhPhan/cuaSo'
+import { CuaSoXacNhanXoa } from '../../thanhPhan/cuaSoXacNhanXoa'
+import { chuanHoaChuoi } from '../../tienIch/kiemTraQuanTri'
 
 function raLocal(iso: string | undefined): string {
   if (!iso) return ''
@@ -22,6 +24,9 @@ export function TrangTinTucQuanTri() {
   const [ds, datDs] = useState<TinTuc[]>([])
   const [mo, datMo] = useState(false)
   const [sua, datSua] = useState<TinTuc | null>(null)
+  const [xoaChon, datXoaChon] = useState<TinTuc | null>(null)
+  const [dangXoa, datDangXoa] = useState(false)
+  const [loiBieu, datLoiBieu] = useState<Partial<Record<'tieuDe' | 'noiDung', string>>>({})
   const [bieu, datBieu] = useState({
     tieuDe: '',
     tomTat: '',
@@ -46,6 +51,7 @@ export function TrangTinTucQuanTri() {
 
   function moThe() {
     datSua(null)
+    datLoiBieu({})
     datBieu({
       tieuDe: '',
       tomTat: '',
@@ -59,6 +65,7 @@ export function TrangTinTucQuanTri() {
 
   function moSua(t: TinTuc) {
     datSua(t)
+    datLoiBieu({})
     datBieu({
       tieuDe: t.tieuDe,
       tomTat: t.tomTat ?? '',
@@ -71,10 +78,22 @@ export function TrangTinTucQuanTri() {
   }
 
   async function luu() {
+    const tieuDe = chuanHoaChuoi(bieu.tieuDe)
+    const noiDung = bieu.noiDung.trim()
+    const loi: Partial<Record<'tieuDe' | 'noiDung', string>> = {}
+    if (!tieuDe) loi.tieuDe = 'Nhập tiêu đề'
+    if (!noiDung) loi.noiDung = 'Nhập nội dung'
+    datLoiBieu(loi)
+    if (Object.keys(loi).length > 0) return
+
     try {
       const than = {
-        ...bieu,
+        tieuDe,
+        tomTat: bieu.tomTat.trim(),
+        noiDung,
+        duongAnh: bieu.duongAnh.trim(),
         ngayXuatBan: bieu.ngayXuatBan ? new Date(bieu.ngayXuatBan).toISOString() : undefined,
+        hoatDong: bieu.hoatDong,
       }
       if (sua) {
         await moKhoiDuLieu(khachHttp.put<PhanHoi<TinTuc>>(`/tin-tuc/${sua.ma}`, { ...than, ma: sua.ma }))
@@ -89,14 +108,18 @@ export function TrangTinTucQuanTri() {
     }
   }
 
-  async function xoa(ma: number) {
-    if (!confirm('Xóa bài tin này?')) return
+  async function xacNhanXoa() {
+    if (!xoaChon) return
+    datDangXoa(true)
     try {
-      await moKhoiDuLieu(khachHttp.delete<PhanHoi<unknown>>(`/tin-tuc/${ma}`))
+      await moKhoiDuLieu(khachHttp.delete<PhanHoi<unknown>>(`/tin-tuc/${xoaChon.ma}`))
+      datXoaChon(null)
       void taiDS()
       hienThi({ loai: 'thanhCong', noiDung: 'Đã xóa tin.' })
     } catch (e: unknown) {
       hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi xóa' })
+    } finally {
+      datDangXoa(false)
     }
   }
 
@@ -128,7 +151,7 @@ export function TrangTinTucQuanTri() {
                   <td>{r.hoatDong ? 'Có' : 'Không'}</td>
                   <td className="row-actions">
                     <NutSuaQt onClick={() => moSua(r)} />
-                    {laAdmin ? <NutXoaQt onClick={() => void xoa(r.ma)} /> : null}
+                    {laAdmin ? <NutXoaQt onClick={() => datXoaChon(r)} /> : null}
                   </td>
                 </tr>
               ))}
@@ -153,6 +176,7 @@ export function TrangTinTucQuanTri() {
             nhan="Tiêu đề"
             value={bieu.tieuDe}
             onChange={(e) => datBieu({ ...bieu, tieuDe: e.target.value })}
+            loi={loiBieu.tieuDe}
             required
           />
           <TruongNhap
@@ -166,6 +190,7 @@ export function TrangTinTucQuanTri() {
             rows={6}
             value={bieu.noiDung}
             onChange={(e) => datBieu({ ...bieu, noiDung: e.target.value })}
+            loi={loiBieu.noiDung}
             required
           />
           <TruongNhap
@@ -189,6 +214,21 @@ export function TrangTinTucQuanTri() {
           </label>
         </div>
       </CuaSo>
+
+      <CuaSoXacNhanXoa
+        open={xoaChon !== null}
+        title="Xóa bài tin"
+        nhanNutXoa="Xóa tin"
+        dangXoa={dangXoa}
+        onClose={() => datXoaChon(null)}
+        onConfirm={() => void xacNhanXoa()}
+      >
+        {xoaChon ? (
+          <p className="modal-confirm-text">
+            Bạn có chắc muốn xóa bài <strong>{xoaChon.tieuDe}</strong>? Thao tác không thể hoàn tác.
+          </p>
+        ) : null}
+      </CuaSoXacNhanXoa>
     </div>
   )
 }

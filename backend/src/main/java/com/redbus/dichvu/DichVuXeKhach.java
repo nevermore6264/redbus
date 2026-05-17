@@ -26,6 +26,7 @@ public class DichVuXeKhach {
     }
 
     public XeKhach them(XeKhach x) {
+        chuanHoaVaKiemTra(x, null);
         if (x.getHoatDong() == null) {
             x.setHoatDong(true);
         }
@@ -34,8 +35,35 @@ public class DichVuXeKhach {
     }
 
     public XeKhach capNhat(XeKhach x) {
+        if (x.getMa() == null) {
+            throw new IllegalArgumentException("Thiếu mã xe");
+        }
+        layTheoMa(x.getMa());
+        chuanHoaVaKiemTra(x, x.getMa());
         anhXaXeKhach.capNhat(x);
         return anhXaXeKhach.timTheoMa(x.getMa());
+    }
+
+    private void chuanHoaVaKiemTra(XeKhach x, Long maLoaiTru) {
+        if (x.getBienSo() != null) {
+            x.setBienSo(x.getBienSo().trim().replaceAll("\\s+", "").toUpperCase());
+        }
+        if (x.getHangXe() != null) {
+            x.setHangXe(x.getHangXe().trim().replaceAll("\\s+", " "));
+        }
+        if (x.getMaLoaiXe() == null) {
+            throw new IllegalArgumentException("Chọn loại xe");
+        }
+        if (x.getBienSo() == null || x.getBienSo().isBlank()) {
+            throw new IllegalArgumentException("Biển số không được để trống");
+        }
+        if (x.getSoCho() == null || x.getSoCho() <= 0) {
+            throw new IllegalArgumentException("Số chỗ phải lớn hơn 0");
+        }
+        XeKhach trung = anhXaXeKhach.timTheoBienSo(x.getBienSo(), maLoaiTru);
+        if (trung != null) {
+            throw new IllegalArgumentException("Biển số « " + trung.getBienSo() + " » đã tồn tại");
+        }
     }
 
     public void xoa(Long ma) {

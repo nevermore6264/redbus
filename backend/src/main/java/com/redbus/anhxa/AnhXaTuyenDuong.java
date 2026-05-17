@@ -20,4 +20,9 @@ public interface AnhXaTuyenDuong {
     int capNhat(TuyenDuong tuyenDuong);
 
     int xoa(@Param("ma") Long ma);
+
+    TuyenDuong timTheoCapDiem(
+            @Param("diemDi") String diemDi,
+            @Param("diemDen") String diemDen,
+            @Param("maLoaiTru") Long maLoaiTru);
 }

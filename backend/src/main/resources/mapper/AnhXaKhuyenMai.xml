@@ -18,6 +18,8 @@
     <select id="timTheoMa" resultMap="banDo">SELECT * FROM khuyen_mai WHERE ma = #{ma}</select>
     <select id="timTheoMaCode" resultMap="banDo">
         SELECT * FROM khuyen_mai WHERE UPPER(TRIM(ma_code)) = UPPER(TRIM(#{maCode}))
+        <if test="maLoaiTru != null">AND ma != #{maLoaiTru}</if>
+        LIMIT 1
     </select>
     <select id="tatCa" resultMap="banDo">SELECT * FROM khuyen_mai ORDER BY ma DESC</select>
 

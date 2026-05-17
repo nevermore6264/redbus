@@ -13,6 +13,12 @@
     </resultMap>
 
     <select id="timTheoMa" resultMap="banDo">SELECT * FROM chuyen_xe WHERE ma = #{ma}</select>
+    <select id="timTrungChuyen" resultMap="banDo">
+        SELECT * FROM chuyen_xe
+        WHERE ma_tuyen = #{maTuyen} AND ma_xe = #{maXe} AND thoi_diem_khoi_hanh = #{thoiDiemKhoiHanh}
+        <if test="maLoaiTru != null">AND ma != #{maLoaiTru}</if>
+        LIMIT 1
+    </select>
 
     <select id="timTheoTuyenVaSauThoiDiem" resultMap="banDo">
         SELECT * FROM chuyen_xe WHERE ma_tuyen = #{maTuyen} AND thoi_diem_khoi_hanh &gt;= #{tuLuc}

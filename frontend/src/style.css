@@ -811,6 +811,26 @@ code {
   gap: 0.25rem;
 }
 
+.form-alert {
+  margin: 0 0 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.form-alert--error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+.modal-confirm-text {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--text);
+}
+
 .form-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;

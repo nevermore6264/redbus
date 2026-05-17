@@ -72,7 +72,7 @@ public class DichVuThanhToan {
         BigDecimal gia = cx.getGiaVe();
         Long maKm = null;
         if (maKhuyenMai != null && !maKhuyenMai.isBlank()) {
-            KhuyenMai km = anhXaKhuyenMai.timTheoMaCode(maKhuyenMai.trim());
+            KhuyenMai km = anhXaKhuyenMai.timTheoMaCode(maKhuyenMai.trim(), null);
             if (km == null || !Boolean.TRUE.equals(km.getHoatDong())) {
                 throw new IllegalArgumentException("Mã khuyến mãi không hợp lệ");
             }

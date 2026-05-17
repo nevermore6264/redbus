@@ -7,6 +7,8 @@ import { TheChua, TieuDeThe } from '../../thanhPhan/theChua'
 import { NutBam, NutSuaQt, NutXoaQt } from '../../thanhPhan/nutBam'
 import { TruongNhap, TruongChon } from '../../thanhPhan/truongNhap'
 import { CuaSo } from '../../thanhPhan/cuaSo'
+import { CuaSoXacNhanXoa } from '../../thanhPhan/cuaSoXacNhanXoa'
+import { chuanHoaChuoi, soSanhKhongPhanBiet } from '../../tienIch/kiemTraQuanTri'
 
 export function TrangDiemDungChan() {
   const { nguoiDung } = dungNguoiDung()
@@ -17,7 +19,26 @@ export function TrangDiemDungChan() {
   const [ds, datDs] = useState<DiemDungChan[]>([])
   const [mo, datMo] = useState(false)
   const [sua, datSua] = useState<DiemDungChan | null>(null)
+  const [xoaChon, datXoaChon] = useState<DiemDungChan | null>(null)
+  const [dangXoa, datDangXoa] = useState(false)
+  const [loiBieu, datLoiBieu] = useState<
+    Partial<Record<'tenDiem' | 'thuTu' | 'thoiGianDungPhut' | 'chung', string>>
+  >({})
   const [bieu, datBieu] = useState({ tenDiem: '', thuTu: 0, thoiGianDungPhut: 5 })
+
+  function trungThuTu(thuTu: number, maLoaiTru?: number) {
+    return ds.some((d) => {
+      if (maLoaiTru != null && d.ma === maLoaiTru) return false
+      return d.thuTu === thuTu
+    })
+  }
+
+  function trungTenDiem(tenDiem: string, maLoaiTru?: number) {
+    return ds.some((d) => {
+      if (maLoaiTru != null && d.ma === maLoaiTru) return false
+      return soSanhKhongPhanBiet(d.tenDiem, tenDiem)
+    })
+  }
 
   async function taiTuyen() {
     try {
@@ -52,12 +73,14 @@ export function TrangDiemDungChan() {
   function moThe() {
     if (maTuyen === '') return
     datSua(null)
+    datLoiBieu({})
     datBieu({ tenDiem: '', thuTu: ds.length, thoiGianDungPhut: 5 })
     datMo(true)
   }
 
   function moSua(d: DiemDungChan) {
     datSua(d)
+    datLoiBieu({})
     datBieu({
       tenDiem: d.tenDiem,
       thuTu: d.thuTu ?? 0,
@@ -68,8 +91,18 @@ export function TrangDiemDungChan() {
 
   async function luu() {
     if (maTuyen === '') return
+    const tenDiem = chuanHoaChuoi(bieu.tenDiem)
+    const loi: Partial<Record<'tenDiem' | 'thuTu' | 'thoiGianDungPhut' | 'chung', string>> = {}
+    if (!tenDiem) loi.tenDiem = 'Nhập tên điểm dừng'
+    if (bieu.thuTu < 0) loi.thuTu = 'Thứ tự phải từ 0 trở lên'
+    if (bieu.thoiGianDungPhut < 0) loi.thoiGianDungPhut = 'Thời gian dừng không hợp lệ'
+    if (trungThuTu(bieu.thuTu, sua?.ma)) loi.thuTu = `Thứ tự ${bieu.thuTu} đã có trên tuyến này`
+    if (tenDiem && trungTenDiem(tenDiem, sua?.ma)) loi.chung = `Điểm « ${tenDiem} » đã có trên tuyến này`
+    datLoiBieu(loi)
+    if (Object.keys(loi).length > 0) return
+
     try {
-      const than = { ...bieu, maTuyen: Number(maTuyen) }
+      const than = { tenDiem, thuTu: bieu.thuTu, thoiGianDungPhut: bieu.thoiGianDungPhut, maTuyen: Number(maTuyen) }
       if (sua) {
         await moKhoiDuLieu(khachHttp.put<PhanHoi<DiemDungChan>>(`/diem-dung/${sua.ma}`, { ...than, ma: sua.ma }))
       } else {
@@ -83,14 +116,18 @@ export function TrangDiemDungChan() {
     }
   }
 
-  async function xoa(ma: number) {
-    if (!confirm('Xóa điểm dừng này?')) return
+  async function xacNhanXoa() {
+    if (!xoaChon) return
+    datDangXoa(true)
     try {
-      await moKhoiDuLieu(khachHttp.delete<PhanHoi<unknown>>(`/diem-dung/${ma}`))
+      await moKhoiDuLieu(khachHttp.delete<PhanHoi<unknown>>(`/diem-dung/${xoaChon.ma}`))
+      datXoaChon(null)
       void taiDiem()
       hienThi({ loai: 'thanhCong', noiDung: 'Đã xóa.' })
     } catch (e: unknown) {
       hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi xóa' })
+    } finally {
+      datDangXoa(false)
     }
   }
 
@@ -140,7 +177,7 @@ export function TrangDiemDungChan() {
                   <td>{r.thoiGianDungPhut}</td>
                   <td className="row-actions">
                     <NutSuaQt onClick={() => moSua(r)} />
-                    {laAdmin ? <NutXoaQt onClick={() => void xoa(r.ma)} /> : null}
+                    {laAdmin ? <NutXoaQt onClick={() => datXoaChon(r)} /> : null}
                   </td>
                 </tr>
               ))}
@@ -160,26 +197,47 @@ export function TrangDiemDungChan() {
         }
       >
         <div className="form-stack">
+          {loiBieu.chung ? <p className="form-alert form-alert--error">{loiBieu.chung}</p> : null}
           <TruongNhap
             nhan="Tên điểm"
             value={bieu.tenDiem}
             onChange={(e) => datBieu({ ...bieu, tenDiem: e.target.value })}
+            loi={loiBieu.tenDiem}
             required
           />
           <TruongNhap
             type="number"
             nhan="Thứ tự"
+            min={0}
             value={bieu.thuTu}
             onChange={(e) => datBieu({ ...bieu, thuTu: Number(e.target.value) })}
+            loi={loiBieu.thuTu}
           />
           <TruongNhap
             type="number"
             nhan="Phút dừng"
+            min={0}
             value={bieu.thoiGianDungPhut}
             onChange={(e) => datBieu({ ...bieu, thoiGianDungPhut: Number(e.target.value) })}
+            loi={loiBieu.thoiGianDungPhut}
           />
         </div>
       </CuaSo>
+
+      <CuaSoXacNhanXoa
+        open={xoaChon !== null}
+        title="Xóa điểm dừng"
+        nhanNutXoa="Xóa điểm"
+        dangXoa={dangXoa}
+        onClose={() => datXoaChon(null)}
+        onConfirm={() => void xacNhanXoa()}
+      >
+        {xoaChon ? (
+          <p className="modal-confirm-text">
+            Bạn có chắc muốn xóa điểm <strong>{xoaChon.tenDiem}</strong>? Thao tác không thể hoàn tác.
+          </p>
+        ) : null}
+      </CuaSoXacNhanXoa>
     </div>
   )
 }

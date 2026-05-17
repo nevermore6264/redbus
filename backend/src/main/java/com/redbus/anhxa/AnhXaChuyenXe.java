@@ -12,6 +12,12 @@ public interface AnhXaChuyenXe {
 
     ChuyenXe timTheoMa(@Param("ma") Long ma);
 
+    ChuyenXe timTrungChuyen(
+            @Param("maTuyen") Long maTuyen,
+            @Param("maXe") Long maXe,
+            @Param("thoiDiemKhoiHanh") LocalDateTime thoiDiemKhoiHanh,
+            @Param("maLoaiTru") Long maLoaiTru);
+
     List<ChuyenXe> timTheoTuyenVaSauThoiDiem(@Param("maTuyen") Long maTuyen, @Param("tuLuc") LocalDateTime tuLuc);
 
     List<ChuyenXe> tatCa();

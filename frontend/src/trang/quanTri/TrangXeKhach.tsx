@@ -7,6 +7,8 @@ import { TheChua, TieuDeThe } from '../../thanhPhan/theChua'
 import { NutBam, NutSuaQt, NutXoaQt } from '../../thanhPhan/nutBam'
 import { TruongNhap, TruongChon } from '../../thanhPhan/truongNhap'
 import { CuaSo } from '../../thanhPhan/cuaSo'
+import { CuaSoXacNhanXoa } from '../../thanhPhan/cuaSoXacNhanXoa'
+import { chuanHoaBienSo } from '../../tienIch/kiemTraQuanTri'
 
 export function TrangXeKhach() {
   const { nguoiDung } = dungNguoiDung()
@@ -16,6 +18,9 @@ export function TrangXeKhach() {
   const [mo, datMo] = useState(false)
   const [sua, datSua] = useState<XeKhach | null>(null)
   const [dsLoai, datDsLoai] = useState<LoaiXe[]>([])
+  const [xoaChon, datXoaChon] = useState<XeKhach | null>(null)
+  const [dangXoa, datDangXoa] = useState(false)
+  const [loiBieu, datLoiBieu] = useState<Partial<Record<'maLoaiXe' | 'bienSo' | 'soCho' | 'chung', string>>>({})
   const [bieu, datBieu] = useState<{
     maLoaiXe: number | ''
     bienSo: string
@@ -23,6 +28,14 @@ export function TrangXeKhach() {
     soCho: number
     hoatDong: boolean
   }>({ maLoaiXe: '', bienSo: '', hangXe: '', soCho: 40, hoatDong: true })
+
+  function trungBienSo(bienSo: string, maLoaiTru?: number) {
+    const a = chuanHoaBienSo(bienSo)
+    return ds.some((x) => {
+      if (maLoaiTru != null && x.ma === maLoaiTru) return false
+      return chuanHoaBienSo(x.bienSo) === a
+    })
+  }
 
   function tenLoaiXe(maLoai?: number | null) {
     if (maLoai == null) return '—'
@@ -49,6 +62,7 @@ export function TrangXeKhach() {
 
   function moThe() {
     datSua(null)
+    datLoiBieu({})
     datBieu({
       maLoaiXe: dsLoai[0]?.ma ?? '',
       bienSo: '',
@@ -61,6 +75,7 @@ export function TrangXeKhach() {
 
   function moSua(t: XeKhach) {
     datSua(t)
+    datLoiBieu({})
     datBieu({
       maLoaiXe: t.maLoaiXe ?? '',
       bienSo: t.bienSo,
@@ -72,10 +87,24 @@ export function TrangXeKhach() {
   }
 
   async function luu() {
+    const loi: Partial<Record<'maLoaiXe' | 'bienSo' | 'soCho' | 'chung', string>> = {}
+    const bienSo = chuanHoaBienSo(bieu.bienSo)
+    if (bieu.maLoaiXe === '') loi.maLoaiXe = 'Chọn loại xe'
+    if (!bienSo) loi.bienSo = 'Nhập biển số'
+    if (!Number.isFinite(bieu.soCho) || bieu.soCho <= 0) loi.soCho = 'Số chỗ phải lớn hơn 0'
+    if (bienSo && trungBienSo(bienSo, sua?.ma)) {
+      loi.chung = `Biển số « ${bienSo} » đã tồn tại`
+    }
+    datLoiBieu(loi)
+    if (Object.keys(loi).length > 0) return
+
     try {
       const payload = {
-        ...bieu,
         maLoaiXe: bieu.maLoaiXe === '' ? undefined : bieu.maLoaiXe,
+        bienSo,
+        hangXe: bieu.hangXe.trim(),
+        soCho: bieu.soCho,
+        hoatDong: bieu.hoatDong,
       }
       if (sua) {
         await moKhoiDuLieu(
@@ -92,14 +121,18 @@ export function TrangXeKhach() {
     }
   }
 
-  async function xoa(ma: number) {
-    if (!confirm('Xóa xe này?')) return
+  async function xacNhanXoa() {
+    if (!xoaChon) return
+    datDangXoa(true)
     try {
-      await moKhoiDuLieu(khachHttp.delete<PhanHoi<unknown>>(`/xe-khach/${ma}`))
+      await moKhoiDuLieu(khachHttp.delete<PhanHoi<unknown>>(`/xe-khach/${xoaChon.ma}`))
+      datXoaChon(null)
       void taiDS()
       hienThi({ loai: 'thanhCong', noiDung: 'Đã xóa xe.' })
     } catch (e: unknown) {
       hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi xóa' })
+    } finally {
+      datDangXoa(false)
     }
   }
 
@@ -137,7 +170,7 @@ export function TrangXeKhach() {
                   <td>{r.soCho}</td>
                   <td className="row-actions">
                     <NutSuaQt onClick={() => moSua(r)} />
-                    {laAdmin ? <NutXoaQt onClick={() => void xoa(r.ma)} /> : null}
+                    {laAdmin ? <NutXoaQt onClick={() => datXoaChon(r)} /> : null}
                   </td>
                 </tr>
               ))}
@@ -158,6 +191,7 @@ export function TrangXeKhach() {
         }
       >
         <div className="form-stack">
+          {loiBieu.chung ? <p className="form-alert form-alert--error">{loiBieu.chung}</p> : null}
           <TruongChon
             nhan="Loại xe"
             value={bieu.maLoaiXe === '' ? '' : String(bieu.maLoaiXe)}
@@ -176,6 +210,7 @@ export function TrangXeKhach() {
             nhan="Biển số"
             value={bieu.bienSo}
             onChange={(e) => datBieu({ ...bieu, bienSo: e.target.value })}
+            loi={loiBieu.bienSo}
             required
           />
           <TruongNhap
@@ -186,8 +221,10 @@ export function TrangXeKhach() {
           <TruongNhap
             nhan="Số chỗ"
             type="number"
+            min={1}
             value={bieu.soCho}
             onChange={(e) => datBieu({ ...bieu, soCho: Number(e.target.value) })}
+            loi={loiBieu.soCho}
             required
           />
           <label className="check">
@@ -200,6 +237,21 @@ export function TrangXeKhach() {
           </label>
         </div>
       </CuaSo>
+
+      <CuaSoXacNhanXoa
+        open={xoaChon !== null}
+        title="Xóa xe khách"
+        nhanNutXoa="Xóa xe"
+        dangXoa={dangXoa}
+        onClose={() => datXoaChon(null)}
+        onConfirm={() => void xacNhanXoa()}
+      >
+        {xoaChon ? (
+          <p className="modal-confirm-text">
+            Bạn có chắc muốn xóa xe biển số <strong>{xoaChon.bienSo}</strong>? Thao tác không thể hoàn tác.
+          </p>
+        ) : null}
+      </CuaSoXacNhanXoa>
     </div>
   )
 }

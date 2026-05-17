@@ -11,6 +11,11 @@
     </resultMap>
 
     <select id="timTheoMa" resultMap="banDo">SELECT * FROM loai_xe WHERE ma = #{ma}</select>
+    <select id="timTheoTen" resultMap="banDo">
+        SELECT * FROM loai_xe WHERE LOWER(TRIM(ten)) = LOWER(TRIM(#{ten}))
+        <if test="maLoaiTru != null">AND ma != #{maLoaiTru}</if>
+        LIMIT 1
+    </select>
     <select id="tatCa" resultMap="banDo">SELECT * FROM loai_xe ORDER BY ma</select>
 
     <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
