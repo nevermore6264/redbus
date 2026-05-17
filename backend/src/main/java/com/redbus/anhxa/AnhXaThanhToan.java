@@ -9,7 +9,6 @@ import java.util.List;
 @Mapper
 public interface AnhXaThanhToan {
 
-    /** ma = ma ve da thanh toan (PAID) */
     GiaoDichThanhToan timTheoMa(@Param("ma") Long ma);
 
     List<GiaoDichThanhToan> tatCa();

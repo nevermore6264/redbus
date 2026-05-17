@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 
-/** Đếm từ 0 đến `mucTieu` trong ~1.4s khi phần tử vào viewport. */
 export function useDemSoKhiHien(mucTieu: number) {
   const [giaTri, datGiaTri] = useState(0)
   const ref = useRef<HTMLDivElement>(null)

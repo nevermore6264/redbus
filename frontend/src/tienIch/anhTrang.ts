@@ -9,7 +9,7 @@ export const ANH_CO_DINH = {
   ghe: `${GOC}/ghe-xe-khach.jpg`,
   thanhToan: `${GOC}/dat-ve-quay.jpg`,
   veDienTu: `${GOC}/ve-dien-tu.jpg`,
-  khuyenMai: `${GOC}/khuyen-mai.jpg`,
+  khuyenMai: `${GOC}/xe-ngoai-2.jpg`,
   cta: `${GOC}/duong-cao-toc.jpg`,
   benXe: `${GOC}/ben-xe.jpg`,
   tinMacDinh: `${GOC}/ben-xe.jpg`,

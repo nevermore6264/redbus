@@ -1,6 +1,5 @@
 import { useEffect, useRef, type RefObject } from 'react'
 
-/** Gắn ref vào container; các phần tử con có class `home-reveal` sẽ nhận `home-reveal--visible` khi vào viewport. */
 export function useKhoiHienKhiCuon(deps: unknown[] = []) {
   const ref = useRef<HTMLDivElement>(null)
 
