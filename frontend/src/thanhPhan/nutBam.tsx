@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes, ComponentProps, ReactNode } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Save, Trash2, X } from 'lucide-react'
 
 export type BienNut = 'chinh' | 'phu' | 'mo' | 'nguyHiem' | 'vien' | 'huy'
 
@@ -10,6 +10,33 @@ const lop: Record<BienNut, string> = {
   nguyHiem: 'btn btn--danger',
   vien: 'btn btn--outline',
   huy: 'btn btn--cancel',
+}
+
+const KICH_THUOC_ICON = 16
+
+function laChuoi(node: ReactNode): node is string {
+  return typeof node === 'string'
+}
+
+function noiDungCoIcon(bien: BienNut, con?: ReactNode): ReactNode {
+  if (con == null || con === '') return con
+  if (bien === 'huy' && laChuoi(con) && /^Hủy/i.test(con.trim())) {
+    return (
+      <>
+        <X size={KICH_THUOC_ICON} strokeWidth={2} aria-hidden />
+        {con}
+      </>
+    )
+  }
+  if (bien === 'chinh' && laChuoi(con) && /^Lưu/i.test(con.trim())) {
+    return (
+      <>
+        <Save size={KICH_THUOC_ICON} strokeWidth={2} aria-hidden />
+        {con}
+      </>
+    )
+  }
+  return con
 }
 
 export function NutBam({
@@ -32,7 +59,7 @@ export function NutBam({
       {...props}
     >
       {dangTai ? <span className="btn__spinner" aria-hidden /> : null}
-      {con}
+      {noiDungCoIcon(bien, con)}
     </button>
   )
 }

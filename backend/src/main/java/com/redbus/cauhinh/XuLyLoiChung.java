@@ -39,7 +39,7 @@ public class XuLyLoiChung {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<PhanHoiChung<Void>> chung(Exception ex) {
-        String td = ex.getMessage() != null ? ex.getMessage() : "Loi he thong";
+        String td = ex.getMessage() != null ? ex.getMessage() : "Có vấn đề về hệ thông";
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(PhanHoiChung.loi(td));
     }
 }
