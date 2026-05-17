@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Ticket } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Armchair, CalendarClock, MapPin, RefreshCw, Tag, Ticket } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
 import type { PhanHoi, PhanHoiLinkPayOs, VeXe, ChuyenXe, TuyenDuong, GheNgoi } from '../nguon/kieu'
 import { dungThongBao } from '../dinhDanh/boiCanhThongBao'
@@ -10,8 +10,25 @@ import { TruongNhap } from '../thanhPhan/truongNhap'
 import { NhanHieu } from '../thanhPhan/nhanHieu'
 import { dinhDangNgayGio, dinhDangVnd } from '../tienIch/dinhDang'
 import { trangThaiSangTiengViet } from '../tienIch/trangThai'
+import { rutGonTenDiaDanh } from '../tienIch/rutGonDiaDanh'
 
-type BamPhu = { tuyen: string; gio: string; gia: string; maGhe: string }
+type BamPhu = {
+  diemDi: string
+  diemDen: string
+  tuyenDayDu: string
+  gio: string
+  gia: string
+  maGhe: string
+}
+
+type BoLoc = 'ALL' | 'PENDING' | 'PAID' | 'CANCELLED'
+
+const BO_LOC: { ma: BoLoc; nhan: string }[] = [
+  { ma: 'ALL', nhan: 'Tất cả' },
+  { ma: 'PENDING', nhan: 'Chờ thanh toán' },
+  { ma: 'PAID', nhan: 'Đã thanh toán' },
+  { ma: 'CANCELLED', nhan: 'Đã hủy' },
+]
 
 export function TrangVeCuaToi() {
   const { hienThi } = dungThongBao()
@@ -19,6 +36,8 @@ export function TrangVeCuaToi() {
   const [phu, datPhu] = useState<Record<number, BamPhu>>({})
   const [tai, datTai] = useState(true)
   const [maKhuyenMai, datMaKhuyenMai] = useState('')
+  const [boLoc, datBoLoc] = useState<BoLoc>('ALL')
+  const [veDangXuLy, datVeDangXuLy] = useState<number | null>(null)
 
   async function lamMoi() {
     datTai(true)
@@ -38,7 +57,9 @@ export function TrangVeCuaToi() {
         )
         const g = gheList.find((x) => x.ma === t.maGhe)
         phuMoi[t.ma] = {
-          tuyen: `${r.diemDi} → ${r.diemDen}`,
+          diemDi: r.diemDi,
+          diemDen: r.diemDen,
+          tuyenDayDu: `${r.diemDi} → ${r.diemDen}`,
           gio: dinhDangNgayGio(cx.thoiDiemKhoiHanh),
           gia: dinhDangVnd(cx.giaVe),
           maGhe: g?.maGhe ?? String(t.maGhe),
@@ -56,7 +77,23 @@ export function TrangVeCuaToi() {
     void lamMoi()
   }, [])
 
+  const dsHien = useMemo(() => {
+    if (boLoc === 'ALL') return dsVe
+    return dsVe.filter((v) => v.trangThai === boLoc)
+  }, [dsVe, boLoc])
+
+  const demTheoLoc = useMemo(() => {
+    const dem: Record<BoLoc, number> = { ALL: dsVe.length, PENDING: 0, PAID: 0, CANCELLED: 0 }
+    for (const v of dsVe) {
+      if (v.trangThai === 'PENDING') dem.PENDING++
+      else if (v.trangThai === 'PAID') dem.PAID++
+      else if (v.trangThai === 'CANCELLED') dem.CANCELLED++
+    }
+    return dem
+  }, [dsVe])
+
   async function thanhToanTienMat(maVe: number) {
+    datVeDangXuLy(maVe)
     try {
       const than = maKhuyenMai.trim() ? { maKhuyenMai: maKhuyenMai.trim() } : {}
       await moKhoiDuLieu(
@@ -66,10 +103,13 @@ export function TrangVeCuaToi() {
       void lamMoi()
     } catch (e: unknown) {
       hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Thanh toán thất bại' })
+    } finally {
+      datVeDangXuLy(null)
     }
   }
 
   async function thanhToanPayOs(maVe: number) {
+    datVeDangXuLy(maVe)
     try {
       const than = maKhuyenMai.trim() ? { maKhuyenMai: maKhuyenMai.trim() } : {}
       const link = await moKhoiDuLieu(
@@ -79,20 +119,25 @@ export function TrangVeCuaToi() {
         window.location.href = link.checkoutUrl
       } else {
         hienThi({ loai: 'loi', noiDung: 'Không nhận được link PayOS' })
+        datVeDangXuLy(null)
       }
     } catch (e: unknown) {
       hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Không tạo được link PayOS' })
+      datVeDangXuLy(null)
     }
   }
 
   async function huyVe(ma: number) {
     if (!confirm('Bạn có chắc muốn hủy vé này?')) return
+    datVeDangXuLy(ma)
     try {
       await moKhoiDuLieu(khachHttp.post<PhanHoi<unknown>>(`/ve-xe/${ma}/huy`))
       hienThi({ loai: 'thanhCong', noiDung: 'Đã hủy vé' })
       void lamMoi()
     } catch (e: unknown) {
-      hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Có lỗi tải dữ liệu' })
+      hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Hủy vé thất bại' })
+    } finally {
+      datVeDangXuLy(null)
     }
   }
 
@@ -100,121 +145,157 @@ export function TrangVeCuaToi() {
     <NenTrangKhach
       Icon={Ticket}
       tieuDe="Vé của tôi"
-      moTa="Thanh toán PayOS (QR/chuyển khoản) hoặc tiền mặt tại quầy. Email xác nhận gửi sau khi thanh toán."
+      moTa="Quản lý vé, thanh toán PayOS hoặc tiền mặt tại quầy."
     >
-      <TheChua padding="none" className="cust-panel" aria-busy={tai}>
-        <div className="table-wrap-pad cust-promo">
-          <TieuDeThe
-            title="Danh sách vé"
-            subtitle="Mã khuyến mãi áp dụng khi thanh toán vé đang chờ."
-            action={<NutBam bien="vien" onClick={lamMoi} dangTai={tai} con="Làm mới" />}
-          />
-          <div className="cust-promo__inner">
+      <TheChua padding="none" className="cust-panel ve-panel" aria-busy={tai}>
+        <div className="ve-panel__toolbar">
+          <div className="ve-panel__toolbar-top">
+            <TieuDeThe title="Danh sách vé" subtitle={`${dsVe.length} vé trong tài khoản`} />
+            <NutBam
+              bien="vien"
+              className="btn--sm"
+              onClick={() => void lamMoi()}
+              dangTai={tai}
+              con={
+                <>
+                  <RefreshCw size={16} aria-hidden />
+                  Làm mới
+                </>
+              }
+            />
+          </div>
+
+          <div className="ve-panel__promo">
+            <span className="ve-panel__promo-icon" aria-hidden>
+              <Tag size={18} />
+            </span>
             <TruongNhap
-              nhan="Mã khuyến mãi (tùy chọn)"
-              goiY="Ví dụ: REDBUS10"
-              placeholder="VD: REDBUS10"
+              nhan=""
+              goiY="Mã khuyến mãi khi thanh toán vé chờ"
+              placeholder="Mã KM — VD: REDBUS10"
               value={maKhuyenMai}
               onChange={(e) => datMaKhuyenMai(e.target.value)}
             />
           </div>
+
+          <div className="ve-panel__tabs" role="tablist" aria-label="Lọc vé">
+            {BO_LOC.map((b) => (
+              <button
+                key={b.ma}
+                type="button"
+                role="tab"
+                aria-selected={boLoc === b.ma}
+                className={`ve-panel__tab${boLoc === b.ma ? ' ve-panel__tab--active' : ''}`}
+                onClick={() => datBoLoc(b.ma)}
+              >
+                {b.nhan}
+                <span className="ve-panel__tab-count">{demTheoLoc[b.ma]}</span>
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="table-scroll cust-table-shell">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Mã</th>
-                <th>Tuyến</th>
-                <th>Khởi hành</th>
-                <th>Ghế</th>
-                <th>Giá</th>
-                <th>Trạng thái</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {tai && dsVe.length === 0
-                ? Array.from({ length: 5 }).map((_, i) => (
-                    <tr key={`sk-${i}`} className="cust-row-skel" aria-hidden>
-                      <td>
-                        <span className="cust-skel-line cust-skel-line--sm" />
-                      </td>
-                      <td>
-                        <span className="cust-skel-line cust-skel-line--lg" />
-                      </td>
-                      <td>
-                        <span className="cust-skel-line cust-skel-line--md" />
-                      </td>
-                      <td>
-                        <span className="cust-skel-line cust-skel-line--sm" />
-                      </td>
-                      <td>
-                        <span className="cust-skel-line cust-skel-line--md" />
-                      </td>
-                      <td>
-                        <span className="cust-skel-line cust-skel-line--xs" />
-                      </td>
-                      <td>
-                        <span className="cust-skel-line cust-skel-line--sm" />
-                      </td>
-                    </tr>
-                  ))
-                : dsVe.map((t) => {
+
+        <div className="ve-list">
+          {tai && dsVe.length === 0
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <article key={`sk-${i}`} className="ve-card ve-card--skeleton" aria-hidden>
+                  <div className="cust-skel-line cust-skel-line--md" />
+                  <div className="cust-skel-line cust-skel-line--lg" />
+                  <div className="cust-skel-line cust-skel-line--sm" />
+                </article>
+              ))
+            : dsHien.map((t) => {
                 const x = phu[t.ma]
+                const dangXuLy = veDangXuLy === t.ma
+                const di = x ? rutGonTenDiaDanh(x.diemDi) : '…'
+                const den = x ? rutGonTenDiaDanh(x.diemDen) : '…'
                 return (
-                  <tr key={t.ma}>
-                    <td className="mono">#{t.ma}</td>
-                    <td>{x?.tuyen ?? '…'}</td>
-                    <td>{x?.gio ?? '…'}</td>
-                    <td>
-                      <strong>{x?.maGhe ?? '…'}</strong>
-                    </td>
-                    <td>{x?.gia ?? '…'}</td>
-                    <td>
-                      <NhanHieu tone={t.trangThai}>{trangThaiSangTiengViet(t.trangThai)}</NhanHieu>
-                    </td>
-                    <td className="row-actions">
-                      {t.trangThai === 'PENDING' && (
-                        <>
+                  <article
+                    key={t.ma}
+                    className={`ve-card${t.trangThai === 'PENDING' ? ' ve-card--pending' : ''}${t.trangThai === 'CANCELLED' ? ' ve-card--cancelled' : ''}`}
+                  >
+                    <header className="ve-card__head">
+                      <span className="ve-card__id">Vé #{t.ma}</span>
+                      <NhanHieu tone={t.trangThai}>
+                        {trangThaiSangTiengViet(t.trangThai)}
+                      </NhanHieu>
+                    </header>
+
+                    <div className="ve-card__route" title={x?.tuyenDayDu}>
+                      <span className="ve-card__route-from">
+                        <MapPin size={15} aria-hidden />
+                        {di}
+                      </span>
+                      <span className="ve-card__route-arrow" aria-hidden>
+                        →
+                      </span>
+                      <span className="ve-card__route-to">{den}</span>
+                    </div>
+
+                    <ul className="ve-card__meta">
+                      <li>
+                        <CalendarClock size={15} aria-hidden />
+                        {x?.gio ?? '…'}
+                      </li>
+                      <li>
+                        <Armchair size={15} aria-hidden />
+                        Ghế <strong>{x?.maGhe ?? '…'}</strong>
+                      </li>
+                      <li className="ve-card__price">{x?.gia ?? '…'}</li>
+                    </ul>
+
+                    {t.trangThai === 'PENDING' ? (
+                      <footer className="ve-card__actions">
+                        <div className="ve-card__pay-group">
                           <NutBam
                             bien="chinh"
                             className="btn--sm"
+                            dangTai={dangXuLy}
                             onClick={() => void thanhToanPayOs(t.ma)}
                             con="PayOS"
                           />
                           <NutBam
                             bien="vien"
                             className="btn--sm"
+                            disabled={dangXuLy}
                             onClick={() => void thanhToanTienMat(t.ma)}
                             con="Tiền mặt"
                           />
-                          <NutBam
-                            bien="huy"
-                            className="btn--sm"
-                            onClick={() => void huyVe(t.ma)}
-                            con="Hủy"
-                          />
-                        </>
-                      )}
-                    </td>
-                  </tr>
+                        </div>
+                        <NutBam
+                          bien="huy"
+                          className="btn--sm ve-card__cancel"
+                          disabled={dangXuLy}
+                          onClick={() => void huyVe(t.ma)}
+                          con="Hủy vé"
+                        />
+                      </footer>
+                    ) : null}
+                  </article>
                 )
               })}
-            </tbody>
-          </table>
         </div>
-        {dsVe.length === 0 && !tai ? (
-          <div className="cust-empty">
+
+        {dsHien.length === 0 && !tai ? (
+          <div className="cust-empty ve-panel__empty">
             <span className="cust-empty__ico" aria-hidden>
               <Ticket size={34} strokeWidth={1.35} />
             </span>
-            <p className="cust-empty__title">Chưa có vé nào</p>
-            <p className="muted">
-              Đặt vé online và quản lý thanh toán ngay tại đây.
+            <p className="cust-empty__title">
+              {boLoc === 'ALL' ? 'Chưa có vé nào' : 'Không có vé trong mục này'}
             </p>
-            <div className="cust-empty__cta">
-              <NutLienKet bien="chinh" className="btn--sm" to="/dat-ve" con="Đặt vé ngay" />
-            </div>
+            <p className="muted">
+              {boLoc === 'ALL'
+                ? 'Đặt vé online và quản lý thanh toán ngay tại đây.'
+                : 'Thử chọn bộ lọc khác hoặc đặt vé mới.'}
+            </p>
+            {boLoc === 'ALL' ? (
+              <div className="cust-empty__cta">
+                <NutLienKet bien="chinh" className="btn--sm" to="/dat-ve" con="Đặt vé ngay" />
+              </div>
+            ) : (
+              <NutBam bien="vien" className="btn--sm" onClick={() => datBoLoc('ALL')} con="Xem tất cả vé" />
+            )}
           </div>
         ) : null}
       </TheChua>

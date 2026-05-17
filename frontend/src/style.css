@@ -6764,6 +6764,296 @@ code {
   max-width: 380px;
 }
 
+/* —— Vé của tôi (card list) —— */
+.ve-panel__toolbar {
+  padding: 1.15rem 1.25rem 0;
+  background: linear-gradient(180deg, var(--surface-2), transparent);
+  border-bottom: 1px solid var(--border);
+}
+
+.ve-panel__toolbar-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ve-panel__toolbar-top .card__head {
+  margin: 0;
+}
+
+.ve-panel__promo {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.ve-panel__promo-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: rgba(225, 29, 72, 0.08);
+  color: var(--primary);
+  margin-bottom: 0.15rem;
+}
+
+.ve-panel__promo .field {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.ve-panel__promo .field__label {
+  display: none;
+}
+
+.ve-panel__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding-bottom: 1rem;
+}
+
+.ve-panel__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.ve-panel__tab:hover {
+  border-color: #cbd5e1;
+  color: var(--text);
+}
+
+.ve-panel__tab--active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.ve-panel__tab-count {
+  display: inline-flex;
+  min-width: 1.25rem;
+  justify-content: center;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.12);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.ve-panel__tab--active .ve-panel__tab-count {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.ve-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.ve-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition:
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.ve-card:hover {
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.ve-card--pending {
+  border-color: #fcd34d;
+  background: linear-gradient(180deg, #fffbeb 0%, var(--surface) 42%);
+}
+
+.ve-card--cancelled {
+  opacity: 0.72;
+  background: var(--surface-2);
+}
+
+.ve-card--skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-height: 120px;
+}
+
+.ve-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.ve-card__id {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.ve-card__route {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.35rem 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.ve-card__route-from,
+.ve-card__route-to {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.ve-card__route-from svg,
+.ve-card__route-to svg {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  color: var(--primary);
+}
+
+.ve-card__route-arrow {
+  align-self: center;
+  color: var(--muted);
+  font-weight: 700;
+  padding-top: 0.1rem;
+}
+
+.ve-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin: 0 0 0.85rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.ve-card__meta li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ve-card__meta li svg {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.ve-card__price {
+  margin-left: auto;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--primary);
+}
+
+.ve-card__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  padding-top: 0.85rem;
+  border-top: 1px dashed var(--border);
+}
+
+.ve-card__pay-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ve-card__cancel {
+  margin-left: auto;
+}
+
+.ve-panel__empty {
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 640px) {
+  .ve-panel__toolbar-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ve-panel__toolbar-top .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ve-card__route {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .ve-card__route-arrow {
+    display: none;
+  }
+
+  .ve-card__route-to::before {
+    content: '→ ';
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  .ve-card__price {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .ve-card__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ve-card__pay-group {
+    width: 100%;
+  }
+
+  .ve-card__pay-group .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .ve-card__cancel {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
 .cust-table-shell {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
