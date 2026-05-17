@@ -48,6 +48,29 @@ import { dinhDangNgayGio } from "../tienIch/dinhDang";
 import { useKhoiHienKhiCuon } from "../tienIch/useKhoiHienKhiCuon";
 import { useDemSoKhiHien } from "../tienIch/useDemSoKhiHien";
 
+const BUOC_DAT_VE = [
+  {
+    icon: MapPin,
+    title: "Chọn tuyến",
+    moTa: "Chọn điểm đi, điểm đến và giờ khởi hành phù hợp.",
+  },
+  {
+    icon: Armchair,
+    title: "Chọn ghế",
+    moTa: "Sơ đồ xe hiển thị ghế trống — chọn đúng chỗ trước khi xác nhận.",
+  },
+  {
+    icon: Ticket,
+    title: "Xác nhận vé",
+    moTa: "Đăng nhập tài khoản để tạo vé ở trạng thái chờ thanh toán.",
+  },
+  {
+    icon: CreditCard,
+    title: "Thanh toán",
+    moTa: "Thanh toán theo hình thức hỗ trợ, theo dõi vé trong tài khoản.",
+  },
+] as const
+
 const DANH_GIA_MAU: DanhGiaHienThi[] = [
   {
     ma: 1,

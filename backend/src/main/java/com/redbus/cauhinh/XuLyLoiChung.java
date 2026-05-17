@@ -26,7 +26,7 @@ public class XuLyLoiChung {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<PhanHoiChung<Void>> saiDangNhap(BadCredentialsException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(PhanHoiChung.loi("Thong tin dang nhap sai"));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(PhanHoiChung.loi("Tài khoản hoặc mật khẩu không chính xác"));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
