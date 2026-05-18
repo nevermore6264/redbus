@@ -13,7 +13,7 @@ import {
   Ticket,
   TrendingUp,
 } from 'lucide-react'
-import { khachHttp, moKhoiDuLieu } from '../../nguon/apiClient'
+import { gocUrlApi, khachHttp, moKhoiDuLieu } from '../../nguon/apiClient'
 import type { PhanHoi, BaoCaoMoRong } from '../../nguon/kieu'
 import { dungThongBao } from '../../dinhDanh/boiCanhThongBao'
 import { TheChua } from '../../thanhPhan/theChua'
@@ -36,6 +36,26 @@ export function TrangBaoCao() {
   const [b, datB] = useState<BaoCaoMoRong | null>(null)
   const [tai, datTai] = useState(true)
   const [capNhatLuc, datCapNhatLuc] = useState<Date | null>(null)
+
+  async function xuatCsv() {
+    const token = localStorage.getItem('token')
+    try {
+      const res = await fetch(`${gocUrlApi}/bao-cao/xuat-csv`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      if (!res.ok) throw new Error('Xuất file thất bại')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'bao-cao-redbus.csv'
+      a.click()
+      URL.revokeObjectURL(url)
+      hienThi({ loai: 'thanhCong', noiDung: 'Đã tải báo cáo CSV' })
+    } catch (e: unknown) {
+      hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Xuất CSV thất bại' })
+    }
+  }
 
   const taiLai = useCallback(async () => {
     datTai(true)
@@ -75,6 +95,12 @@ export function TrangBaoCao() {
           </p>
           <div className="report-dash-hero__toolbar">
             <NutBam bien="vien" className="report-dash-refresh" onClick={() => void taiLai()} dangTai={tai} con="Làm mới số liệu" />
+            <NutBam
+              bien="chinh"
+              className="btn--sm"
+              onClick={() => void xuatCsv()}
+              con="Xuất CSV"
+            />
             {capNhatLuc ? (
               <span className="report-dash-hero__meta">
                 <RefreshCw size={14} aria-hidden /> Cập nhật: {dinhDangLuc(capNhatLuc)}

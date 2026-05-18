@@ -29,12 +29,20 @@ public class BoLocXacThucJwt extends OncePerRequestFilter {
             @NonNull HttpServletRequest yeuCau,
             @NonNull HttpServletResponse phanHoi,
             @NonNull FilterChain chuoiLoc) throws ServletException, IOException {
+        String token = null;
         String header = yeuCau.getHeader("Authorization");
-        if (header == null || !header.startsWith("Bearer ")) {
+        if (header != null && header.startsWith("Bearer ")) {
+            token = header.substring(7);
+        } else {
+            String q = yeuCau.getParameter("token");
+            if (q != null && !q.isBlank()) {
+                token = q.trim();
+            }
+        }
+        if (token == null) {
             chuoiLoc.doFilter(yeuCau, phanHoi);
             return;
         }
-        String token = header.substring(7);
         if (!tienIchJwt.hopLe(token)) {
             chuoiLoc.doFilter(yeuCau, phanHoi);
             return;

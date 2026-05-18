@@ -19,7 +19,10 @@ public class VeXe {
     private Long maKhach;
     private Long maGhe;
     private String trangThai;
+    private String maVeHienThi;
     private LocalDateTime thoiGianDat;
+    private Long maDiemLen;
+    private Long maDiemXuong;
 
     private Long maKhuyenMai;
     private Long maHinhThuc;

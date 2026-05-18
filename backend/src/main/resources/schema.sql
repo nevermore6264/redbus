@@ -108,7 +108,10 @@ CREATE TABLE IF NOT EXISTS ve_xe (
     ma_khach BIGINT NOT NULL,
     ma_ghe_ngoi BIGINT NOT NULL,
     trang_thai VARCHAR(32) NOT NULL DEFAULT 'PENDING',
+    ma_ve_hien_thi VARCHAR(16) NULL UNIQUE,
     thoi_gian_dat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ma_diem_len BIGINT NULL,
+    ma_diem_xuong BIGINT NULL,
     ma_khuyen_mai BIGINT NULL,
     ma_hinh_thuc BIGINT NULL,
     so_tien_thanh_toan DECIMAL(12,2) NULL,
@@ -138,7 +141,20 @@ CREATE TABLE IF NOT EXISTS diem_dung_chan (
     ten_diem VARCHAR(128) NOT NULL,
     thu_tu INT NOT NULL DEFAULT 0,
     thoi_gian_dung_phut INT DEFAULT 5,
+    vi_do DOUBLE NULL,
+    kinh_do DOUBLE NULL,
     CONSTRAINT fk_ddc_tuyen FOREIGN KEY (ma_tuyen) REFERENCES tuyen_duong (ma) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS ma_otp (
+    ma BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(128) NOT NULL,
+    ma_otp VARCHAR(8) NOT NULL,
+    loai VARCHAR(32) NOT NULL,
+    het_han_luc DATETIME NOT NULL,
+    da_dung TINYINT(1) NOT NULL DEFAULT 0,
+    thoi_gian_tao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_otp_email_loai (email, loai, da_dung)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS danh_gia_chuyen (

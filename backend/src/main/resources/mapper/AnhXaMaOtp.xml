@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaMaOtp">
+
+    <resultMap id="banDo" type="com.redbus.mohinh.MaOtp">
+        <id property="ma" column="ma"/>
+        <result property="email" column="email"/>
+        <result property="maOtp" column="ma_otp"/>
+        <result property="loai" column="loai"/>
+        <result property="hetHanLuc" column="het_han_luc"/>
+        <result property="daDung" column="da_dung"/>
+        <result property="thoiGianTao" column="thoi_gian_tao"/>
+    </resultMap>
+
+    <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
+        INSERT INTO ma_otp (email, ma_otp, loai, het_han_luc, da_dung)
+        VALUES (#{email}, #{maOtp}, #{loai}, #{hetHanLuc}, 0)
+    </insert>
+
+    <update id="voHieuHoaCu">
+        UPDATE ma_otp SET da_dung = 1
+        WHERE email = #{email} AND loai = #{loai} AND da_dung = 0
+    </update>
+
+    <select id="timHopLe" resultMap="banDo">
+        SELECT * FROM ma_otp
+        WHERE email = #{email} AND loai = #{loai} AND ma_otp = #{maOtp}
+          AND da_dung = 0 AND het_han_luc &gt; NOW()
+        ORDER BY ma DESC LIMIT 1
+    </select>
+
+    <update id="danhDauDaDung">UPDATE ma_otp SET da_dung = 1 WHERE ma = #{ma}</update>
+</mapper>

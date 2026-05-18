@@ -92,6 +92,23 @@ public class DichVuGuiMail {
         gui(email, "RedBus — Thanh toán thành công vé #" + maVe, noiDung);
     }
 
+    public void guiOtpDatLaiMatKhau(String email, String maOtp) {
+        String noiDung =
+                """
+                Xin chào,
+
+                Mã OTP đặt lại mật khẩu RedBus: %s
+                Mã có hiệu lực 10 phút.
+
+                Nếu bạn không yêu cầu, hãy bỏ qua email này.
+
+                Trân trọng,
+                %s
+                """
+                        .formatted(maOtp, tenHienThi);
+        gui(email, "RedBus — Mã OTP đặt lại mật khẩu", noiDung);
+    }
+
     private void gui(String den, String tieuDe, String noiDung) {
         if (!bat || den == null || den.isBlank()) {
             return;

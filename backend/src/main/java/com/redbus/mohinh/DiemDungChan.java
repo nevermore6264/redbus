@@ -16,4 +16,6 @@ public class DiemDungChan {
     private String tenDiem;
     private Integer thuTu;
     private Integer thoiGianDungPhut;
+    private Double viDo;
+    private Double kinhDo;
 }

@@ -8,7 +8,10 @@
         <result property="maKhach" column="ma_khach"/>
         <result property="maGhe" column="ma_ghe_ngoi"/>
         <result property="trangThai" column="trang_thai"/>
+        <result property="maVeHienThi" column="ma_ve_hien_thi"/>
         <result property="thoiGianDat" column="thoi_gian_dat"/>
+        <result property="maDiemLen" column="ma_diem_len"/>
+        <result property="maDiemXuong" column="ma_diem_xuong"/>
         <result property="maKhuyenMai" column="ma_khuyen_mai"/>
         <result property="maHinhThuc" column="ma_hinh_thuc"/>
         <result property="soTienThanhToan" column="so_tien_thanh_toan"/>
@@ -25,9 +28,29 @@
     </select>
 
     <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
-        INSERT INTO ve_xe (ma_chuyen, ma_khach, ma_ghe_ngoi, trang_thai)
-        VALUES (#{maChuyen}, #{maKhach}, #{maGhe}, #{trangThai})
+        INSERT INTO ve_xe (ma_chuyen, ma_khach, ma_ghe_ngoi, trang_thai, ma_diem_len, ma_diem_xuong)
+        VALUES (#{maChuyen}, #{maKhach}, #{maGhe}, #{trangThai}, #{maDiemLen}, #{maDiemXuong})
     </insert>
+
+    <select id="timTheoMaVeHienThi" resultMap="banDo">
+        SELECT * FROM ve_xe WHERE ma_ve_hien_thi = #{maVeHienThi} LIMIT 1
+    </select>
+
+    <update id="capNhatMaVeHienThi">
+        UPDATE ve_xe SET ma_ve_hien_thi = #{maVeHienThi} WHERE ma = #{ma}
+    </update>
+
+    <update id="capNhatDiemDonTra">
+        UPDATE ve_xe SET ma_diem_len = #{maDiemLen}, ma_diem_xuong = #{maDiemXuong} WHERE ma = #{ma}
+    </update>
+
+    <update id="capNhatGhe">
+        UPDATE ve_xe SET ma_ghe_ngoi = #{maGhe} WHERE ma = #{ma}
+    </update>
+
+    <update id="capNhatChuyenVaGhe">
+        UPDATE ve_xe SET ma_chuyen = #{maChuyen}, ma_ghe_ngoi = #{maGhe} WHERE ma = #{ma}
+    </update>
 
     <update id="capNhatTrangThai">UPDATE ve_xe SET trang_thai = #{trangThai} WHERE ma = #{ma}</update>
 

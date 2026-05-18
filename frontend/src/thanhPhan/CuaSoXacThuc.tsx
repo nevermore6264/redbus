@@ -9,6 +9,7 @@ import { kiemTraDangKy, kiemTraDangNhap, type TruongDangKy } from '../tienIch/ki
 import { TruongNhap } from './truongNhap'
 import { NutBam, NutVanBan } from './nutBam'
 import { CuaSo } from './cuaSo'
+import { CuaSoQuenMatKhau } from './CuaSoQuenMatKhau'
 
 export function CuaSoXacThuc() {
   const { cheDo, redirectSauThanhCong, dong, doiSangDangKy, doiSangDangNhap } = dungModalXacThuc()
@@ -21,6 +22,7 @@ export function CuaSoXacThuc() {
   const [mk, datMk] = useState('')
   const [loiDn, datLoiDn] = useState<{ tenDangNhap?: string; matKhau?: string; chung?: string }>({})
   const [taiDn, datTaiDn] = useState(false)
+  const [moQuenMk, datMoQuenMk] = useState(false)
 
   const [bieuKy, datBieuKy] = useState({
     tenDangNhap: '',
@@ -155,9 +157,13 @@ export function CuaSoXacThuc() {
             {loiDn.chung ? <p className="field__err">{loiDn.chung}</p> : null}
             <NutBam bien="chinh" type="submit" className="btn--block" dangTai={taiDn} con="Đăng nhập" />
           </form>
-          <p className="auth-card__foot muted" style={{ marginBottom: 0, marginTop: '1rem' }}>
+          <p className="auth-card__foot muted" style={{ marginBottom: 0, marginTop: '0.65rem' }}>
+            <NutVanBan onClick={() => datMoQuenMk(true)} con="Quên mật khẩu?" />
+          </p>
+          <p className="auth-card__foot muted" style={{ marginBottom: 0, marginTop: '0.35rem' }}>
             <NutVanBan onClick={doiSangDangKy} con="Đăng ký tài khoản khách hàng" />
           </p>
+          <CuaSoQuenMatKhau mo={moQuenMk} onDong={() => datMoQuenMk(false)} />
         </>
       ) : null}
 

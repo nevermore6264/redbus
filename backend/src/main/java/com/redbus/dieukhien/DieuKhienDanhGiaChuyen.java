@@ -5,6 +5,7 @@ import com.redbus.dichvu.DichVuDanhGiaChuyen;
 import com.redbus.mohinh.DanhGiaChuyen;
 import com.redbus.truyen.PhanHoiChung;
 import com.redbus.truyen.DanhGiaCongKhaiPhanHoi;
+import com.redbus.truyen.VeChoDanhGiaPhanHoi;
 import com.redbus.truyen.YeuCauDanhGiaChuyen;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +55,13 @@ public class DieuKhienDanhGiaChuyen {
         m.put("soLuong", n);
         m.put("diemTrungBinh", tb);
         return PhanHoiChung.ok(m);
+    }
+
+    @GetMapping("/ve-cho-danh-gia")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public PhanHoiChung<List<VeChoDanhGiaPhanHoi>> veChoDanhGia(
+            @AuthenticationPrincipal UserDetails nguoiDung) {
+        return PhanHoiChung.ok(dichVuDanhGiaChuyen.veChoDanhGia(nguoiDung.getUsername()));
     }
 
     @PostMapping

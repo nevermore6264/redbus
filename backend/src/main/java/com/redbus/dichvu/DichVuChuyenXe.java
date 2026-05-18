@@ -1,11 +1,15 @@
 package com.redbus.dichvu;
 
 import com.redbus.anhxa.AnhXaChuyenXe;
+import com.redbus.anhxa.AnhXaGheNgoi;
+import com.redbus.anhxa.AnhXaLoaiXe;
 import com.redbus.anhxa.AnhXaTuyenDuong;
 import com.redbus.anhxa.AnhXaXeKhach;
 import com.redbus.mohinh.ChuyenXe;
+import com.redbus.mohinh.LoaiXe;
 import com.redbus.mohinh.TuyenDuong;
 import com.redbus.mohinh.XeKhach;
+import com.redbus.truyen.ChuyenXeLocPhanHoi;
 import com.redbus.truyen.KetQuaGenLich;
 import com.redbus.truyen.YeuCauGenLich;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +22,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +36,66 @@ public class DichVuChuyenXe {
     private final AnhXaChuyenXe anhXaChuyenXe;
     private final AnhXaTuyenDuong anhXaTuyenDuong;
     private final AnhXaXeKhach anhXaXeKhach;
+    private final AnhXaGheNgoi anhXaGheNgoi;
+    private final AnhXaLoaiXe anhXaLoaiXe;
+
+    public List<ChuyenXeLocPhanHoi> timKiemNangCao(
+            Long maTuyen,
+            LocalDateTime tuLuc,
+            BigDecimal giaMin,
+            BigDecimal giaMax,
+            Long maLoaiXe,
+            Integer gioTu,
+            Integer gioDen,
+            String sapXep) {
+        List<ChuyenXe> ds = timTheoTuyen(maTuyen, tuLuc);
+        List<ChuyenXeLocPhanHoi> ketQua = new ArrayList<>();
+        for (ChuyenXe cx : ds) {
+            XeKhach xe = anhXaXeKhach.timTheoMa(cx.getMaXe());
+            if (xe == null) {
+                continue;
+            }
+            if (maLoaiXe != null && !maLoaiXe.equals(xe.getMaLoaiXe())) {
+                continue;
+            }
+            if (giaMin != null && cx.getGiaVe().compareTo(giaMin) < 0) {
+                continue;
+            }
+            if (giaMax != null && cx.getGiaVe().compareTo(giaMax) > 0) {
+                continue;
+            }
+            int gio = cx.getThoiDiemKhoiHanh().getHour();
+            if (gioTu != null && gio < gioTu) {
+                continue;
+            }
+            if (gioDen != null && gio > gioDen) {
+                continue;
+            }
+            int tongGhe = anhXaGheNgoi.timTheoMaXe(xe.getMa()).size();
+            int daGiu = anhXaChuyenXe.danhSachMaGheDaGiu(cx.getMa()).size();
+            String tenLoai = null;
+            if (xe.getMaLoaiXe() != null) {
+                LoaiXe lx = anhXaLoaiXe.timTheoMa(xe.getMaLoaiXe());
+                tenLoai = lx != null ? lx.getTen() : null;
+            }
+            ketQua.add(
+                    ChuyenXeLocPhanHoi.builder()
+                            .chuyen(cx)
+                            .tenLoaiXe(tenLoai)
+                            .soGheTrong(Math.max(0, tongGhe - daGiu))
+                            .build());
+        }
+        Comparator<ChuyenXeLocPhanHoi> cmp =
+                Comparator.comparing(c -> c.getChuyen().getThoiDiemKhoiHanh());
+        if ("gia_tang".equalsIgnoreCase(sapXep)) {
+            cmp = Comparator.comparing(c -> c.getChuyen().getGiaVe());
+        } else if ("gia_giam".equalsIgnoreCase(sapXep)) {
+            cmp = Comparator.comparing((ChuyenXeLocPhanHoi c) -> c.getChuyen().getGiaVe()).reversed();
+        } else if ("ghe_nhieu".equalsIgnoreCase(sapXep)) {
+            cmp = Comparator.comparing(ChuyenXeLocPhanHoi::getSoGheTrong).reversed();
+        }
+        return ketQua.stream().sorted(cmp).collect(Collectors.toList());
+    }
 
     public List<ChuyenXe> timTheoTuyen(Long maTuyen, LocalDateTime tuLuc) {
         LocalDateTime moc = tuLuc != null ? tuLuc : LocalDateTime.now().minusDays(1);

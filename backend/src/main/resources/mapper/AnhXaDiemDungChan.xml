@@ -7,6 +7,8 @@
         <result property="tenDiem" column="ten_diem"/>
         <result property="thuTu" column="thu_tu"/>
         <result property="thoiGianDungPhut" column="thoi_gian_dung_phut"/>
+        <result property="viDo" column="vi_do"/>
+        <result property="kinhDo" column="kinh_do"/>
     </resultMap>
     <select id="timTheoMa" resultMap="banDo">SELECT * FROM diem_dung_chan WHERE ma = #{ma}</select>
     <select id="theoMaTuyen" resultMap="banDo">
@@ -23,12 +25,13 @@
         LIMIT 1
     </select>
     <insert id="them" useGeneratedKeys="true" keyProperty="ma" keyColumn="ma">
-        INSERT INTO diem_dung_chan (ma_tuyen, ten_diem, thu_tu, thoi_gian_dung_phut)
-        VALUES (#{maTuyen}, #{tenDiem}, #{thuTu}, #{thoiGianDungPhut})
+        INSERT INTO diem_dung_chan (ma_tuyen, ten_diem, thu_tu, thoi_gian_dung_phut, vi_do, kinh_do)
+        VALUES (#{maTuyen}, #{tenDiem}, #{thuTu}, #{thoiGianDungPhut}, #{viDo}, #{kinhDo})
     </insert>
     <update id="capNhat">
         UPDATE diem_dung_chan SET ma_tuyen = #{maTuyen}, ten_diem = #{tenDiem},
-            thu_tu = #{thuTu}, thoi_gian_dung_phut = #{thoiGianDungPhut}
+            thu_tu = #{thuTu}, thoi_gian_dung_phut = #{thoiGianDungPhut},
+            vi_do = #{viDo}, kinh_do = #{kinhDo}
         WHERE ma = #{ma}
     </update>
     <delete id="xoa">DELETE FROM diem_dung_chan WHERE ma = #{ma}</delete>

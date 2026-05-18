@@ -24,6 +24,7 @@ import { TrangTinTucQuanTri } from './trang/quanTri/TrangTinTucQuanTri'
 import { TrangTinTuc } from './trang/TrangTinTuc'
 import { TrangTinChiTiet } from './trang/TrangTinChiTiet'
 import { TrangDanhGia } from './trang/TrangDanhGia'
+import { TrangTraCuuVe } from './trang/TrangTraCuuVe'
 import { TrangKhongTimThay } from './trang/TrangKhongTimThay'
 
 export function UngDung() {
@@ -36,6 +37,7 @@ export function UngDung() {
         <Route path="dat-ve" element={<TrangDatVe />} />
         <Route path="tin-tuc/:ma" element={<TrangTinChiTiet />} />
         <Route path="tin-tuc" element={<TrangTinTuc />} />
+        <Route path="tra-cuu-ve" element={<TrangTraCuuVe />} />
         <Route path="ve-cua-toi" element={<CanVaiTro vaiTro={['CUSTOMER']} con={<TrangVeCuaToi />} />} />
         <Route path="danh-gia" element={<CanVaiTro vaiTro={['CUSTOMER']} con={<TrangDanhGia />} />} />
         <Route path="ho-so" element={<CanVaiTro vaiTro={['CUSTOMER']} con={<TrangHoSo />} />} />

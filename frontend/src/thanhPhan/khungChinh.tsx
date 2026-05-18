@@ -17,6 +17,7 @@ import {
 import { dungNguoiDung } from '../dinhDanh/boiCanhNguoiDung'
 import { dungModalXacThuc } from '../dinhDanh/boiCanhModalXacThuc'
 import { NutBam, NutLienKet, NutVanBan } from './nutBam'
+import { useThongBaoSse } from '../tienIch/useThongBaoSse'
 
 export function KhungChinh() {
   const { nguoiDung, dangXuat } = dungNguoiDung()
@@ -50,6 +51,7 @@ export function KhungChinh() {
 
   const laKhach = nguoiDung?.vaiTro === 'CUSTOMER'
   const laQuanTri = nguoiDung?.vaiTro === 'ADMIN' || nguoiDung?.vaiTro === 'STAFF'
+  useThongBaoSse()
 
   return (
     <div className="shell">
@@ -82,6 +84,9 @@ export function KhungChinh() {
                     <Newspaper size={18} strokeWidth={2} />
                   </span>
                   <span className="nav-link__text">Tin tức</span>
+                </Link>
+                <Link className={lopLk('/tra-cuu-ve')} to="/tra-cuu-ve">
+                  <span className="nav-link__text">Tra cứu vé</span>
                 </Link>
               </>
             ) : null}
@@ -122,6 +127,9 @@ export function KhungChinh() {
                     <Star size={18} strokeWidth={2} />
                   </span>
                   <span className="nav-link__text">Đánh giá</span>
+                </Link>
+                <Link className={lopLk('/tra-cuu-ve')} to="/tra-cuu-ve">
+                  <span className="nav-link__text">Tra cứu vé</span>
                 </Link>
               </>
             ) : null}

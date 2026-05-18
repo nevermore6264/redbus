@@ -8,12 +8,19 @@ import com.redbus.mohinh.DanhGiaChuyen;
 import com.redbus.mohinh.KhachHang;
 import com.redbus.mohinh.TaiKhoan;
 import com.redbus.mohinh.VeXe;
+import com.redbus.anhxa.AnhXaChuyenXe;
+import com.redbus.anhxa.AnhXaTuyenDuong;
+import com.redbus.mohinh.ChuyenXe;
+import com.redbus.mohinh.TuyenDuong;
 import com.redbus.truyen.DanhGiaCongKhaiPhanHoi;
+import com.redbus.truyen.VeChoDanhGiaPhanHoi;
 import com.redbus.truyen.YeuCauDanhGiaChuyen;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,6 +31,35 @@ public class DichVuDanhGiaChuyen {
     private final AnhXaTaiKhoan anhXaTaiKhoan;
     private final AnhXaKhachHang anhXaKhachHang;
     private final AnhXaVeXe anhXaVeXe;
+    private final AnhXaChuyenXe anhXaChuyenXe;
+    private final AnhXaTuyenDuong anhXaTuyenDuong;
+
+    public List<VeChoDanhGiaPhanHoi> veChoDanhGia(String tenDangNhap) {
+        TaiKhoan tk = anhXaTaiKhoan.timTheoTenDangNhap(tenDangNhap);
+        KhachHang kh = anhXaKhachHang.timTheoMaTaiKhoan(tk.getMa());
+        List<VeChoDanhGiaPhanHoi> ketQua = new ArrayList<>();
+        for (VeXe v : anhXaVeXe.timTheoMaKhach(kh.getMa())) {
+            if (!"PAID".equals(v.getTrangThai())) {
+                continue;
+            }
+            ChuyenXe cx = anhXaChuyenXe.timTheoMa(v.getMaChuyen());
+            if (cx == null || cx.getThoiDiemKhoiHanh().isAfter(LocalDateTime.now())) {
+                continue;
+            }
+            TuyenDuong tuyen = anhXaTuyenDuong.timTheoMa(cx.getMaTuyen());
+            boolean daDg = anhXaDanhGiaChuyen.timTheoMaChuyenVaMaKhach(v.getMaChuyen(), kh.getMa()) != null;
+            ketQua.add(
+                    VeChoDanhGiaPhanHoi.builder()
+                            .maVe(v.getMa())
+                            .maChuyen(v.getMaChuyen())
+                            .tuyen(tuyen != null ? tuyen.getDiemDi() + " → " + tuyen.getDiemDen() : null)
+                            .thoiDiemKhoiHanh(cx.getThoiDiemKhoiHanh())
+                            .maGhe(String.valueOf(v.getMaGhe()))
+                            .daDanhGia(daDg)
+                            .build());
+        }
+        return ketQua;
+    }
 
     public List<DanhGiaChuyen> theoMaChuyen(Long maChuyen) {
         return anhXaDanhGiaChuyen.theoMaChuyen(maChuyen);

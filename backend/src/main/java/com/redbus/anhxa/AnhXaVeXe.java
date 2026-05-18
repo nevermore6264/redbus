@@ -36,4 +36,20 @@ public interface AnhXaVeXe {
     int huyPendingQuaHanTheoKhach(@Param("maKhach") Long maKhach, @Param("phut") int phut);
 
     int huyPendingQuaHanTatCa(@Param("phut") int phut);
+
+    VeXe timTheoMaVeHienThi(@Param("maVeHienThi") String maVeHienThi);
+
+    int capNhatMaVeHienThi(@Param("ma") Long ma, @Param("maVeHienThi") String maVeHienThi);
+
+    int capNhatDiemDonTra(
+            @Param("ma") Long ma,
+            @Param("maDiemLen") Long maDiemLen,
+            @Param("maDiemXuong") Long maDiemXuong);
+
+    int capNhatGhe(@Param("ma") Long ma, @Param("maGhe") Long maGhe);
+
+    int capNhatChuyenVaGhe(
+            @Param("ma") Long ma,
+            @Param("maChuyen") Long maChuyen,
+            @Param("maGhe") Long maGhe);
 }

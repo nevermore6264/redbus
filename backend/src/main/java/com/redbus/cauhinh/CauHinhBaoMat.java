@@ -66,6 +66,7 @@ public class CauHinhBaoMat {
                         .requestMatchers(HttpMethod.GET, "/hinh-thuc-thanh-toan/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/thanh-toan/payos/webhook").permitAll()
                         .requestMatchers(HttpMethod.GET, "/hoi-dap/cong-khai").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/ve-xe/tra-cuu").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(boLocXacThucJwt, UsernamePasswordAuthenticationFilter.class);

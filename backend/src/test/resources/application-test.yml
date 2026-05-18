@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:redbus_test;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  sql:
+    init:
+      mode: never
+  mail:
+    host: localhost
+    port: 25
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+app:
+  jwt:
+    secret: RedBusTestSecretKeyMustBe256BitsLongForHS256Algorithm!!Test
+    expiration-ms: 3600000
+  mail:
+    enabled: false
+  payos:
+    client-id: test
+    api-key: test
+    checksum-key: test
+  upload:
+    thu-muc: target/test-uploads
+  cors:
+    allowed-origins: http://localhost:5173
+
+logging:
+  level:
+    com.redbus: WARN

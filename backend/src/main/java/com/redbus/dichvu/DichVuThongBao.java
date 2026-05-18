@@ -13,6 +13,7 @@ import java.util.List;
 public class DichVuThongBao {
 
     private final AnhXaThongBao anhXaThongBao;
+    private final DichVuThongBaoPhat dichVuThongBaoPhat;
 
     public List<ThongBao> danhSachCuaNguoiDung(Long maTaiKhoan) {
         return anhXaThongBao.danhSachTheoMaNguoiDung(maTaiKhoan);
@@ -32,5 +33,6 @@ public class DichVuThongBao {
                 .daDoc(false)
                 .build();
         anhXaThongBao.them(tb);
+        dichVuThongBaoPhat.phat(maNguoiDung, tieuDe, noiDung);
     }
 }

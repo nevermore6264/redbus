@@ -14,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -53,5 +55,30 @@ public class DichVuBaoCao {
                 .soDiemDungChan(anhXaDiemDungChan.demTatCa())
                 .soLoaiXe(anhXaLoaiXe.demTatCa())
                 .build();
+    }
+
+    public byte[] xuatCsv() {
+        BaoCaoMoRong b = baoCaoMoRong();
+        List<GiaoDichThanhToan> gd = anhXaThanhToan.tatCa();
+        StringBuilder sb = new StringBuilder();
+        sb.append("Bao cao RedBus,").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))).append('\n');
+        sb.append("Chi tieu,Gia tri\n");
+        sb.append("Tong giao dich,").append(b.getSoGiaoDichThanhToan()).append('\n');
+        sb.append("Tong doanh thu (VND),").append(b.getTongDoanhThu()).append('\n');
+        sb.append("Ve da thanh toan,").append(b.getSoVeDaThanhToan()).append('\n');
+        sb.append("Ve cho xu ly,").append(b.getSoVeChoXuLy()).append('\n');
+        sb.append("Chuyen da len lich,").append(b.getSoChuyenLichDinh()).append('\n');
+        sb.append("So danh gia,").append(b.getSoDanhGia()).append('\n');
+        sb.append("Diem TB danh gia,").append(b.getDiemTrungBinhDanhGia()).append('\n');
+        sb.append('\n');
+        sb.append("Ma giao dich,Ma ve,So tien,Trang thai,Thoi gian\n");
+        for (GiaoDichThanhToan g : gd) {
+            sb.append(g.getMa()).append(',');
+            sb.append(g.getMaVe() != null ? g.getMaVe() : "").append(',');
+            sb.append(g.getSoTien() != null ? g.getSoTien() : "").append(',');
+            sb.append(g.getTrangThai() != null ? g.getTrangThai() : "").append(',');
+            sb.append(g.getThoiGianTao() != null ? g.getThoiGianTao() : "").append('\n');
+        }
+        return sb.toString().getBytes(StandardCharsets.UTF_8);
     }
 }

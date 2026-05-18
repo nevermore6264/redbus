@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Armchair, CalendarClock, MapPin, RefreshCw, Tag, Ticket } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
-import type { PhanHoi, PhanHoiLinkPayOs, VeXe, ChuyenXe, TuyenDuong, GheNgoi } from '../nguon/kieu'
+import type { PhanHoi, PhanHoiLinkPayOs, VeDienTu, VeXe, ChuyenXe, TuyenDuong, GheNgoi } from '../nguon/kieu'
 import { dungThongBao } from '../dinhDanh/boiCanhThongBao'
 import { NenTrangKhach } from '../thanhPhan/NenTrangKhach'
 import { TheChua, TieuDeThe } from '../thanhPhan/theChua'
@@ -12,6 +12,8 @@ import { dinhDangNgayGio, dinhDangVnd } from '../tienIch/dinhDang'
 import { trangThaiSangTiengViet } from '../tienIch/trangThai'
 import { rutGonTenDiaDanh } from '../tienIch/rutGonDiaDanh'
 import { DemNguocThanhToanVe } from '../thanhPhan/DemNguocThanhToanVe'
+import { CuaSo } from '../thanhPhan/cuaSo'
+import { VeDienTuPanel } from '../thanhPhan/VeDienTuPanel'
 import { conLaiGiayThanhToan, daHetHanThanhToan } from '../tienIch/hetHanThanhToan'
 
 function laVeDaHuy(trangThai: string) {
@@ -44,6 +46,7 @@ export function TrangVeCuaToi() {
   const [maKhuyenMai, datMaKhuyenMai] = useState('')
   const [boLoc, datBoLoc] = useState<BoLoc>('ALL')
   const [veDangXuLy, datVeDangXuLy] = useState<number | null>(null)
+  const [veDienTu, datVeDienTu] = useState<VeDienTu | null>(null)
   const [lucHienTai, datLucHienTai] = useState(() => Date.now())
   const daThongBaoHetHan = useRef<Set<number>>(new Set())
   const dangLamMoiHetHan = useRef(false)
@@ -171,6 +174,18 @@ export function TrangVeCuaToi() {
     }
   }
 
+  async function xemVeDienTu(ma: number) {
+    datVeDangXuLy(ma)
+    try {
+      const v = await moKhoiDuLieu(khachHttp.get<PhanHoi<VeDienTu>>(`/ve-xe/${ma}/dien-tu`))
+      datVeDienTu(v)
+    } catch (e: unknown) {
+      hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Không tải vé điện tử' })
+    } finally {
+      datVeDangXuLy(null)
+    }
+  }
+
   async function huyVe(ma: number) {
     if (!confirm('Bạn có chắc muốn hủy vé này?')) return
     datVeDangXuLy(ma)
@@ -264,7 +279,10 @@ export function TrangVeCuaToi() {
                     className={`ve-card${choThanhToan ? ' ve-card--pending' : ''}${t.trangThai === 'CANCELLED' ? ' ve-card--cancelled' : ''}${t.trangThai === 'EXPIRED' ? ' ve-card--expired' : ''}`}
                   >
                     <header className="ve-card__head">
-                      <span className="ve-card__id">Vé #{t.ma}</span>
+                      <span className="ve-card__id">
+                        Vé #{t.ma}
+                        {t.maVeHienThi ? <span className="ve-card__code muted"> · {t.maVeHienThi}</span> : null}
+                      </span>
                       <NhanHieu tone={t.trangThai}>
                         {trangThaiSangTiengViet(t.trangThai)}
                       </NhanHieu>
@@ -295,6 +313,12 @@ export function TrangVeCuaToi() {
 
                     {choThanhToan && t.thoiGianDat ? (
                       <DemNguocThanhToanVe thoiGianDat={t.thoiGianDat} lucHienTai={lucHienTai} />
+                    ) : null}
+
+                    {t.trangThai === 'PAID' ? (
+                      <div className="ve-card__extra">
+                        <NutBam bien="vien" className="btn--sm" onClick={() => void xemVeDienTu(t.ma)} con="Vé điện tử / QR" />
+                      </div>
                     ) : null}
 
                     {choThanhToan && !hetHanLocal ? (
@@ -352,6 +376,10 @@ export function TrangVeCuaToi() {
           </div>
         ) : null}
       </TheChua>
+
+      <CuaSo open={veDienTu != null} title="Vé điện tử" onClose={() => datVeDienTu(null)}>
+        {veDienTu ? <VeDienTuPanel ve={veDienTu} /> : null}
+      </CuaSo>
     </NenTrangKhach>
   )
 }

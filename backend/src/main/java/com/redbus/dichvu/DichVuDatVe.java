@@ -1,11 +1,14 @@
 package com.redbus.dichvu;
 
 import com.redbus.anhxa.AnhXaChuyenXe;
+import com.redbus.anhxa.AnhXaDiemDungChan;
 import com.redbus.anhxa.AnhXaGheNgoi;
 import com.redbus.anhxa.AnhXaKhachHang;
 import com.redbus.anhxa.AnhXaTaiKhoan;
 import com.redbus.anhxa.AnhXaTuyenDuong;
 import com.redbus.anhxa.AnhXaVeXe;
+import com.redbus.mohinh.DiemDungChan;
+import com.redbus.tienich.TienIchMaVe;
 import com.redbus.mohinh.ChuyenXe;
 import com.redbus.mohinh.GheNgoi;
 import com.redbus.mohinh.KhachHang;
@@ -39,6 +42,7 @@ public class DichVuDatVe {
     private final DichVuThongBao dichVuThongBao;
     private final DichVuGuiMail dichVuGuiMail;
     private final DichVuHetHanVe dichVuHetHanVe;
+    private final AnhXaDiemDungChan anhXaDiemDungChan;
 
     private static final DateTimeFormatter FMT_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -78,12 +82,13 @@ public class DichVuDatVe {
         if (cx == null) {
             throw new IllegalArgumentException("Không có chuyến xe");
         }
+        kiemTraDiemDonTra(cx.getMaTuyen(), yeuCau.getMaDiemLen(), yeuCau.getMaDiemXuong());
 
         List<VeXe> ketQua = new ArrayList<>();
         List<String> maGheHienThi = new ArrayList<>();
 
         for (Long maGhe : dsMaGhe) {
-            VeXe ve = datMotGhe(kh, cx, maGhe);
+            VeXe ve = datMotGhe(kh, cx, maGhe, yeuCau.getMaDiemLen(), yeuCau.getMaDiemXuong());
             ketQua.add(ve);
             GheNgoi ghe = anhXaGheNgoi.timTheoMa(maGhe);
             maGheHienThi.add(ghe != null ? ghe.getMaGhe() : String.valueOf(maGhe));
@@ -112,7 +117,21 @@ public class DichVuDatVe {
         return ketQua;
     }
 
-    private VeXe datMotGhe(KhachHang kh, ChuyenXe cx, Long maGhe) {
+    private void kiemTraDiemDonTra(Long maTuyen, Long maDiemLen, Long maDiemXuong) {
+        if (maDiemLen == null || maDiemXuong == null) {
+            return;
+        }
+        DiemDungChan len = anhXaDiemDungChan.timTheoMa(maDiemLen);
+        DiemDungChan xuong = anhXaDiemDungChan.timTheoMa(maDiemXuong);
+        if (len == null || xuong == null || !maTuyen.equals(len.getMaTuyen()) || !maTuyen.equals(xuong.getMaTuyen())) {
+            throw new IllegalArgumentException("Điểm lên/xuống không thuộc tuyến");
+        }
+        if (len.getThuTu() != null && xuong.getThuTu() != null && len.getThuTu() >= xuong.getThuTu()) {
+            throw new IllegalArgumentException("Điểm xuống phải sau điểm lên");
+        }
+    }
+
+    private VeXe datMotGhe(KhachHang kh, ChuyenXe cx, Long maGhe, Long maDiemLen, Long maDiemXuong) {
         GheNgoi ghe = anhXaGheNgoi.timTheoMa(maGhe);
         if (ghe == null || !ghe.getMaXe().equals(cx.getMaXe())) {
             throw new IllegalArgumentException("Ghế không hợp lệ cho chuyến này");
@@ -133,9 +152,24 @@ public class DichVuDatVe {
                         .maKhach(kh.getMa())
                         .maGhe(ghe.getMa())
                         .trangThai("PENDING")
+                        .maDiemLen(maDiemLen)
+                        .maDiemXuong(maDiemXuong)
                         .build();
         anhXaVeXe.them(ve);
+        VeXe luu = anhXaVeXe.timTheoMa(ve.getMa());
+        ganMaVeHienThi(luu.getMa());
         return anhXaVeXe.timTheoMa(ve.getMa());
+    }
+
+    private void ganMaVeHienThi(Long maVe) {
+        for (int i = 0; i < 8; i++) {
+            String ma = TienIchMaVe.taoMaHienThi();
+            if (anhXaVeXe.timTheoMaVeHienThi(ma) == null) {
+                anhXaVeXe.capNhatMaVeHienThi(maVe, ma);
+                return;
+            }
+        }
+        anhXaVeXe.capNhatMaVeHienThi(maVe, "RB" + maVe);
     }
 
     private List<Long> giaiMaDanhSachGhe(YeuCauDatVe yeuCau) {

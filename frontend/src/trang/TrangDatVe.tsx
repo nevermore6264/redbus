@@ -19,16 +19,27 @@ import {
 import { khachHttp, moKhoiDuLieu, urlTaiNguyen } from '../nguon/apiClient'
 import { AnhCoFallback } from '../thanhPhan/AnhCoFallback'
 import { ANH_CO_DINH } from '../tienIch/anhTrang'
-import type { PhanHoi, ChuyenXe, DiemDungChan, GheNgoi, KhuyenMai, LoaiXe, TuyenDuong, XeKhach } from '../nguon/kieu'
+import type {
+  PhanHoi,
+  ChuyenXe,
+  ChuyenXeLoc,
+  DiemDungChan,
+  GheNgoi,
+  KhuyenMai,
+  LoaiXe,
+  TuyenDuong,
+  XeKhach,
+} from '../nguon/kieu'
 import { dungNguoiDung } from '../dinhDanh/boiCanhNguoiDung'
 import { dungThongBao } from '../dinhDanh/boiCanhThongBao'
 import { dungModalXacThuc } from '../dinhDanh/boiCanhModalXacThuc'
 import { SoDoGheXe } from '../thanhPhan/SoDoGheXe'
 import { TheChua, TieuDeThe } from '../thanhPhan/theChua'
 import { NutBam, NutVanBan } from '../thanhPhan/nutBam'
-import { TruongChon } from '../thanhPhan/truongNhap'
+import { TruongChon, TruongNhap } from '../thanhPhan/truongNhap'
 import { NhanHieu } from '../thanhPhan/nhanHieu'
 import { LoTrinhTuyen } from '../thanhPhan/LoTrinhTuyen'
+import { BanDoLoTrinh } from '../thanhPhan/BanDoLoTrinh'
 import { dinhDangNgayGio, dinhDangVnd } from '../tienIch/dinhDang'
 import { chuoiLoTrinh, taiDiemDungTheoTuyen } from '../tienIch/loTrinhTuyen'
 import { trangThaiSangTiengViet } from '../tienIch/trangThai'
@@ -54,6 +65,15 @@ export function TrangDatVe() {
     return d.toISOString().slice(0, 16)
   })
   const [dsChuyen, datChuyen] = useState<ChuyenXe[]>([])
+  const [dsChuyenLoc, datDsChuyenLoc] = useState<ChuyenXeLoc[]>([])
+  const [giaMin, datGiaMin] = useState('')
+  const [giaMax, datGiaMax] = useState('')
+  const [maLoaiXeLoc, datMaLoaiXeLoc] = useState<number | ''>('')
+  const [gioTu, datGioTu] = useState('')
+  const [gioDen, datGioDen] = useState('')
+  const [sapXep, datSapXep] = useState('')
+  const [maDiemLen, datMaDiemLen] = useState<number | ''>('')
+  const [maDiemXuong, datMaDiemXuong] = useState<number | ''>('')
   const [chon, datChon] = useState<ChuyenXe | null>(null)
   const [dsGhe, datGhe] = useState<GheNgoi[]>([])
   const [gheDaGiu, datGheDaGiu] = useState<Set<number>>(new Set())
@@ -189,10 +209,17 @@ export function TrangDatVe() {
     try {
       const q: Record<string, string> = { maTuyen: String(maTuyen) }
       if (tuNgay) q.tuLuc = new Date(tuNgay).toISOString()
-      const cx = await moKhoiDuLieu(
-        khachHttp.get<PhanHoi<ChuyenXe[]>>('/chuyen-xe', { params: q }),
+      if (giaMin) q.giaMin = giaMin
+      if (giaMax) q.giaMax = giaMax
+      if (maLoaiXeLoc !== '') q.maLoaiXe = String(maLoaiXeLoc)
+      if (gioTu) q.gioTu = gioTu
+      if (gioDen) q.gioDen = gioDen
+      if (sapXep) q.sapXep = sapXep
+      const loc = await moKhoiDuLieu(
+        khachHttp.get<PhanHoi<ChuyenXeLoc[]>>('/chuyen-xe/tim-kiem', { params: q }),
       )
-      datChuyen(cx)
+      datDsChuyenLoc(loc)
+      datChuyen(loc.map((x) => x.chuyen))
     } catch (e: unknown) {
       hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi tìm chuyến' })
     } finally {
@@ -244,6 +271,8 @@ export function TrangDatVe() {
         khachHttp.post<PhanHoi<unknown[]>>('/ve-xe/dat', {
           maChuyen: chon.ma,
           dsMaGhe: [...dsMaGheChon],
+          maDiemLen: maDiemLen === '' ? undefined : maDiemLen,
+          maDiemXuong: maDiemXuong === '' ? undefined : maDiemXuong,
         }),
       )
       const soVe = Array.isArray(ve) ? ve.length : soGheChon
@@ -359,6 +388,44 @@ export function TrangDatVe() {
               </div>
             </div>
           </div>
+          <div className="filters-row filters-row--adv">
+            <TruongChon
+              nhan="Loại xe"
+              value={maLoaiXeLoc === '' ? '' : String(maLoaiXeLoc)}
+              onChange={(e) => datMaLoaiXeLoc(e.target.value ? Number(e.target.value) : '')}
+            >
+              <option value="">Tất cả</option>
+              {dsLoaiXe.map((l) => (
+                <option key={l.ma} value={l.ma}>
+                  {l.ten}
+                </option>
+              ))}
+            </TruongChon>
+            <TruongChon nhan="Sắp xếp" value={sapXep} onChange={(e) => datSapXep(e.target.value)}>
+              <option value="">Giờ sớm nhất</option>
+              <option value="gia_tang">Giá tăng dần</option>
+              <option value="gia_giam">Giá giảm dần</option>
+              <option value="ghe_nhieu">Nhiều ghế trống</option>
+            </TruongChon>
+            <TruongNhap nhan="Giá từ (VNĐ)" type="number" value={giaMin} onChange={(e) => datGiaMin(e.target.value)} />
+            <TruongNhap nhan="Giá đến (VNĐ)" type="number" value={giaMax} onChange={(e) => datGiaMax(e.target.value)} />
+            <TruongChon nhan="Giờ từ" value={gioTu} onChange={(e) => datGioTu(e.target.value)}>
+              <option value="">—</option>
+              {Array.from({ length: 24 }, (_, h) => (
+                <option key={h} value={String(h)}>
+                  {String(h).padStart(2, '0')}:00
+                </option>
+              ))}
+            </TruongChon>
+            <TruongChon nhan="Giờ đến" value={gioDen} onChange={(e) => datGioDen(e.target.value)}>
+              <option value="">—</option>
+              {Array.from({ length: 24 }, (_, h) => (
+                <option key={h} value={String(h)}>
+                  {String(h).padStart(2, '0')}:00
+                </option>
+              ))}
+            </TruongChon>
+          </div>
           {tuyenHienTai ? (
             <p className="muted small">
               <MapPin size={14} className="inline-ico" />
@@ -374,9 +441,13 @@ export function TrangDatVe() {
               <LoTrinhTuyen tuyen={tuyenHienTai} diemDung={dsDiemDung} kieu="timeline" />
             </div>
           ) : null}
+          {tuyenHienTai && dsDiemDung.length > 0 ? (
+            <BanDoLoTrinh diemDi={tuyenHienTai.diemDi} diemDen={tuyenHienTai.diemDen} dsDiem={dsDiemDung} />
+          ) : null}
           <ul className={`trip-cards ${dsChuyen.length === 0 ? 'trip-cards--empty' : ''}`}>
             {dsChuyen.length > 0 ? (
               dsChuyen.map((t) => {
+                const loc = dsChuyenLoc.find((x) => x.chuyen.ma === t.ma)
                 const loai = loaiCuaChuyen(t)
                 const thumb = loai?.dsAnh?.[0]
                 return (
@@ -401,7 +472,10 @@ export function TrangDatVe() {
                           <NhanHieu tone={t.trangThai}>{trangThaiSangTiengViet(t.trangThai)}</NhanHieu>
                         </div>
                         <div className="trip-card__meta">
-                          <span>{loai ? loai.ten : `Xe #${t.maXe}`}</span>
+                          <span>
+                            {loai ? loai.ten : `Xe #${t.maXe}`}
+                            {loc?.soGheTrong != null ? ` · ${loc.soGheTrong} ghế trống` : ''}
+                          </span>
                           <span className="trip-card__price">{dinhDangVnd(t.giaVe)}</span>
                         </div>
                       </div>
@@ -515,6 +589,34 @@ export function TrangDatVe() {
                     onClick={() => datDsMaGheChon(new Set())}
                     con="Bỏ chọn tất cả"
                   />
+                </div>
+              ) : null}
+              {chon && dsDiemDung.length > 0 ? (
+                <div className="filters-row booking-pickup">
+                  <TruongChon
+                    nhan="Điểm lên (tùy chọn)"
+                    value={maDiemLen === '' ? '' : String(maDiemLen)}
+                    onChange={(e) => datMaDiemLen(e.target.value ? Number(e.target.value) : '')}
+                  >
+                    <option value="">— Không chọn —</option>
+                    {dsDiemDung.map((d) => (
+                      <option key={d.ma} value={d.ma}>
+                        {d.tenDiem}
+                      </option>
+                    ))}
+                  </TruongChon>
+                  <TruongChon
+                    nhan="Điểm xuống (tùy chọn)"
+                    value={maDiemXuong === '' ? '' : String(maDiemXuong)}
+                    onChange={(e) => datMaDiemXuong(e.target.value ? Number(e.target.value) : '')}
+                  >
+                    <option value="">— Không chọn —</option>
+                    {dsDiemDung.map((d) => (
+                      <option key={d.ma} value={d.ma}>
+                        {d.tenDiem}
+                      </option>
+                    ))}
+                  </TruongChon>
                 </div>
               ) : null}
               <div className="booking-actions">

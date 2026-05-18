@@ -14,4 +14,8 @@ public class YeuCauDatVe {
     private Long maGhe;
 
     private List<Long> dsMaGhe;
+
+    private Long maDiemLen;
+
+    private Long maDiemXuong;
 }

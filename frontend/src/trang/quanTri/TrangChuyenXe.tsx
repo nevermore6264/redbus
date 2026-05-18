@@ -225,6 +225,7 @@ export function TrangChuyenXe() {
         <h1 className="admin-page__title">Chuyến xe</h1>
         <p className="admin-page__sub">Gán tuyến, xe, giờ khởi hành và giá vé cho từng chuyến.</p>
       </header>
+      {laAdmin ? (
       <TheChua padding="lg">
         <TieuDeThe
           title="Gen lịch tự động"
@@ -263,6 +264,7 @@ export function TrangChuyenXe() {
         </div>
         {ketQuaGen ? <p className="gen-lich-panel__ket-qua muted small">{ketQuaGen}</p> : null}
       </TheChua>
+      ) : null}
 
       <TheChua padding="none">
         <div className="table-wrap-pad">

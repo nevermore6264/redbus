@@ -80,7 +80,41 @@ export interface VeXe {
   maKhach: number
   maGhe: number
   trangThai: string
+  maVeHienThi?: string
   thoiGianDat?: string
+  maDiemLen?: number
+  maDiemXuong?: number
+}
+
+export interface VeDienTu {
+  ma: number
+  maVeHienThi: string
+  trangThai: string
+  tenKhach?: string
+  soDienThoai?: string
+  diemDi?: string
+  diemDen?: string
+  diemLen?: string
+  diemXuong?: string
+  thoiDiemKhoiHanh?: string
+  maGhe?: string
+  soTienThanhToan?: number | string
+  noiDungQr: string
+}
+
+export interface ChuyenXeLoc {
+  chuyen: ChuyenXe
+  tenLoaiXe?: string
+  soGheTrong?: number
+}
+
+export interface VeChoDanhGia {
+  maVe: number
+  maChuyen: number
+  tuyen?: string
+  thoiDiemKhoiHanh?: string
+  maGhe?: string
+  daDanhGia: boolean
 }
 
 export interface XeKhach {
@@ -113,6 +147,8 @@ export interface DiemDungChan {
   tenDiem: string
   thuTu?: number
   thoiGianDungPhut?: number
+  viDo?: number
+  kinhDo?: number
 }
 
 export interface KhuyenMai {
