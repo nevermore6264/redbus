@@ -57,7 +57,7 @@ export function TrangDatVe() {
   const [chon, datChon] = useState<ChuyenXe | null>(null)
   const [dsGhe, datGhe] = useState<GheNgoi[]>([])
   const [gheDaGiu, datGheDaGiu] = useState<Set<number>>(new Set())
-  const [maGheChon, datMaGheChon] = useState<number | null>(null)
+  const [dsMaGheChon, datDsMaGheChon] = useState<Set<number>>(new Set())
   const [taiDS, datTaiDS] = useState(false)
   const [taiDat, datTaiDat] = useState(false)
   const [dsDiemDung, datDsDiemDung] = useState<DiemDungChan[]>([])
@@ -73,7 +73,18 @@ export function TrangDatVe() {
     [dsTuyen, maTuyen],
   )
 
-  const buocHienTai = maGheChon != null ? 3 : chon ? 2 : 1
+  const soGheChon = dsMaGheChon.size
+  const buocHienTai = soGheChon > 0 ? 3 : chon ? 2 : 1
+
+  const nhanGheDaChon = useMemo(() => {
+    if (!chon || soGheChon === 0) return ''
+    const labels = [...dsMaGheChon]
+      .map((ma) => dsGhe.find((g) => g.ma === ma)?.maGhe)
+      .filter(Boolean)
+    return labels.join(', ')
+  }, [dsMaGheChon, dsGhe, chon, soGheChon])
+
+  const tongTien = chon && soGheChon > 0 ? Number(chon.giaVe) * soGheChon : 0
 
   const loaiTheoChuyen = useMemo(() => {
     if (!chon) return null
@@ -174,7 +185,7 @@ export function TrangDatVe() {
     datChon(null)
     datGhe([])
     datGheDaGiu(new Set())
-    datMaGheChon(null)
+    datDsMaGheChon(new Set())
     try {
       const q: Record<string, string> = { maTuyen: String(maTuyen) }
       if (tuNgay) q.tuLuc = new Date(tuNgay).toISOString()
@@ -192,7 +203,7 @@ export function TrangDatVe() {
 
   async function khiChonChuyen(c: ChuyenXe) {
     datChon(c)
-    datMaGheChon(null)
+    datDsMaGheChon(new Set())
     try {
       const [ghe, thuTu] = await Promise.all([
         moKhoiDuLieu(khachHttp.get<PhanHoi<GheNgoi[]>>(`/ghe-ngoi/xe/${c.maXe}`)),
@@ -205,20 +216,47 @@ export function TrangDatVe() {
     }
   }
 
+  function chonHoacBoGhe(ma: number) {
+    datDsMaGheChon((truoc) => {
+      const sau = new Set(truoc)
+      if (sau.has(ma)) {
+        sau.delete(ma)
+        return sau
+      }
+      if (sau.size >= 10) {
+        hienThi({ loai: 'thongTin', noiDung: 'Tối đa 10 ghế mỗi lần đặt' })
+        return truoc
+      }
+      sau.add(ma)
+      return sau
+    })
+  }
+
   async function xacNhanDat() {
-    if (!chon || maGheChon == null) return
+    if (!chon || soGheChon === 0) return
     if (nguoiDung?.vaiTro !== 'CUSTOMER') {
       hienThi({ loai: 'thongTin', noiDung: 'Vui lòng đăng nhập tài khoản khách hàng (CUSTOMER) để đặt vé.' })
       return
     }
     datTaiDat(true)
     try {
-      await moKhoiDuLieu(
-        khachHttp.post<PhanHoi<unknown>>('/ve-xe/dat', { maChuyen: chon.ma, maGhe: maGheChon }),
+      const ve = await moKhoiDuLieu(
+        khachHttp.post<PhanHoi<unknown[]>>('/ve-xe/dat', {
+          maChuyen: chon.ma,
+          dsMaGhe: [...dsMaGheChon],
+        }),
       )
-      hienThi({ loai: 'thanhCong', noiDung: 'Đặt vé thành công!' })
-      datGheDaGiu((s) => new Set(s).add(maGheChon))
-      datMaGheChon(null)
+      const soVe = Array.isArray(ve) ? ve.length : soGheChon
+      hienThi({
+        loai: 'thanhCong',
+        noiDung: soVe > 1 ? `Đã đặt ${soVe} vé thành công!` : 'Đặt vé thành công!',
+      })
+      datGheDaGiu((s) => {
+        const moi = new Set(s)
+        dsMaGheChon.forEach((ma) => moi.add(ma))
+        return moi
+      })
+      datDsMaGheChon(new Set())
     } catch (e: unknown) {
       hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi đặt vé' })
     } finally {
@@ -271,7 +309,7 @@ export function TrangDatVe() {
             </li>
             <li className={lopBuoc(2)}>
               <span className="booking-steps__num">2</span>
-              <span className="booking-steps__txt">Chọn ghế</span>
+              <span className="booking-steps__txt">Chọn ghế (nhiều ghế)</span>
             </li>
             <li className={lopBuoc(3)}>
               <span className="booking-steps__num">3</span>
@@ -452,24 +490,46 @@ export function TrangDatVe() {
                   <i className="dot dot--busy" /> Đã đặt / khóa
                 </span>
                 <span>
-                  <i className="dot dot--pick" /> Đang chọn
+                  <i className="dot dot--pick" /> Đang chọn (nhiều ghế)
                 </span>
               </div>
               <SoDoGheXe
                 dsGhe={dsGhe}
                 gheDaGiu={gheDaGiu}
-                maGheChon={maGheChon}
-                onChonMaGhe={(ma) => datMaGheChon(ma)}
+                dsMaGheChon={dsMaGheChon}
+                onChonMaGhe={chonHoacBoGhe}
               />
+              {soGheChon > 0 ? (
+                <div className="booking-seat-summary">
+                  <p className="booking-seat-summary__label">
+                    <Armchair size={16} aria-hidden />
+                    Đã chọn <strong>{soGheChon}</strong> ghế: {nhanGheDaChon}
+                  </p>
+                  <p className="booking-seat-summary__total">
+                    Tạm tính: <strong>{dinhDangVnd(tongTien)}</strong>
+                    <span className="muted small"> ({dinhDangVnd(chon.giaVe)} × {soGheChon})</span>
+                  </p>
+                  <NutBam
+                    bien="mo"
+                    className="btn--sm"
+                    onClick={() => datDsMaGheChon(new Set())}
+                    con="Bỏ chọn tất cả"
+                  />
+                </div>
+              ) : null}
               <div className="booking-actions">
                 {nguoiDung?.vaiTro === 'CUSTOMER' ? (
                   <NutBam
                     bien="chinh"
                     className="btn--lg"
-                    disabled={maGheChon == null}
+                    disabled={soGheChon === 0}
                     dangTai={taiDat}
-                    onClick={xacNhanDat}
-                    con="Xác nhận đặt vé"
+                    onClick={() => void xacNhanDat()}
+                    con={
+                      soGheChon > 1
+                        ? `Xác nhận đặt ${soGheChon} vé`
+                        : 'Xác nhận đặt vé'
+                    }
                   />
                 ) : (
                   <p className="muted">

@@ -18,11 +18,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class DichVuDatVe {
+
+    private static final int TOI_DA_GHE_MOI_LAN = 10;
 
     private final AnhXaTaiKhoan anhXaTaiKhoan;
     private final AnhXaKhachHang anhXaKhachHang;
@@ -48,7 +54,7 @@ public class DichVuDatVe {
     }
 
     @Transactional
-    public VeXe datVe(String tenDangNhap, YeuCauDatVe yeuCau) {
+    public List<VeXe> datVe(String tenDangNhap, YeuCauDatVe yeuCau) {
         TaiKhoan tk = anhXaTaiKhoan.timTheoTenDangNhap(tenDangNhap);
         if (tk == null) {
             throw new IllegalArgumentException("Không tìm thấy tài khoản");
@@ -57,44 +63,90 @@ public class DichVuDatVe {
         if (kh == null) {
             throw new IllegalStateException("Chưa có hồ sơ khách hàng");
         }
+
+        List<Long> dsMaGhe = giaiMaDanhSachGhe(yeuCau);
+        if (dsMaGhe.isEmpty()) {
+            throw new IllegalArgumentException("Chọn ít nhất một ghế");
+        }
+        if (dsMaGhe.size() > TOI_DA_GHE_MOI_LAN) {
+            throw new IllegalArgumentException("Tối đa " + TOI_DA_GHE_MOI_LAN + " ghế mỗi lần đặt");
+        }
+
         ChuyenXe cx = anhXaChuyenXe.timTheoMa(yeuCau.getMaChuyen());
         if (cx == null) {
             throw new IllegalArgumentException("Không có chuyến xe");
         }
-        GheNgoi ghe = anhXaGheNgoi.timTheoMa(yeuCau.getMaGhe());
+
+        List<VeXe> ketQua = new ArrayList<>();
+        List<String> maGheHienThi = new ArrayList<>();
+
+        for (Long maGhe : dsMaGhe) {
+            VeXe ve = datMotGhe(kh, cx, maGhe);
+            ketQua.add(ve);
+            GheNgoi ghe = anhXaGheNgoi.timTheoMa(maGhe);
+            maGheHienThi.add(ghe != null ? ghe.getMaGhe() : String.valueOf(maGhe));
+        }
+
+        TuyenDuong tuyen = anhXaTuyenDuong.timTheoMa(cx.getMaTuyen());
+        String tenTuyen =
+                tuyen != null ? tuyen.getDiemDi() + " → " + tuyen.getDiemDen() : "Chuyến #" + cx.getMa();
+        String gio = cx.getThoiDiemKhoiHanh().format(FMT_GIO);
+        String dsMaVe =
+                ketQua.stream().map(v -> "#" + v.getMa()).collect(Collectors.joining(", "));
+
+        dichVuThongBao.guiNhanh(
+                tk.getMa(),
+                "Đặt vé thành công",
+                "Đã giữ " + ketQua.size() + " vé (" + dsMaVe + ") cho chuyến " + cx.getMa() + ".");
+
+        if (ketQua.size() == 1) {
+            dichVuGuiMail.guiDatVeThanhCong(
+                    tk.getEmail(), ketQua.get(0).getMa(), tenTuyen, gio, maGheHienThi.get(0));
+        } else {
+            dichVuGuiMail.guiDatNhieuVeThanhCong(
+                    tk.getEmail(), dsMaVe, tenTuyen, gio, String.join(", ", maGheHienThi), ketQua.size());
+        }
+
+        return ketQua;
+    }
+
+    private VeXe datMotGhe(KhachHang kh, ChuyenXe cx, Long maGhe) {
+        GheNgoi ghe = anhXaGheNgoi.timTheoMa(maGhe);
         if (ghe == null || !ghe.getMaXe().equals(cx.getMaXe())) {
             throw new IllegalArgumentException("Ghế không hợp lệ cho chuyến này");
         }
         if ("BLOCKED".equalsIgnoreCase(ghe.getTrangThai())) {
-            throw new IllegalStateException("Ghế đang bị khóa");
+            throw new IllegalStateException("Ghế " + ghe.getMaGhe() + " đang bị khóa");
         }
         for (VeXe v : anhXaVeXe.timTheoMaChuyen(cx.getMa())) {
             if (v.getMaGhe().equals(ghe.getMa()) && !"CANCELLED".equals(v.getTrangThai())) {
-                throw new IllegalStateException("Ghế đã được giữ");
+                throw new IllegalStateException("Ghế " + ghe.getMaGhe() + " đã được giữ");
             }
         }
-        VeXe ve = VeXe.builder()
-                .maChuyen(cx.getMa())
-                .maKhach(kh.getMa())
-                .maGhe(ghe.getMa())
-                .trangThai("PENDING")
-                .build();
+        VeXe ve =
+                VeXe.builder()
+                        .maChuyen(cx.getMa())
+                        .maKhach(kh.getMa())
+                        .maGhe(ghe.getMa())
+                        .trangThai("PENDING")
+                        .build();
         anhXaVeXe.them(ve);
-        VeXe luu = anhXaVeXe.timTheoMa(ve.getMa());
-        dichVuThongBao.guiNhanh(
-                tk.getMa(),
-                "Đặt vé thành công",
-                "Bạn đã giữ vé số " + luu.getMa() + " cho chuyến " + cx.getMa() + ".");
-        TuyenDuong tuyen = anhXaTuyenDuong.timTheoMa(cx.getMaTuyen());
-        String tenTuyen =
-                tuyen != null ? tuyen.getDiemDi() + " → " + tuyen.getDiemDen() : "Chuyến #" + cx.getMa();
-        dichVuGuiMail.guiDatVeThanhCong(
-                tk.getEmail(),
-                luu.getMa(),
-                tenTuyen,
-                cx.getThoiDiemKhoiHanh().format(FMT_GIO),
-                ghe.getMaGhe());
-        return luu;
+        return anhXaVeXe.timTheoMa(ve.getMa());
+    }
+
+    private List<Long> giaiMaDanhSachGhe(YeuCauDatVe yeuCau) {
+        Set<Long> tap = new LinkedHashSet<>();
+        if (yeuCau.getDsMaGhe() != null) {
+            for (Long ma : yeuCau.getDsMaGhe()) {
+                if (ma != null) {
+                    tap.add(ma);
+                }
+            }
+        }
+        if (yeuCau.getMaGhe() != null) {
+            tap.add(yeuCau.getMaGhe());
+        }
+        return new ArrayList<>(tap);
     }
 
     @Transactional

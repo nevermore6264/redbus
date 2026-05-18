@@ -25,6 +25,26 @@ public class DichVuGuiMail {
     @Value("${app.mail.ten-hien-thi:RedBus}")
     private String tenHienThi;
 
+    public void guiDatNhieuVeThanhCong(
+            String email, String dsMaVe, String tuyen, String gioKhoiHanh, String dsMaGhe, int soVe) {
+        String noiDung = """
+                Xin chào,
+
+                Bạn đã đặt %d vé thành công trên RedBus.
+
+                Mã vé: %s
+                Tuyến: %s
+                Khởi hành: %s
+                Ghế: %s
+
+                Vui lòng thanh toán từng vé (hoặc từng nhóm) trong mục "Vé của tôi".
+
+                Trân trọng,
+                %s
+                """.formatted(soVe, dsMaVe, tuyen, gioKhoiHanh, dsMaGhe, tenHienThi);
+        gui(email, "RedBus — Đặt " + soVe + " vé thành công", noiDung);
+    }
+
     public void guiDatVeThanhCong(String email, Long maVe, String tuyen, String gioKhoiHanh, String maGhe) {
         String noiDung = """
                 Xin chào,

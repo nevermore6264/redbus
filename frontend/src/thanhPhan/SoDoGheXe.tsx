@@ -6,11 +6,21 @@ import { nhomTheoTang, xayDungLuoiGhe } from '../tienIch/soDoGhe'
 type Props = {
   dsGhe: GheNgoi[]
   gheDaGiu: Set<number>
-  maGheChon: number | null
+  /** Một ghế (chế độ cũ). */
+  maGheChon?: number | null
+  /** Nhiều ghế (ưu tiên nếu có). */
+  dsMaGheChon?: Set<number>
   onChonMaGhe: (ma: number) => void
 }
 
-export function SoDoGheXe({ dsGhe, gheDaGiu, maGheChon, onChonMaGhe }: Props) {
+export function SoDoGheXe({ dsGhe, gheDaGiu, maGheChon, dsMaGheChon, onChonMaGhe }: Props) {
+  const nhieuLuaChon = dsMaGheChon != null
+
+  function dangChon(ma: number) {
+    if (nhieuLuaChon) return dsMaGheChon!.has(ma)
+    return maGheChon === ma
+  }
+
   const tangNhom = useMemo(() => nhomTheoTang(dsGhe), [dsGhe])
   const nhieuTang = tangNhom.length > 1
 
@@ -33,7 +43,7 @@ export function SoDoGheXe({ dsGhe, gheDaGiu, maGheChon, onChonMaGhe }: Props) {
     }
     const bo =
       gheDaGiu.has(s.ma) || s.trangThai === 'BLOCKED' || s.trangThai?.toUpperCase() === 'BLOCKED'
-    const chonGhe = maGheChon === s.ma
+    const chonGhe = dangChon(s.ma)
     return (
       <button
         key={key}
@@ -41,6 +51,7 @@ export function SoDoGheXe({ dsGhe, gheDaGiu, maGheChon, onChonMaGhe }: Props) {
         disabled={bo}
         className={`seat-cell ${bo ? 'seat-cell--occ' : ''} ${chonGhe ? 'seat-cell--pick' : ''}`}
         onClick={() => !bo && onChonMaGhe(s.ma)}
+        aria-pressed={chonGhe}
       >
         <Armchair size={16} aria-hidden />
         <span>{s.maGhe}</span>
@@ -51,8 +62,10 @@ export function SoDoGheXe({ dsGhe, gheDaGiu, maGheChon, onChonMaGhe }: Props) {
   return (
     <div className="seat-map">
       <p className="seat-map__hint muted">
-        Đầu xe — nhìn từ trước ra sau. Ghế <strong>trái / phải</strong> hai bên lối đi giữa. Xe giường nằm: chọn{' '}
-        <strong>tầng</strong> trước khi chọn ghế.
+        {nhieuLuaChon
+          ? 'Nhấn nhiều ghế trống để chọn — nhấn lại để bỏ chọn. Tối đa 10 ghế / lần.'
+          : 'Chọn một ghế trống.'}{' '}
+        Đầu xe — nhìn từ trước ra sau. Xe giường nằm: chọn <strong>tầng</strong> trước.
       </p>
 
       {nhieuTang ? (

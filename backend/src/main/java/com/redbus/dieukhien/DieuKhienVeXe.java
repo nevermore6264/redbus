@@ -28,7 +28,7 @@ public class DieuKhienVeXe {
 
     @PostMapping("/dat")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public PhanHoiChung<VeXe> datVe(
+    public PhanHoiChung<List<VeXe>> datVe(
             @AuthenticationPrincipal UserDetails nguoiDung,
             @Valid @RequestBody YeuCauDatVe yeuCau) {
         return PhanHoiChung.ok(dichVuDatVe.datVe(nguoiDung.getUsername(), yeuCau));

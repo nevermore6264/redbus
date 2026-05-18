@@ -29,20 +29,23 @@ export function TruongNhap({
   className = '',
   placeholder,
   required,
+  batBuoc,
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & {
   nhan?: string
   goiY?: string
   loi?: string
   bieuTuong?: ReactNode
+  batBuoc?: boolean
 }) {
   const idTruong = id ?? props.name
   const placeholderCuoi = placeholder ?? goiYPlaceholderTuNhan(nhan)
+  const hienDauBatBuoc = batBuoc ?? required
   return (
     <div className={`field ${loi ? 'field--error' : ''}`.trim()}>
       {nhan ? (
         <label className="field__label" htmlFor={idTruong}>
-          <NhanTruong nhan={nhan} batBuoc={required} />
+          <NhanTruong nhan={nhan} batBuoc={hienDauBatBuoc} />
         </label>
       ) : null}
       <div className="field__control">
@@ -51,7 +54,8 @@ export function TruongNhap({
           id={idTruong}
           className={`field__input ${className}`.trim()}
           placeholder={placeholderCuoi}
-          required={required}
+          required={batBuoc != null ? false : required}
+          aria-invalid={loi ? true : undefined}
           {...props}
         />
       </div>
