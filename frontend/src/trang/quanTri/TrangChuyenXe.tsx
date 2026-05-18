@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { Bus, CalendarPlus, RefreshCw, Route, Search } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../../nguon/apiClient'
 import type { KetQuaGenLich, PhanHoi, ChuyenXe, TuyenDuong, XeKhach } from '../../nguon/kieu'
 import { dungNguoiDung } from '../../dinhDanh/boiCanhNguoiDung'
@@ -17,10 +18,11 @@ function chuyenDatetimeLocal(iso: string | undefined): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
-function tenTrangThai(s: string) {
-  if (s === 'SCHEDULED') return 'Đã lên lịch'
-  if (s === 'CANCELLED') return 'Đã hủy'
-  return s
+function BadgeTrangThai({ trangThai }: { trangThai: string }) {
+  if (trangThai === 'CANCELLED') {
+    return <span className="badge badge--muted">Đã hủy</span>
+  }
+  return <span className="badge badge--ok">Đã lên lịch</span>
 }
 
 export function TrangChuyenXe() {
@@ -30,6 +32,7 @@ export function TrangChuyenXe() {
   const [ds, datDs] = useState<ChuyenXe[]>([])
   const [dsTuyen, datTuyen] = useState<TuyenDuong[]>([])
   const [dsXe, datXe] = useState<XeKhach[]>([])
+  const [tai, datTai] = useState(true)
   const [mo, datMo] = useState(false)
   const [sua, datSua] = useState<ChuyenXe | null>(null)
   const [xoaChon, datXoaChon] = useState<ChuyenXe | null>(null)
@@ -37,14 +40,14 @@ export function TrangChuyenXe() {
   const [loiBieu, datLoiBieu] = useState<
     Partial<Record<'maTuyen' | 'maXe' | 'thoiDiemKhoiHanh' | 'thoiDiemDen' | 'giaVe' | 'chung', string>>
   >({})
-  const [tuNgayGen, datTuNgayGen] = useState(() => {
-    const d = new Date()
-    return d.toISOString().slice(0, 10)
-  })
+  const [tuNgayGen, datTuNgayGen] = useState(() => new Date().toISOString().slice(0, 10))
   const [soNgayGen, datSoNgayGen] = useState(7)
   const [maTuyenGen, datMaTuyenGen] = useState<number | ''>('')
   const [dangGen, datDangGen] = useState(false)
   const [ketQuaGen, datKetQuaGen] = useState<string | null>(null)
+  const [tuKhoa, datTuKhoa] = useState('')
+  const [locTuyen, datLocTuyen] = useState<number | ''>('')
+  const [locTrangThai, datLocTrangThai] = useState('')
 
   const [bieu, datBieu] = useState({
     maTuyen: '' as number | '',
@@ -65,6 +68,7 @@ export function TrangChuyenXe() {
   }
 
   async function taiDS() {
+    datTai(true)
     try {
       const [cx, tuyen, xe] = await Promise.all([
         moKhoiDuLieu(khachHttp.get<PhanHoi<ChuyenXe[]>>('/chuyen-xe/toan-bo')),
@@ -76,6 +80,8 @@ export function TrangChuyenXe() {
       datXe(xe)
     } catch (e: unknown) {
       hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi tải dữ liệu' })
+    } finally {
+      datTai(false)
     }
   }
 
@@ -94,6 +100,35 @@ export function TrangChuyenXe() {
     const x = dsXe.find((z) => z.ma === ma)
     return x?.bienSo ?? `#${ma}`
   }
+
+  const thongKe = useMemo(() => {
+    let lenLich = 0
+    let huy = 0
+    for (const c of ds) {
+      if (c.trangThai === 'CANCELLED') huy++
+      else lenLich++
+    }
+    return { tong: ds.length, lenLich, huy }
+  }, [ds])
+
+  const dsLoc = useMemo(() => {
+    const q = tuKhoa.trim().toLowerCase()
+    return ds.filter((c) => {
+      if (locTuyen !== '' && c.maTuyen !== locTuyen) return false
+      if (locTrangThai !== '' && c.trangThai !== locTrangThai) return false
+      if (!q) return true
+      const chuoi = [
+        String(c.ma),
+        tenTuyen(c.maTuyen),
+        hienThiBienSoXe(c.maXe),
+        dinhDangNgayGio(c.thoiDiemKhoiHanh),
+        String(c.giaVe),
+      ]
+        .join(' ')
+        .toLowerCase()
+      return chuoi.includes(q)
+    })
+  }, [ds, tuKhoa, locTuyen, locTrangThai, dsTuyen, dsXe])
 
   function moThe() {
     datSua(null)
@@ -162,10 +197,7 @@ export function TrangChuyenXe() {
     try {
       if (sua) {
         await moKhoiDuLieu(
-          khachHttp.put<PhanHoi<ChuyenXe>>(`/chuyen-xe/${sua.ma}`, {
-            ...than,
-            ma: sua.ma,
-          }),
+          khachHttp.put<PhanHoi<ChuyenXe>>(`/chuyen-xe/${sua.ma}`, { ...than, ma: sua.ma }),
         )
       } else {
         await moKhoiDuLieu(khachHttp.post<PhanHoi<ChuyenXe>>('/chuyen-xe', than))
@@ -220,36 +252,124 @@ export function TrangChuyenXe() {
   }
 
   return (
-    <div className="admin-page">
-      <header className="admin-page__head">
-        <h1 className="admin-page__title">Chuyến xe</h1>
-        <p className="admin-page__sub">Gán tuyến, xe, giờ khởi hành và giá vé cho từng chuyến.</p>
+    <div className="admin-page admin-page--trips">
+      <header className="trip-hero">
+        <motion className="trip-hero__copy">
+          <p className="trip-hero__kicker">
+            <Bus size={16} strokeWidth={2.25} aria-hidden />
+            Lịch vận hành
+          </p>
+          <h1 className="trip-hero__title">Chuyến xe</h1>
+          <p className="trip-hero__lead">
+            Gán tuyến, xe, giờ khởi hành và giá vé. Admin có thể gen lịch hàng loạt theo khung giờ cố định.
+          </p>
+        </motion>
+        <div className="trip-hero__stats" aria-live="polite">
+          <div className="trip-hero__stat">
+            <span className="trip-hero__stat-val">{tai ? '…' : thongKe.tong}</span>
+            <span className="trip-hero__stat-lab">Tổng chuyến</span>
+          </motion>
+          <div className="trip-hero__stat trip-hero__stat--ok">
+            <span className="trip-hero__stat-val">{tai ? '…' : thongKe.lenLich}</span>
+            <span className="trip-hero__stat-lab">Đã lên lịch</span>
+          </motion>
+          <div className="trip-hero__stat trip-hero__stat--muted">
+            <span className="trip-hero__stat-val">{tai ? '…' : thongKe.huy}</span>
+            <span className="trip-hero__stat-lab">Đã hủy</span>
+          </motion>
+        </motion>
       </header>
+
       {laAdmin ? (
-      <TheChua padding="lg">
-        <TieuDeThe
-          title="Gen lịch tự động"
-          subtitle="Chỉ gen các ngày chưa có chuyến (6h, 9h, 13h, 17h, 21h mỗi tuyến)"
-        />
-        <div className="gen-lich-panel">
-          <TruongNhap
-            nhan="Từ ngày"
-            type="date"
-            value={tuNgayGen}
-            onChange={(e) => datTuNgayGen(e.target.value)}
-          />
-          <TruongNhap
-            nhan="Số ngày"
-            type="number"
-            min={1}
-            max={31}
-            value={soNgayGen}
-            onChange={(e) => datSoNgayGen(Math.max(1, Math.min(31, Number(e.target.value) || 1)))}
-          />
+        <TheChua padding="lg" className="trip-gen-card">
+          <div className="trip-gen-card__head">
+            <div className="trip-gen-card__icon" aria-hidden>
+              <CalendarPlus size={22} strokeWidth={2} />
+            </motion>
+            <div>
+              <h2 className="trip-gen-card__title">Gen lịch tự động</h2>
+              <p className="trip-gen-card__sub muted">
+                Tạo chuyến 6h, 9h, 13h, 17h, 21h — chỉ các ngày chưa có lịch trên tuyến.
+              </p>
+            </motion>
+          </motion>
+          <div className="trip-gen-form">
+            <TruongNhap
+              nhan="Từ ngày"
+              type="date"
+              value={tuNgayGen}
+              onChange={(e) => datTuNgayGen(e.target.value)}
+            />
+            <TruongNhap
+              nhan="Số ngày"
+              type="number"
+              min={1}
+              max={31}
+              value={soNgayGen}
+              onChange={(e) => datSoNgayGen(Math.max(1, Math.min(31, Number(e.target.value) || 1)))}
+            />
+            <TruongChon
+              nhan="Tuyến (tùy chọn)"
+              value={maTuyenGen === '' ? '' : String(maTuyenGen)}
+              onChange={(e) => datMaTuyenGen(e.target.value ? Number(e.target.value) : '')}
+            >
+              <option value="">Tất cả tuyến</option>
+              {dsTuyen.map((t) => (
+                <option key={t.ma} value={t.ma}>
+                  {t.diemDi} → {t.diemDen}
+                </option>
+              ))}
+            </TruongChon>
+            <div className="trip-gen-form__action">
+              <span className="field__label trip-gen-form__action-label" aria-hidden="true">
+                &nbsp;
+              </span>
+              <NutBam
+                bien="chinh"
+                className="trip-gen-form__btn"
+                dangTai={dangGen}
+                onClick={() => void genLich()}
+                con="Gen lịch"
+              />
+            </motion>
+          </motion>
+          {ketQuaGen ? (
+            <p className="trip-gen-card__result" role="status">
+              {ketQuaGen}
+            </p>
+          ) : null}
+        </TheChua>
+      ) : null}
+
+      <TheChua padding="none" className="trip-list-card">
+        <div className="trip-list-toolbar">
+          <div className="trip-list-toolbar__left">
+            <h2 className="trip-list-toolbar__title">Danh sách chuyến</h2>
+            <span className="trip-list-toolbar__count">
+              {tai ? '…' : `${dsLoc.length}${dsLoc.length !== ds.length ? ` / ${ds.length}` : ''} chuyến`}
+            </span>
+          </motion>
+          <div className="trip-list-toolbar__actions">
+            <NutBam bien="vien" className="btn--sm" dangTai={tai} onClick={() => void taiDS()} con="Làm mới" />
+            <NutBam bien="chinh" className="btn--sm" onClick={moThe} con="+ Thêm chuyến" />
+          </motion>
+        </motion>
+
+        <div className="trip-filters">
+          <label className="trip-filters__search">
+            <Search size={16} aria-hidden className="trip-filters__search-ico" />
+            <input
+              type="search"
+              className="trip-filters__search-input"
+              placeholder="Tìm mã, tuyến, biển số, giờ…"
+              value={tuKhoa}
+              onChange={(e) => datTuKhoa(e.target.value)}
+            />
+          </label>
           <TruongChon
-            nhan="Tuyến (tùy chọn)"
-            value={maTuyenGen === '' ? '' : String(maTuyenGen)}
-            onChange={(e) => datMaTuyenGen(e.target.value ? Number(e.target.value) : '')}
+            nhan="Lọc tuyến"
+            value={locTuyen === '' ? '' : String(locTuyen)}
+            onChange={(e) => datLocTuyen(e.target.value ? Number(e.target.value) : '')}
           >
             <option value="">Tất cả tuyến</option>
             {dsTuyen.map((t) => (
@@ -258,29 +378,19 @@ export function TrangChuyenXe() {
               </option>
             ))}
           </TruongChon>
-          <div className="gen-lich-panel__nut">
-            <span className="field__label gen-lich-panel__nut-label" aria-hidden="true">
-              &nbsp;
-            </span>
-            <NutBam
-              bien="chinh"
-              className="gen-lich-panel__btn"
-              dangTai={dangGen}
-              onClick={() => void genLich()}
-              con="Gen lịch"
-            />
-          </div>
-        </div>
-        {ketQuaGen ? <p className="gen-lich-panel__ket-qua muted small">{ketQuaGen}</p> : null}
-      </TheChua>
-      ) : null}
+          <TruongChon
+            nhan="Trạng thái"
+            value={locTrangThai}
+            onChange={(e) => datLocTrangThai(e.target.value)}
+          >
+            <option value="">Tất cả</option>
+            <option value="SCHEDULED">Đã lên lịch</option>
+            <option value="CANCELLED">Đã hủy</option>
+          </TruongChon>
+        </motion>
 
-      <TheChua padding="none">
-        <div className="table-wrap-pad">
-          <TieuDeThe title="Danh sách chuyến" action={<NutBam bien="chinh" onClick={moThe} con="+ Thêm chuyến" />} />
-        </div>
         <div className="table-scroll">
-          <table className="data-table">
+          <table className="data-table trip-table">
             <thead>
               <tr>
                 <th>Mã</th>
@@ -293,18 +403,39 @@ export function TrangChuyenXe() {
               </tr>
             </thead>
             <tbody>
-              {ds.map((r) => (
-                <tr key={r.ma}>
-                  <td className="mono">{r.ma}</td>
-                  <td title={`Mã tuyến: ${r.maTuyen}`}>
+              {tai && ds.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="trip-table__empty">
+                    Đang tải danh sách chuyến…
+                  </td>
+                </tr>
+              ) : null}
+              {!tai && dsLoc.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="trip-table__empty">
+                    {ds.length === 0
+                      ? 'Chưa có chuyến nào — thêm thủ công hoặc gen lịch.'
+                      : 'Không có chuyến khớp bộ lọc.'}
+                  </td>
+                </tr>
+              ) : null}
+              {dsLoc.map((r) => (
+                <tr
+                  key={r.ma}
+                  className={r.trangThai === 'CANCELLED' ? 'trip-table__row--cancelled' : undefined}
+                >
+                  <td className="mono trip-table__id">#{r.ma}</td>
+                  <td className="trip-table__route">
+                    <Route size={14} aria-hidden className="trip-table__route-ico" />
                     <strong>{tenTuyen(r.maTuyen)}</strong>
                   </td>
-                  <td title={`Mã xe: ${r.maXe}`}>{hienThiBienSoXe(r.maXe)}</td>
-                  <td>{dinhDangNgayGio(r.thoiDiemKhoiHanh)}</td>
-                  <td>{dinhDangVnd(r.giaVe)}</td>
                   <td>
-                    <span className="muted">{tenTrangThai(r.trangThai)}</span>
-                    <span className="mono small muted"> ({r.trangThai})</span>
+                    <span className="trip-table__plate">{hienThiBienSoXe(r.maXe)}</span>
+                  </td>
+                  <td className="trip-table__time">{dinhDangNgayGio(r.thoiDiemKhoiHanh)}</td>
+                  <td className="trip-table__price">{dinhDangVnd(r.giaVe)}</td>
+                  <td>
+                    <BadgeTrangThai trangThai={r.trangThai} />
                   </td>
                   <td className="row-actions">
                     <NutSuaQt onClick={() => moSua(r)} />
@@ -314,7 +445,7 @@ export function TrangChuyenXe() {
               ))}
             </tbody>
           </table>
-        </div>
+        </motion>
       </TheChua>
 
       <CuaSo
@@ -342,7 +473,7 @@ export function TrangChuyenXe() {
             <option value="">— Chọn tuyến —</option>
             {dsTuyen.map((t) => (
               <option key={t.ma} value={t.ma}>
-                {t.diemDi} → {t.diemDen} ({t.ma})
+                {t.diemDi} → {t.diemDen}
               </option>
             ))}
           </TruongChon>
@@ -356,43 +487,48 @@ export function TrangChuyenXe() {
             <option value="">— Chọn xe —</option>
             {dsXe.map((x) => (
               <option key={x.ma} value={x.ma}>
-                {x.bienSo} ({x.ma})
+                {x.bienSo}
+                {x.hangXe ? ` · ${x.hangXe}` : ''}
               </option>
             ))}
           </TruongChon>
-          <TruongNhap
-            nhan="Khởi hành"
-            type="datetime-local"
-            value={bieu.thoiDiemKhoiHanh}
-            onChange={(e) => datBieu({ ...bieu, thoiDiemKhoiHanh: e.target.value })}
-            loi={loiBieu.thoiDiemKhoiHanh}
-            required
-          />
-          <TruongNhap
-            nhan="Đến (tùy chọn)"
-            type="datetime-local"
-            value={bieu.thoiDiemDen}
-            onChange={(e) => datBieu({ ...bieu, thoiDiemDen: e.target.value })}
-            loi={loiBieu.thoiDiemDen}
-          />
-          <TruongNhap
-            nhan="Giá vé (VNĐ)"
-            type="number"
-            min={1}
-            value={bieu.giaVe}
-            onChange={(e) => datBieu({ ...bieu, giaVe: Number(e.target.value) })}
-            loi={loiBieu.giaVe}
-            required
-          />
-          <TruongChon
-            nhan="Trạng thái"
-            value={bieu.trangThai}
-            onChange={(e) => datBieu({ ...bieu, trangThai: e.target.value })}
-          >
-            <option value="SCHEDULED">Đã lên lịch (SCHEDULED)</option>
-            <option value="CANCELLED">Đã hủy (CANCELLED)</option>
-          </TruongChon>
-        </div>
+          <div className="trip-form-row">
+            <TruongNhap
+              nhan="Khởi hành"
+              type="datetime-local"
+              value={bieu.thoiDiemKhoiHanh}
+              onChange={(e) => datBieu({ ...bieu, thoiDiemKhoiHanh: e.target.value })}
+              loi={loiBieu.thoiDiemKhoiHanh}
+              required
+            />
+            <TruongNhap
+              nhan="Đến (tùy chọn)"
+              type="datetime-local"
+              value={bieu.thoiDiemDen}
+              onChange={(e) => datBieu({ ...bieu, thoiDiemDen: e.target.value })}
+              loi={loiBieu.thoiDiemDen}
+            />
+          </motion>
+          <motion className="trip-form-row">
+            <TruongNhap
+              nhan="Giá vé (VNĐ)"
+              type="number"
+              min={1}
+              value={bieu.giaVe}
+              onChange={(e) => datBieu({ ...bieu, giaVe: Number(e.target.value) })}
+              loi={loiBieu.giaVe}
+              required
+            />
+            <TruongChon
+              nhan="Trạng thái"
+              value={bieu.trangThai}
+              onChange={(e) => datBieu({ ...bieu, trangThai: e.target.value })}
+            >
+              <option value="SCHEDULED">Đã lên lịch</option>
+              <option value="CANCELLED">Đã hủy</option>
+            </TruongChon>
+          </motion>
+        </motion>
       </CuaSo>
 
       <CuaSoXacNhanXoa
@@ -410,6 +546,6 @@ export function TrangChuyenXe() {
           </p>
         ) : null}
       </CuaSoXacNhanXoa>
-    </div>
+    </motion>
   )
 }
