@@ -9364,6 +9364,25 @@ code {
   margin-bottom: 0.75rem;
 }
 
+.e-ticket__dev-hint {
+  margin: 0;
+  padding: 0.55rem 0.65rem;
+  border-radius: var(--radius-sm);
+  background: rgba(234, 179, 8, 0.12);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  line-height: 1.45;
+}
+
+.e-ticket__dev-hint code {
+  font-size: 0.78em;
+}
+
+.e-ticket__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .e-ticket__status {
   margin: 0;
   display: inline-block;

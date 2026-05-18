@@ -6,6 +6,9 @@ spring:
     password: your-gmail-app-password
 
 app:
+  frontend:
+    # IP LAN máy dev (ipconfig → IPv4), không dùng localhost nếu muốn QR quét được trên điện thoại
+    url: http://192.168.1.100:5173
   mail:
     from: your@gmail.com
     enabled: true

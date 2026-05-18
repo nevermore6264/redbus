@@ -1,3 +1,17 @@
+export function taoLinkTraCuuVe(goc: string, ma: string): string {
+  const base = goc.replace(/\/$/, '')
+  return `${base}/tra-cuu-ve?ma=${encodeURIComponent(ma.toUpperCase())}`
+}
+
+export function layNoiDungQr(apiQr: string, ma: string): string {
+  if (typeof window === 'undefined') return apiQr
+  const laLocalApi = /localhost|127\.0\.0\.1/i.test(apiQr)
+  if (import.meta.env.DEV || laLocalApi) {
+    return taoLinkTraCuuVe(window.location.origin, ma)
+  }
+  return apiQr
+}
+
 export function phanTichMaTuQr(noiDung: string): string | null {
   const s = noiDung.trim()
   if (!s) return null

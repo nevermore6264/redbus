@@ -5,6 +5,7 @@ import { toPng } from 'html-to-image'
 import { QRCode } from 'react-qr-code'
 import type { VeDienTu } from '../nguon/kieu'
 import { dinhDangNgayGio, dinhDangVnd } from '../tienIch/dinhDang'
+import { layNoiDungQr, taoLinkTraCuuVe } from '../tienIch/maVeQr'
 import { trangThaiSangTiengViet } from '../tienIch/trangThai'
 import { NutBam } from './nutBam'
 
@@ -16,9 +17,14 @@ export function VeDienTuPanel({ ve }: Props) {
   const theVe = useRef<HTMLDivElement>(null)
   const [dangTaiAnh, datDangTaiAnh] = useState(false)
   const [daSaoChep, datDaSaoChep] = useState(false)
+  const [daSaoChepLink, datDaSaoChepLink] = useState(false)
 
   const ma = ve.maVeHienThi.toUpperCase()
   const linkTraCuu = `/tra-cuu-ve?ma=${encodeURIComponent(ma)}`
+  const noiDungQr = layNoiDungQr(ve.noiDungQr, ma)
+  const linkTraCuuDayDu = taoLinkTraCuuVe(window.location.origin, ma)
+  const dangLocalhost =
+    typeof window !== 'undefined' && /localhost|127\.0\.0\.1/i.test(window.location.hostname)
 
   async function saoChepMa() {
     try {
@@ -27,6 +33,16 @@ export function VeDienTuPanel({ ve }: Props) {
       window.setTimeout(() => datDaSaoChep(false), 2000)
     } catch {
       window.prompt('Sao chép mã vé:', ma)
+    }
+  }
+
+  async function saoChepLinkTraCuu() {
+    try {
+      await navigator.clipboard.writeText(linkTraCuuDayDu)
+      datDaSaoChepLink(true)
+      window.setTimeout(() => datDaSaoChepLink(false), 2000)
+    } catch {
+      window.prompt('Sao chép link tra cứu:', linkTraCuuDayDu)
     }
   }
 
@@ -57,7 +73,7 @@ export function VeDienTuPanel({ ve }: Props) {
       <div className="e-ticket" ref={theVe}>
         <div className="e-ticket__top">
           <div className="e-ticket__qr" aria-hidden>
-            <QRCode value={ve.noiDungQr} size={112} />
+            <QRCode value={noiDungQr} size={112} />
           </div>
           <div className="e-ticket__intro">
             <p className="e-ticket__label">Mã vé</p>
@@ -112,7 +128,21 @@ export function VeDienTuPanel({ ve }: Props) {
           ) : null}
         </dl>
       </div>
+      {import.meta.env.DEV && dangLocalhost ? (
+        <p className="e-ticket__dev-hint muted small" data-export-exclude="true">
+          <strong>Test QR trên điện thoại (chưa deploy):</strong> máy tính và ĐT cùng WiFi → trên PC chạy{' '}
+          <code>ipconfig</code> lấy IPv4 (vd. 192.168.1.100) → mở trên ĐT{' '}
+          <code>http://192.168.1.100:5173</code> → đăng nhập → mở lại vé điện tử (QR sẽ trỏ đúng IP). Cấu hình thêm{' '}
+          <code>VITE_API_URL=http://IP:8080/api</code> và <code>CORS_ORIGINS</code> trên backend.
+        </p>
+      ) : null}
       <div className="e-ticket__actions" data-export-exclude="true">
+        <NutBam
+          bien="mo"
+          className="btn--block"
+          onClick={() => void saoChepLinkTraCuu()}
+          con={daSaoChepLink ? 'Đã copy link' : 'Copy link tra cứu (gửi sang ĐT)'}
+        />
         <NutBam
           bien="vien"
           className="btn--block"

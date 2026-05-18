@@ -23,9 +23,6 @@ import java.lang.annotation.Target;
 
 import static org.mockito.Mockito.mock;
 
-/**
- * Cấu hình chung cho @WebMvcTest controller (tắt JWT filter, bật @PreAuthorize nếu cần).
- */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @AutoConfigureMockMvc(addFilters = false)

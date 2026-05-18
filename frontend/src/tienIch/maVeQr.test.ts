@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { phanTichMaTuQr } from './maVeQr'
+import { phanTichMaTuQr, taoLinkTraCuuVe } from './maVeQr'
+
+describe('taoLinkTraCuuVe', () => {
+  it('tạo URL tra cứu', () => {
+    expect(taoLinkTraCuuVe('http://192.168.1.5:5173/', 'RBRWUC8QWQ')).toBe(
+      'http://192.168.1.5:5173/tra-cuu-ve?ma=RBRWUC8QWQ',
+    )
+  })
+})
 
 describe('phanTichMaTuQr', () => {
   it('đọc mã từ URL tra cứu', () => {
