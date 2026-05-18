@@ -377,7 +377,7 @@ export function TrangVeCuaToi() {
         ) : null}
       </TheChua>
 
-      <CuaSo open={veDienTu != null} title="Vé điện tử" onClose={() => datVeDienTu(null)}>
+      <CuaSo open={veDienTu != null} title="Vé điện tử" size="ticket" onClose={() => datVeDienTu(null)}>
         {veDienTu ? <VeDienTuPanel ve={veDienTu} /> : null}
       </CuaSo>
     </NenTrangKhach>

@@ -3,6 +3,7 @@ package com.redbus.dieukhien;
 import com.redbus.dichvu.DichVuDiaDanh;
 import com.redbus.truyen.DonViHanhChinh;
 import com.redbus.truyen.PhanHoiChung;
+import com.redbus.truyen.UocTinhLoTrinhPhanHoi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,5 +24,11 @@ public class DieuKhienDiaDanh {
     @GetMapping("/tinh/{ma}/xa")
     public PhanHoiChung<List<DonViHanhChinh>> xaTheoTinh(@PathVariable int ma) {
         return PhanHoiChung.ok(dichVuDiaDanh.layXaTheoTinh(ma));
+    }
+
+    @GetMapping("/uoc-tinh-lo-trinh")
+    public PhanHoiChung<UocTinhLoTrinhPhanHoi> uocTinhLoTrinh(
+            @RequestParam String diemDi, @RequestParam String diemDen) {
+        return PhanHoiChung.ok(dichVuDiaDanh.uocTinhLoTrinh(diemDi, diemDen));
     }
 }

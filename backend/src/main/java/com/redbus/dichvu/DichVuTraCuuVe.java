@@ -16,6 +16,7 @@ import com.redbus.mohinh.TuyenDuong;
 import com.redbus.mohinh.VeXe;
 import com.redbus.truyen.VeDienTuPhanHoi;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,6 +30,9 @@ public class DichVuTraCuuVe {
     private final AnhXaTuyenDuong anhXaTuyenDuong;
     private final AnhXaGheNgoi anhXaGheNgoi;
     private final AnhXaDiemDungChan anhXaDiemDungChan;
+
+    @Value("${app.frontend.url:http://localhost:5173}")
+    private String frontendUrl;
 
     public VeDienTuPhanHoi traCuuCongKhai(String maVeHienThi, String soDienThoai) {
         if (maVeHienThi == null || maVeHienThi.isBlank()) {
@@ -74,13 +78,8 @@ public class DichVuTraCuuVe {
         TuyenDuong tuyen = cx != null ? anhXaTuyenDuong.timTheoMa(cx.getMaTuyen()) : null;
         GheNgoi ghe = anhXaGheNgoi.timTheoMa(ve.getMaGhe());
         String maHienThi = ve.getMaVeHienThi() != null ? ve.getMaVeHienThi() : ("RB" + ve.getMa());
-        String noiDungQr =
-                "REDBUS|"
-                        + maHienThi
-                        + "|"
-                        + ve.getMa()
-                        + "|"
-                        + (ve.getTrangThai() != null ? ve.getTrangThai() : "");
+        String goc = frontendUrl != null ? frontendUrl.replaceAll("/$", "") : "http://localhost:5173";
+        String noiDungQr = goc + "/tra-cuu-ve?ma=" + maHienThi;
         return VeDienTuPhanHoi.builder()
                 .ma(ve.getMa())
                 .maVeHienThi(maHienThi)

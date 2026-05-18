@@ -16,3 +16,17 @@ export async function layXaTheoTinh(maTinh: number) {
     khachHttp.get<PhanHoi<DonViHanhChinh[]>>(`/dia-danh/tinh/${maTinh}/xa`),
   )
 }
+
+export type UocTinhLoTrinh = {
+  khoangCachKm: number
+  thoiGianUocTinhPhut: number
+  ghiChu?: string
+}
+
+export async function uocTinhLoTrinh(diemDi: string, diemDen: string) {
+  return moKhoiDuLieu(
+    khachHttp.get<PhanHoi<UocTinhLoTrinh>>('/dia-danh/uoc-tinh-lo-trinh', {
+      params: { diemDi, diemDen },
+    }),
+  )
+}

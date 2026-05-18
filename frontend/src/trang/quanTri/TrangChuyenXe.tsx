@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Bus, CalendarPlus, RefreshCw, Route, Search } from 'lucide-react'
+import { Bus, CalendarPlus, Route, Search } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../../nguon/apiClient'
 import type { KetQuaGenLich, PhanHoi, ChuyenXe, TuyenDuong, XeKhach } from '../../nguon/kieu'
 import { dungNguoiDung } from '../../dinhDanh/boiCanhNguoiDung'
 import { dungThongBao } from '../../dinhDanh/boiCanhThongBao'
-import { TheChua, TieuDeThe } from '../../thanhPhan/theChua'
+import { TheChua } from '../../thanhPhan/theChua'
 import { NutBam, NutSuaQt, NutXoaQt } from '../../thanhPhan/nutBam'
 import { TruongNhap, TruongChon } from '../../thanhPhan/truongNhap'
 import { CuaSo } from '../../thanhPhan/cuaSo'
@@ -254,7 +254,7 @@ export function TrangChuyenXe() {
   return (
     <div className="admin-page admin-page--trips">
       <header className="trip-hero">
-        <motion className="trip-hero__copy">
+        <div className="trip-hero__copy">
           <p className="trip-hero__kicker">
             <Bus size={16} strokeWidth={2.25} aria-hidden />
             Lịch vận hành
@@ -263,21 +263,21 @@ export function TrangChuyenXe() {
           <p className="trip-hero__lead">
             Gán tuyến, xe, giờ khởi hành và giá vé. Admin có thể gen lịch hàng loạt theo khung giờ cố định.
           </p>
-        </motion>
+        </div>
         <div className="trip-hero__stats" aria-live="polite">
           <div className="trip-hero__stat">
             <span className="trip-hero__stat-val">{tai ? '…' : thongKe.tong}</span>
             <span className="trip-hero__stat-lab">Tổng chuyến</span>
-          </motion>
+          </div>
           <div className="trip-hero__stat trip-hero__stat--ok">
             <span className="trip-hero__stat-val">{tai ? '…' : thongKe.lenLich}</span>
             <span className="trip-hero__stat-lab">Đã lên lịch</span>
-          </motion>
+          </div>
           <div className="trip-hero__stat trip-hero__stat--muted">
             <span className="trip-hero__stat-val">{tai ? '…' : thongKe.huy}</span>
             <span className="trip-hero__stat-lab">Đã hủy</span>
-          </motion>
-        </motion>
+          </div>
+        </div>
       </header>
 
       {laAdmin ? (
@@ -285,14 +285,14 @@ export function TrangChuyenXe() {
           <div className="trip-gen-card__head">
             <div className="trip-gen-card__icon" aria-hidden>
               <CalendarPlus size={22} strokeWidth={2} />
-            </motion>
+            </div>
             <div>
               <h2 className="trip-gen-card__title">Gen lịch tự động</h2>
               <p className="trip-gen-card__sub muted">
                 Tạo chuyến 6h, 9h, 13h, 17h, 21h — chỉ các ngày chưa có lịch trên tuyến.
               </p>
-            </motion>
-          </motion>
+            </div>
+          </div>
           <div className="trip-gen-form">
             <TruongNhap
               nhan="Từ ngày"
@@ -331,8 +331,8 @@ export function TrangChuyenXe() {
                 onClick={() => void genLich()}
                 con="Gen lịch"
               />
-            </motion>
-          </motion>
+            </div>
+          </div>
           {ketQuaGen ? (
             <p className="trip-gen-card__result" role="status">
               {ketQuaGen}
@@ -348,12 +348,12 @@ export function TrangChuyenXe() {
             <span className="trip-list-toolbar__count">
               {tai ? '…' : `${dsLoc.length}${dsLoc.length !== ds.length ? ` / ${ds.length}` : ''} chuyến`}
             </span>
-          </motion>
+          </div>
           <div className="trip-list-toolbar__actions">
             <NutBam bien="vien" className="btn--sm" dangTai={tai} onClick={() => void taiDS()} con="Làm mới" />
             <NutBam bien="chinh" className="btn--sm" onClick={moThe} con="+ Thêm chuyến" />
-          </motion>
-        </motion>
+          </div>
+        </div>
 
         <div className="trip-filters">
           <label className="trip-filters__search">
@@ -387,7 +387,7 @@ export function TrangChuyenXe() {
             <option value="SCHEDULED">Đã lên lịch</option>
             <option value="CANCELLED">Đã hủy</option>
           </TruongChon>
-        </motion>
+        </div>
 
         <div className="table-scroll">
           <table className="data-table trip-table">
@@ -445,7 +445,7 @@ export function TrangChuyenXe() {
               ))}
             </tbody>
           </table>
-        </motion>
+        </div>
       </TheChua>
 
       <CuaSo
@@ -508,8 +508,8 @@ export function TrangChuyenXe() {
               onChange={(e) => datBieu({ ...bieu, thoiDiemDen: e.target.value })}
               loi={loiBieu.thoiDiemDen}
             />
-          </motion>
-          <motion className="trip-form-row">
+          </div>
+          <div className="trip-form-row">
             <TruongNhap
               nhan="Giá vé (VNĐ)"
               type="number"
@@ -527,8 +527,8 @@ export function TrangChuyenXe() {
               <option value="SCHEDULED">Đã lên lịch</option>
               <option value="CANCELLED">Đã hủy</option>
             </TruongChon>
-          </motion>
-        </motion>
+          </div>
+        </div>
       </CuaSo>
 
       <CuaSoXacNhanXoa
@@ -546,6 +546,8 @@ export function TrangChuyenXe() {
           </p>
         ) : null}
       </CuaSoXacNhanXoa>
-    </motion>
+    </div>
   )
 }
+
+

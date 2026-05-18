@@ -2,6 +2,7 @@ package com.redbus.dieukhien;
 
 import com.redbus.dichvu.DichVuDiaDanh;
 import com.redbus.hotro.HoTroTestMvc;
+import com.redbus.truyen.UocTinhLoTrinhPhanHoi;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,5 +41,15 @@ class DieuKhienDiaDanhTest {
     void xaTheoTinh_tra200() throws Exception {
         when(dichVuDiaDanh.layXaTheoTinh(1)).thenReturn(List.of());
         mockMvc.perform(get("/dia-danh/tinh/1/xa")).andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("GET /dia-danh/uoc-tinh-lo-trinh công khai")
+    void uocTinhLoTrinh_tra200() throws Exception {
+        when(dichVuDiaDanh.uocTinhLoTrinh("A", "B"))
+                .thenReturn(UocTinhLoTrinhPhanHoi.builder().khoangCachKm(100).thoiGianUocTinhPhut(120).build());
+        mockMvc.perform(get("/dia-danh/uoc-tinh-lo-trinh").param("diemDi", "A").param("diemDen", "B"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.duLieu.khoangCachKm").value(100));
     }
 }

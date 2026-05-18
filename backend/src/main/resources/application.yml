@@ -28,6 +28,7 @@ spring:
         - classpath:schema.sql
         - classpath:db/patch-ghe-ngoi-them-tang.sql
         - classpath:db/patch-loai-xe-anh.sql
+        - classpath:db/patch-tinh-nang-moi.sql
       continue-on-error: true
   servlet:
     multipart:
@@ -47,6 +48,8 @@ server:
     context-path: /api
 
 app:
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:5173}
   ve:
     phut-cho-thanh-toan: ${VE_PHUT_CHO_TT:15}
   mail:

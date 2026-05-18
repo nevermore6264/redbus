@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Loader2 } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../../nguon/apiClient'
 import type { DiemDungChan, PhanHoi, TuyenDuong } from '../../nguon/kieu'
 import { ChonDiaDanh } from '../../thanhPhan/ChonDiaDanh'
 import { LoTrinhTuyen } from '../../thanhPhan/LoTrinhTuyen'
 import { taiDiemDungTheoTuyen } from '../../tienIch/loTrinhTuyen'
+import { uocTinhLoTrinh } from '../../tienIch/diaDanh'
 import { dungNguoiDung } from '../../dinhDanh/boiCanhNguoiDung'
 import { dungThongBao } from '../../dinhDanh/boiCanhThongBao'
 import { TheChua, TieuDeThe } from '../../thanhPhan/theChua'
@@ -81,6 +83,10 @@ export function TrangTuyenDuong() {
     thoiGianUocTinhPhut: 0,
     hoatDong: true,
   })
+  const [dangTinhUoc, datDangTinhUoc] = useState(false)
+  const [ghiChuUoc, datGhiChuUoc] = useState<string | null>(null)
+  const maYeuCauUoc = useRef(0)
+  const diemDaMo = useRef({ di: '', den: '' })
 
   async function taiDS() {
     try {
@@ -96,9 +102,50 @@ export function TrangTuyenDuong() {
     void taiDS()
   }, [])
 
+  const tuTinhKhoangCach = useCallback(async (diemDi: string, diemDen: string) => {
+    const di = chuanHoaDiem(diemDi)
+    const den = chuanHoaDiem(diemDen)
+    if (!di || !den || di.toLowerCase() === den.toLowerCase()) return
+
+    const ma = ++maYeuCauUoc.current
+    datDangTinhUoc(true)
+    datGhiChuUoc(null)
+    try {
+      const kq = await uocTinhLoTrinh(di, den)
+      if (ma !== maYeuCauUoc.current) return
+      datBieu((prev) => ({
+        ...prev,
+        khoangCachKm: kq.khoangCachKm,
+        thoiGianUocTinhPhut: kq.thoiGianUocTinhPhut,
+      }))
+      datGhiChuUoc(kq.ghiChu ?? null)
+    } catch (e: unknown) {
+      if (ma !== maYeuCauUoc.current) return
+      datGhiChuUoc(null)
+      hienThi({
+        loai: 'loi',
+        noiDung: e instanceof Error ? e.message : 'Không ước tính được khoảng cách',
+      })
+    } finally {
+      if (ma === maYeuCauUoc.current) datDangTinhUoc(false)
+    }
+  }, [hienThi])
+
+  useEffect(() => {
+    if (!mo) return
+    const di = chuanHoaDiem(bieu.diemDi)
+    const den = chuanHoaDiem(bieu.diemDen)
+    if (!di || !den || di.toLowerCase() === den.toLowerCase()) return
+    if (di === diemDaMo.current.di && den === diemDaMo.current.den) return
+    const t = window.setTimeout(() => void tuTinhKhoangCach(di, den), 500)
+    return () => clearTimeout(t)
+  }, [mo, bieu.diemDi, bieu.diemDen, tuTinhKhoangCach])
+
   function moThe() {
     datSua(null)
     datLoiBieu({})
+    datGhiChuUoc(null)
+    diemDaMo.current = { di: '', den: '' }
     datBieu({ diemDi: '', diemDen: '', khoangCachKm: 0, thoiGianUocTinhPhut: 0, hoatDong: true })
     datMo(true)
   }
@@ -106,6 +153,10 @@ export function TrangTuyenDuong() {
   function moSua(t: TuyenDuong) {
     datSua(t)
     datLoiBieu({})
+    datGhiChuUoc(null)
+    const di = chuanHoaDiem(t.diemDi)
+    const den = chuanHoaDiem(t.diemDen)
+    diemDaMo.current = { di, den }
     datBieu({
       diemDi: t.diemDi,
       diemDen: t.diemDen,
@@ -114,6 +165,11 @@ export function TrangTuyenDuong() {
       hoatDong: t.hoatDong !== false,
     })
     datMo(true)
+  }
+
+  function dongModalTuyen() {
+    maYeuCauUoc.current += 1
+    datMo(false)
   }
 
   async function luu() {
@@ -236,10 +292,10 @@ export function TrangTuyenDuong() {
         open={mo}
         size="xl"
         title={sua ? 'Sửa tuyến' : 'Thêm tuyến'}
-        onClose={() => datMo(false)}
+        onClose={dongModalTuyen}
         footer={
           <>
-            <NutBam bien="huy" onClick={() => datMo(false)} con="Hủy" />
+            <NutBam bien="huy" onClick={dongModalTuyen} con="Hủy" />
             <NutBam bien="chinh" onClick={() => void luu()} con="Lưu" />
           </>
         }
@@ -275,13 +331,41 @@ export function TrangTuyenDuong() {
               />
             </div>
           </section>
+          <div className="tuyen-uoc-tinh-bar" aria-live="polite">
+            {dangTinhUoc ? (
+              <p className="tuyen-uoc-tinh-bar__status muted small">
+                <Loader2 size={14} className="spin" aria-hidden />
+                Đang ước tính khoảng cách và thời gian…
+              </p>
+            ) : ghiChuUoc ? (
+              <p className="tuyen-uoc-tinh-bar__hint muted small">{ghiChuUoc}</p>
+            ) : (
+              <p className="tuyen-uoc-tinh-bar__hint muted small">
+                Chọn đủ điểm đi và điểm đến — hệ thống tự điền km và phút (có thể chỉnh tay).
+              </p>
+            )}
+            <NutBam
+              bien="mo"
+              disabled={
+                dangTinhUoc ||
+                !chuanHoaDiem(bieu.diemDi) ||
+                !chuanHoaDiem(bieu.diemDen) ||
+                chuanHoaDiem(bieu.diemDi).toLowerCase() === chuanHoaDiem(bieu.diemDen).toLowerCase()
+              }
+              onClick={() => void tuTinhKhoangCach(bieu.diemDi, bieu.diemDen)}
+              con="Tính lại"
+            />
+          </div>
           <div className="form-row-2">
             <TruongNhap
               nhan="Khoảng cách (km)"
               type="number"
               min={1}
               value={bieu.khoangCachKm || ''}
-              onChange={(e) => datBieu({ ...bieu, khoangCachKm: Number(e.target.value) })}
+              onChange={(e) => {
+                datGhiChuUoc(null)
+                datBieu({ ...bieu, khoangCachKm: Number(e.target.value) })
+              }}
               loi={loiBieu.khoangCachKm}
               required
             />
@@ -290,7 +374,10 @@ export function TrangTuyenDuong() {
               type="number"
               min={1}
               value={bieu.thoiGianUocTinhPhut || ''}
-              onChange={(e) => datBieu({ ...bieu, thoiGianUocTinhPhut: Number(e.target.value) })}
+              onChange={(e) => {
+                datGhiChuUoc(null)
+                datBieu({ ...bieu, thoiGianUocTinhPhut: Number(e.target.value) })
+              }}
               loi={loiBieu.thoiGianUocTinhPhut}
               required
             />
