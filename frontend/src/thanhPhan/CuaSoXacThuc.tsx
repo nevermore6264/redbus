@@ -157,12 +157,17 @@ export function CuaSoXacThuc() {
             {loiDn.chung ? <p className="field__err">{loiDn.chung}</p> : null}
             <NutBam bien="chinh" type="submit" className="btn--block" dangTai={taiDn} con="Đăng nhập" />
           </form>
-          <p className="auth-card__foot muted" style={{ marginBottom: 0, marginTop: '0.65rem' }}>
-            <NutVanBan onClick={() => datMoQuenMk(true)} con="Quên mật khẩu?" />
-          </p>
-          <p className="auth-card__foot muted" style={{ marginBottom: 0, marginTop: '0.35rem' }}>
-            <NutVanBan onClick={doiSangDangKy} con="Đăng ký tài khoản khách hàng" />
-          </p>
+          <div className="auth-modal-foot">
+            <NutVanBan
+              className="auth-modal-foot__forgot"
+              onClick={() => datMoQuenMk(true)}
+              con="Quên mật khẩu?"
+            />
+            <p className="auth-modal-foot__sep" aria-hidden="true">
+              <span>hoặc</span>
+            </p>
+            <NutVanBan className="auth-modal-foot__register" onClick={doiSangDangKy} con="Đăng ký tài khoản khách hàng" />
+          </div>
           <CuaSoQuenMatKhau mo={moQuenMk} onDong={() => datMoQuenMk(false)} />
         </>
       ) : null}
@@ -243,9 +248,9 @@ export function CuaSoXacThuc() {
               <NutBam bien="chinh" type="submit" className="btn--block" dangTai={taiKy} con="Đăng ký" />
             </div>
           </form>
-          <p className="auth-card__foot muted" style={{ marginBottom: 0, marginTop: '1rem' }}>
-            <NutVanBan onClick={doiSangDangNhap} con="Đã có tài khoản? Đăng nhập" />
-          </p>
+          <div className="auth-modal-foot auth-modal-foot--compact">
+            <NutVanBan className="auth-modal-foot__login" onClick={doiSangDangNhap} con="Đã có tài khoản? Đăng nhập" />
+          </div>
         </>
       ) : null}
     </CuaSo>

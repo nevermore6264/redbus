@@ -1,19 +1,14 @@
 package com.redbus.dichvu;
 
 import com.redbus.anhxa.AnhXaKhuyenMai;
-import com.redbus.hotro.NguonCase;
 import com.redbus.mohinh.KhuyenMai;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,8 +19,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-@DisplayName("DichVuKhuyenMai — CRUD và kiểm tra nghiệp vụ khuyến mãi")
+@DisplayName("DichVuKhuyenMai")
 class DichVuKhuyenMaiTest {
 
     @Mock
@@ -51,15 +45,15 @@ class DichVuKhuyenMaiTest {
     }
 
     @Test
-    @DisplayName("layTheoMa không tồn tại → IllegalArgumentException")
+    @DisplayName("layTheoMa ném lỗi khi không tìm thấy khuyến mãi")
     void layTheoMa_khongCo_nemLoi() {
         when(anhXaKhuyenMai.timTheoMa(99L)).thenReturn(null);
         assertThrows(IllegalArgumentException.class, () -> dichVu.layTheoMa(99L));
     }
 
     @Test
-    @DisplayName("them chuẩn hóa maCode uppercase và trim khoảng trắng")
-    void them_chuanHoaMaCode() {
+    @DisplayName("them chuẩn hóa mã code và tiêu đề trước khi lưu")
+    void them_chuanHoaMaCodeVaTieuDe() {
         KhuyenMai input = KhuyenMai.builder()
                 .maCode("  km x  ")
                 .tieuDe("  tieu de  ")
@@ -72,66 +66,76 @@ class DichVuKhuyenMaiTest {
         dichVu.them(input);
         assertEquals("KMX", input.getMaCode());
         assertEquals("tieu de", input.getTieuDe());
+        assertTrue(input.getHoatDong());
+        assertEquals(0, input.getSoLanDaDung());
         verify(anhXaKhuyenMai).them(input);
     }
 
     @Test
-    @DisplayName("phanTramGiam = 0 → lỗi validation")
-    void them_phanTramKhongHopLe() {
+    @DisplayName("them từ chối phần trăm giảm bằng 0")
+    void them_phanTramBangKhong_nemLoi() {
         KhuyenMai k = banSao(hopLe);
+        k.setMaCode("KM0");
         k.setPhanTramGiam(BigDecimal.ZERO);
         assertThrows(IllegalArgumentException.class, () -> dichVu.them(k));
     }
 
-    @ParameterizedTest(name = "case {0}: phần trăm giảm = {0}% (hợp lệ 1..100)")
-    @MethodSource("phanTramHopLe")
-    @DisplayName("1000 case: phần trăm giảm biên hợp lệ")
-    void them1000PhanTramHopLe(int phanTram) {
+    @Test
+    @DisplayName("them từ chối phần trăm giảm lớn hơn 100")
+    void them_phanTramVuot100_nemLoi() {
         KhuyenMai k = banSao(hopLe);
-        k.setMa(null);
-        k.setMaCode("KM" + phanTram);
-        k.setPhanTramGiam(BigDecimal.valueOf(phanTram));
-        when(anhXaKhuyenMai.timTheoMaCode(anyString(), isNull())).thenReturn(null);
-        when(anhXaKhuyenMai.timTheoMa(any())).thenReturn(k);
-        assertDoesNotThrow(() -> dichVu.them(k));
-    }
-
-    static java.util.stream.Stream<Integer> phanTramHopLe() {
-        return java.util.stream.IntStream.rangeClosed(1, NguonCase.SO_CASE_TOI_THIEU)
-                .map(i -> (i % 100) + 1)
-                .boxed();
-    }
-
-    @ParameterizedTest(name = "case {0}: phần trăm = {0} (không hợp lệ)")
-    @MethodSource("phanTramKhongHopLe")
-    @DisplayName("1000 case: phần trăm giảm không hợp lệ")
-    void them1000PhanTramKhongHopLe(int phanTram) {
-        KhuyenMai k = banSao(hopLe);
-        k.setMaCode("X" + phanTram);
-        k.setPhanTramGiam(BigDecimal.valueOf(phanTram));
+        k.setMaCode("KM101");
+        k.setPhanTramGiam(BigDecimal.valueOf(101));
         assertThrows(IllegalArgumentException.class, () -> dichVu.them(k));
     }
 
-    static java.util.stream.Stream<Integer> phanTramKhongHopLe() {
-        return java.util.stream.IntStream.rangeClosed(1, NguonCase.SO_CASE_TOI_THIEU)
-                .map(i -> i <= 500 ? 0 : 101 + (i % 50))
-                .boxed();
+    @Test
+    @DisplayName("them từ chối ngày kết thúc trước ngày bắt đầu")
+    void them_ngayKetThucTruocBatDau_nemLoi() {
+        KhuyenMai k = banSao(hopLe);
+        k.setMaCode("KMDATE");
+        k.setNgayBatDau(LocalDateTime.now().plusDays(2));
+        k.setNgayKetThuc(LocalDateTime.now());
+        assertThrows(IllegalArgumentException.class, () -> dichVu.them(k));
     }
 
     @Test
-    @DisplayName("dangHieuLuc lọc theo hoạt động, ngày và số lần dùng")
-    void dangHieuLuc_locDung() {
+    @DisplayName("them từ chối mã code trùng")
+    void them_maCodeTrung_nemLoi() {
+        when(anhXaKhuyenMai.timTheoMaCode(eq("KM10"), isNull())).thenReturn(hopLe);
+        assertThrows(IllegalArgumentException.class, () -> dichVu.them(banSao(hopLe)));
+    }
+
+    @Test
+    @DisplayName("capNhat yêu cầu có mã khuyến mãi")
+    void capNhat_thieuMa_nemLoi() {
+        KhuyenMai k = banSao(hopLe);
+        k.setMa(null);
+        assertThrows(IllegalArgumentException.class, () -> dichVu.capNhat(k));
+    }
+
+    @Test
+    @DisplayName("dangHieuLuc chỉ trả khuyến mãi còn hạn và còn lượt dùng")
+    void dangHieuLuc_locDungDieuKien() {
         KhuyenMai hetHan = banSao(hopLe);
         hetHan.setMa(2L);
         hetHan.setNgayKetThuc(LocalDateTime.now().minusDays(1));
-        KhuyenMai conLuot = banSao(hopLe);
-        conLuot.setMa(3L);
-        conLuot.setSoLanToiDa(5);
-        conLuot.setSoLanDaDung(5);
-        when(anhXaKhuyenMai.tatCa()).thenReturn(List.of(hopLe, hetHan, conLuot));
+        KhuyenMai hetLuot = banSao(hopLe);
+        hetLuot.setMa(3L);
+        hetLuot.setSoLanToiDa(5);
+        hetLuot.setSoLanDaDung(5);
+        when(anhXaKhuyenMai.tatCa()).thenReturn(List.of(hopLe, hetHan, hetLuot));
         var ds = dichVu.dangHieuLuc();
         assertEquals(1, ds.size());
         assertEquals(1L, ds.get(0).getMa());
+    }
+
+    @Test
+    @DisplayName("xoa gọi mapper sau khi xác nhận tồn tại")
+    void xoa_tonTai_goiMapper() {
+        when(anhXaKhuyenMai.timTheoMa(1L)).thenReturn(hopLe);
+        dichVu.xoa(1L);
+        verify(anhXaKhuyenMai).xoa(1L);
     }
 
     private static KhuyenMai banSao(KhuyenMai goc) {

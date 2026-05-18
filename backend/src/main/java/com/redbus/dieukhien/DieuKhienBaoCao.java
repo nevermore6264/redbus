@@ -1,6 +1,7 @@
 package com.redbus.dieukhien;
 
 import com.redbus.dichvu.DichVuBaoCao;
+import com.redbus.truyen.BaoCaoBieuDoPhanHoi;
 import com.redbus.truyen.BaoCaoMoRong;
 import com.redbus.truyen.PhanHoiChung;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,12 @@ public class DieuKhienBaoCao {
     @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public PhanHoiChung<BaoCaoMoRong> moRong() {
         return PhanHoiChung.ok(dichVuBaoCao.baoCaoMoRong());
+    }
+
+    @GetMapping("/bieu-do")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    public PhanHoiChung<BaoCaoBieuDoPhanHoi> bieuDo() {
+        return PhanHoiChung.ok(dichVuBaoCao.bieuDo());
     }
 
     @GetMapping("/xuat-csv")

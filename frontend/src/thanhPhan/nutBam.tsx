@@ -53,12 +53,14 @@ function chonIcon(chuoi: string, bien: BienNut): LucideIcon | null {
   if (/^Đăng xuất/i.test(s)) return LogOut
   if (/Tìm chuyến/i.test(s)) return Search
   if (/Làm mới|Cập nhật|Tải lại/i.test(s)) return RefreshCw
+  if (/Gửi mã OTP/i.test(s)) return Send
   if (/Gửi đánh giá/i.test(s)) return Send
   if (/Đổi mật khẩu/i.test(s)) return KeyRound
   if (/Đánh dấu đã đọc/i.test(s)) return CheckCheck
   if (bien === 'nguyHiem' || /^Xóa|^Đang xóa/i.test(s)) return Trash2
   if (/Thanh toán/i.test(s)) return CreditCard
   if (/Xác nhận đặt vé/i.test(s)) return TicketCheck
+  if (/Gen lịch/i.test(s)) return CalendarPlus
   if (/Đặt vé/i.test(s)) return CalendarPlus
   if (/Khóa ghế/i.test(s)) return Lock
   if (/Mở khóa/i.test(s)) return Unlock

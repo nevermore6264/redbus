@@ -1,4 +1,3 @@
--- Chay patch sau schema goc (MySQL 8+)
 ALTER TABLE ve_xe ADD COLUMN ma_ve_hien_thi VARCHAR(16) NULL UNIQUE AFTER trang_thai;
 ALTER TABLE ve_xe ADD COLUMN ma_diem_len BIGINT NULL;
 ALTER TABLE ve_xe ADD COLUMN ma_diem_xuong BIGINT NULL;

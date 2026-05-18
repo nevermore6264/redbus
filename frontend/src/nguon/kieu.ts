@@ -218,6 +218,20 @@ export interface BaoCaoMoRong {
   soLoaiXe?: number
 }
 
+export interface MucBieuDo {
+  nhan: string
+  soLuong?: number
+  giaTri?: number | string
+}
+
+export interface BaoCaoBieuDoPhanHoi {
+  doanhThuTheoNgay: MucBieuDo[]
+  trangThaiVe: MucBieuDo[]
+  phuongThucThanhToan: MucBieuDo[]
+  topTuyenTheoVe: MucBieuDo[]
+  phanBoDanhGia: MucBieuDo[]
+}
+
 export interface ThongTinHoSoCaNhan {
   maTaiKhoan: number
   tenDangNhap: string

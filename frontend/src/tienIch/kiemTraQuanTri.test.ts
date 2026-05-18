@@ -1,38 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import { chuanHoaBienSo, chuanHoaChuoi, chuanHoaMaCode, soSanhKhongPhanBiet } from './kiemTraQuanTri'
 
-describe('chuanHoaChuoi', () => {
-  it('trim va gop khoang trang thua', () => {
+describe('kiemTraQuanTri', () => {
+  it('chuanHoaChuoi trim và gộp khoảng trắng', () => {
     expect(chuanHoaChuoi('  a   b  ')).toBe('a b')
   })
-})
 
-describe('soSanhKhongPhanBiet', () => {
-  it('so sanh khong phan biet hoa thuong va khoang trang', () => {
+  it('soSanhKhongPhanBiet bỏ qua hoa thường và khoảng trắng', () => {
     expect(soSanhKhongPhanBiet('  Ab C ', 'ab c')).toBe(true)
+    expect(soSanhKhongPhanBiet('abc', 'xyz')).toBe(false)
   })
-})
 
-describe('chuanHoaBienSo va chuanHoaMaCode', () => {
-  it('bien so uppercase khong khoang trang', () => {
+  it('chuanHoaBienSo và chuanHoaMaCode uppercase không khoảng trắng', () => {
     expect(chuanHoaBienSo(' 51a - 12345 ')).toBe('51A-12345')
-  })
-
-  it('ma code giong chuan hoa bien so', () => {
     expect(chuanHoaMaCode(' km 10 ')).toBe('KM10')
   })
 })
-
-for (let i = 1; i <= 1000; i++) {
-  describe(`kiemTraQuanTri case ${i}`, () => {
-    it(`case ${i}: chuanHoaChuoi voi chuoi co chi so ${i}`, () => {
-      const raw = `  tu${i}   ${i}  `
-      expect(chuanHoaChuoi(raw)).toBe(`tu${i} ${i}`)
-    })
-
-    it(`case ${i}: soSanhKhongPhanBiet tu dong ${i}`, () => {
-      const a = `Item ${i}`
-      expect(soSanhKhongPhanBiet(a, a.toUpperCase())).toBe(true)
-    })
-  })
-}

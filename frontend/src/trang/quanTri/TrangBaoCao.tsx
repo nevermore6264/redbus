@@ -14,7 +14,8 @@ import {
   TrendingUp,
 } from 'lucide-react'
 import { gocUrlApi, khachHttp, moKhoiDuLieu } from '../../nguon/apiClient'
-import type { PhanHoi, BaoCaoMoRong } from '../../nguon/kieu'
+import type { PhanHoi, BaoCaoBieuDoPhanHoi, BaoCaoMoRong } from '../../nguon/kieu'
+import { BieuDoBaoCao } from '../../thanhPhan/quanTri/BieuDoBaoCao'
 import { dungThongBao } from '../../dinhDanh/boiCanhThongBao'
 import { TheChua } from '../../thanhPhan/theChua'
 import { NutBam } from '../../thanhPhan/nutBam'
@@ -34,6 +35,7 @@ function dinhDangLuc(d: Date) {
 export function TrangBaoCao() {
   const { hienThi } = dungThongBao()
   const [b, datB] = useState<BaoCaoMoRong | null>(null)
+  const [bieuDo, datBieuDo] = useState<BaoCaoBieuDoPhanHoi | null>(null)
   const [tai, datTai] = useState(true)
   const [capNhatLuc, datCapNhatLuc] = useState<Date | null>(null)
 
@@ -60,8 +62,12 @@ export function TrangBaoCao() {
   const taiLai = useCallback(async () => {
     datTai(true)
     try {
-      const x = await moKhoiDuLieu(khachHttp.get<PhanHoi<BaoCaoMoRong>>('/bao-cao/mo-rong'))
+      const [x, bd] = await Promise.all([
+        moKhoiDuLieu(khachHttp.get<PhanHoi<BaoCaoMoRong>>('/bao-cao/mo-rong')),
+        moKhoiDuLieu(khachHttp.get<PhanHoi<BaoCaoBieuDoPhanHoi>>('/bao-cao/bieu-do')),
+      ])
       datB(x)
+      datBieuDo(bd)
       datCapNhatLuc(new Date())
     } catch (e: unknown) {
       hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi tải báo cáo' })
@@ -271,6 +277,8 @@ export function TrangBaoCao() {
           </p>
         </TheChua>
       </div>
+
+      <BieuDoBaoCao duLieu={bieuDo} dangTai={tai} />
     </div>
   )
 }

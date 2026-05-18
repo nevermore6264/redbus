@@ -1,4 +1,3 @@
--- RedBus — bang & cot tieng Viet khong dau (MySQL 8+, InnoDB utf8mb4)
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS tai_khoan (
@@ -101,7 +100,6 @@ CREATE TABLE IF NOT EXISTS hinh_thuc_thanh_toan (
     hoat_dong TINYINT(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Thanh toan gop vao ve: khuyen mai + hinh thuc + so tien + thoi gian
 CREATE TABLE IF NOT EXISTS ve_xe (
     ma BIGINT AUTO_INCREMENT PRIMARY KEY,
     ma_chuyen BIGINT NOT NULL,

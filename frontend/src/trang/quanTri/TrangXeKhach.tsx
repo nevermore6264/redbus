@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { khachHttp, moKhoiDuLieu } from '../../nguon/apiClient'
 import type { LoaiXe, PhanHoi, XeKhach } from '../../nguon/kieu'
 import { dungNguoiDung } from '../../dinhDanh/boiCanhNguoiDung'
@@ -8,6 +8,7 @@ import { NutBam, NutSuaQt, NutXoaQt } from '../../thanhPhan/nutBam'
 import { TruongNhap, TruongChon } from '../../thanhPhan/truongNhap'
 import { CuaSo } from '../../thanhPhan/cuaSo'
 import { CuaSoXacNhanXoa } from '../../thanhPhan/cuaSoXacNhanXoa'
+import { hopNhatHangXe } from '../../tienIch/danhSachHangXe'
 import { chuanHoaBienSo } from '../../tienIch/kiemTraQuanTri'
 
 export function TrangXeKhach() {
@@ -28,6 +29,8 @@ export function TrangXeKhach() {
     soCho: number
     hoatDong: boolean
   }>({ maLoaiXe: '', bienSo: '', hangXe: '', soCho: 40, hoatDong: true })
+
+  const dsHangXe = useMemo(() => hopNhatHangXe(ds.map((x) => x.hangXe)), [ds])
 
   function trungBienSo(bienSo: string, maLoaiTru?: number) {
     const a = chuanHoaBienSo(bienSo)
@@ -215,11 +218,18 @@ export function TrangXeKhach() {
             loi={loiBieu.bienSo}
             required
           />
-          <TruongNhap
+          <TruongChon
             nhan="Hãng xe"
             value={bieu.hangXe}
             onChange={(e) => datBieu({ ...bieu, hangXe: e.target.value })}
-          />
+          >
+            <option value="">— Chọn hãng —</option>
+            {dsHangXe.map((h) => (
+              <option key={h} value={h}>
+                {h}
+              </option>
+            ))}
+          </TruongChon>
           <TruongNhap
             nhan="Số chỗ"
             type="number"

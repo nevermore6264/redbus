@@ -259,7 +259,16 @@ export function TrangChuyenXe() {
             ))}
           </TruongChon>
           <div className="gen-lich-panel__nut">
-            <NutBam bien="chinh" dangTai={dangGen} onClick={() => void genLich()} con="Gen lịch" />
+            <span className="field__label gen-lich-panel__nut-label" aria-hidden="true">
+              &nbsp;
+            </span>
+            <NutBam
+              bien="chinh"
+              className="gen-lich-panel__btn"
+              dangTai={dangGen}
+              onClick={() => void genLich()}
+              con="Gen lịch"
+            />
           </div>
         </div>
         {ketQuaGen ? <p className="gen-lich-panel__ket-qua muted small">{ketQuaGen}</p> : null}

@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { Clock, MapPin, Timer } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
 import type { DiemDungChan, PhanHoi, TuyenDuong } from '../nguon/kieu'
 import { LoTrinhTuyen } from './LoTrinhTuyen'
@@ -7,13 +8,15 @@ import { ChonDiaDanh } from './ChonDiaDanh'
 import { TruongNhap } from './truongNhap'
 import { CuaSo } from './cuaSo'
 import { CuaSoXacNhanXoa } from './cuaSoXacNhanXoa'
+import { TheChua } from './theChua'
 import { chuanHoaChuoi, soSanhKhongPhanBiet } from '../tienIch/kiemTraQuanTri'
+import { sapXepDiemDung } from '../tienIch/loTrinhTuyen'
 import { dungThongBao } from '../dinhDanh/boiCanhThongBao'
 import { dungNguoiDung } from '../dinhDanh/boiCanhNguoiDung'
 
 interface Props {
   maTuyen: number
-  tuyen: Pick<TuyenDuong, 'diemDi' | 'diemDen'>
+  tuyen: Pick<TuyenDuong, 'diemDi' | 'diemDen' | 'khoangCachKm' | 'thoiGianUocTinhPhut'>
   onDsThayDoi?: (ds: DiemDungChan[]) => void
 }
 
@@ -30,6 +33,12 @@ export function KhungQuanLyDiemDung({ maTuyen, tuyen, onDsThayDoi }: Props) {
     Partial<Record<'tenDiem' | 'thuTu' | 'thoiGianDungPhut' | 'chung', string>>
   >({})
   const [bieu, datBieu] = useState({ tenDiem: '', thuTu: 0, thoiGianDungPhut: 5 })
+
+  const dsSap = useMemo(() => sapXepDiemDung(ds), [ds])
+  const tongPhutDung = useMemo(
+    () => ds.reduce((t, d) => t + (d.thoiGianDungPhut ?? 0), 0),
+    [ds],
+  )
 
   function trungThuTu(thuTu: number, maLoaiTru?: number) {
     return ds.some((d) => {
@@ -128,40 +137,90 @@ export function KhungQuanLyDiemDung({ maTuyen, tuyen, onDsThayDoi }: Props) {
   }
 
   return (
-    <div className="khung-diem-dung">
-      <LoTrinhTuyen tuyen={tuyen} diemDung={ds} kieu="timeline" />
-      <p style={{ margin: '0.75rem 0' }}>
+    <div className="stops-workspace">
+      <header className="stops-workspace__head">
+        <div className="stops-workspace__route">
+          <span className="stops-workspace__pill stops-workspace__pill--di">{tuyen.diemDi}</span>
+          <span className="stops-workspace__arrow" aria-hidden>
+            →
+          </span>
+          <span className="stops-workspace__pill stops-workspace__pill--den">{tuyen.diemDen}</span>
+        </div>
         <NutBam bien="chinh" className="btn--sm" onClick={moThe} con="Thêm điểm dừng" />
-      </p>
-      {ds.length > 0 ? (
-        <div className="table-scroll khung-diem-dung__bang">
-          <table className="data-table data-table--compact">
-            <thead>
-              <tr>
-                <th>Thứ tự</th>
-                <th>Tên điểm</th>
-                <th>Phút dừng</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {ds.map((r) => (
-                <tr key={r.ma}>
-                  <td>{r.thuTu}</td>
-                  <td>{r.tenDiem}</td>
-                  <td>{r.thoiGianDungPhut}</td>
-                  <td className="row-actions">
+      </header>
+
+      <div className="stops-kpi">
+        <TheChua padding="md" className="stops-kpi__item">
+          <MapPin size={20} className="stops-kpi__ico stops-kpi__ico--rose" aria-hidden />
+          <div>
+            <span className="stops-kpi__val">{ds.length}</span>
+            <span className="stops-kpi__lab">Điểm dừng</span>
+          </div>
+        </TheChua>
+        <TheChua padding="md" className="stops-kpi__item">
+          <Clock size={20} className="stops-kpi__ico stops-kpi__ico--amber" aria-hidden />
+          <div>
+            <span className="stops-kpi__val">{tongPhutDung}</span>
+            <span className="stops-kpi__lab">Phút dừng (tổng)</span>
+          </div>
+        </TheChua>
+        <TheChua padding="md" className="stops-kpi__item">
+          <Timer size={20} className="stops-kpi__ico stops-kpi__ico--blue" aria-hidden />
+          <div>
+            <span className="stops-kpi__val">
+              {tuyen.thoiGianUocTinhPhut != null ? `${tuyen.thoiGianUocTinhPhut}` : '—'}
+            </span>
+            <span className="stops-kpi__lab">
+              {tuyen.khoangCachKm != null ? `Ước tính · ${tuyen.khoangCachKm} km` : 'Thời gian tuyến (phút)'}
+            </span>
+          </div>
+        </TheChua>
+      </div>
+
+      <div className="stops-grid">
+        <TheChua padding="lg" className="stops-preview">
+          <h3 className="stops-preview__title">Xem trước lộ trình</h3>
+          <p className="stops-preview__sub muted">Thứ tự đi qua từ điểm đi đến điểm đến</p>
+          <LoTrinhTuyen tuyen={tuyen} diemDung={ds} kieu="timeline" className="stops-preview__timeline" />
+        </TheChua>
+
+        <TheChua padding="lg" className="stops-list-panel">
+          <div className="stops-list-panel__head">
+            <h3 className="stops-list-panel__title">Chi tiết điểm dừng</h3>
+            <span className="stops-list-panel__count">{ds.length} mục</span>
+          </div>
+
+          {dsSap.length > 0 ? (
+            <ul className="stops-list">
+              {dsSap.map((r) => (
+                <li key={r.ma} className="stops-card">
+                  <span className="stops-card__order" title={`Thứ tự ${r.thuTu}`}>
+                    {r.thuTu}
+                  </span>
+                  <div className="stops-card__body">
+                    <strong className="stops-card__name">{r.tenDiem}</strong>
+                    <span className="stops-card__meta">
+                      <Clock size={14} aria-hidden />
+                      Dừng {r.thoiGianDungPhut ?? 0} phút
+                    </span>
+                  </div>
+                  <div className="stops-card__actions">
                     <NutSuaQt onClick={() => moSua(r)} />
                     {laAdmin ? <NutXoaQt onClick={() => datXoaChon(r)} /> : null}
-                  </td>
-                </tr>
+                  </div>
+                </li>
               ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="muted small">Chưa có điểm dừng trên tuyến này.</p>
-      )}
+            </ul>
+          ) : (
+            <div className="stops-list-empty">
+              <MapPin size={32} strokeWidth={1.5} className="stops-list-empty__icon" aria-hidden />
+              <p className="stops-list-empty__title">Chưa có điểm dừng</p>
+              <p className="muted small">Thêm điểm giữa lộ trình để khách chọn đón/trả khi đặt vé.</p>
+              <NutBam bien="chinh" className="btn--sm" onClick={moThe} con="Thêm điểm đầu tiên" />
+            </div>
+          )}
+        </TheChua>
+      </div>
 
       <CuaSo
         open={mo}
@@ -185,23 +244,25 @@ export function KhungQuanLyDiemDung({ maTuyen, tuyen, onDsThayDoi }: Props) {
             loi={loiBieu.tenDiem}
             required
           />
-          <TruongNhap
-            type="number"
-            nhan="Thứ tự"
-            min={0}
-            value={bieu.thuTu}
-            onChange={(e) => datBieu({ ...bieu, thuTu: Number(e.target.value) })}
-            loi={loiBieu.thuTu}
-            required
-          />
-          <TruongNhap
-            type="number"
-            nhan="Phút dừng"
-            min={0}
-            value={bieu.thoiGianDungPhut}
-            onChange={(e) => datBieu({ ...bieu, thoiGianDungPhut: Number(e.target.value) })}
-            loi={loiBieu.thoiGianDungPhut}
-          />
+          <div className="stops-form-row">
+            <TruongNhap
+              type="number"
+              nhan="Thứ tự"
+              min={0}
+              value={bieu.thuTu}
+              onChange={(e) => datBieu({ ...bieu, thuTu: Number(e.target.value) })}
+              loi={loiBieu.thuTu}
+              required
+            />
+            <TruongNhap
+              type="number"
+              nhan="Phút dừng"
+              min={0}
+              value={bieu.thoiGianDungPhut}
+              onChange={(e) => datBieu({ ...bieu, thoiGianDungPhut: Number(e.target.value) })}
+              loi={loiBieu.thoiGianDungPhut}
+            />
+          </div>
         </div>
       </CuaSo>
 

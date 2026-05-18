@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { MapPinned, Route, Search } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../../nguon/apiClient'
-import type { PhanHoi, TuyenDuong } from '../../nguon/kieu'
+import type { DiemDungChan, PhanHoi, TuyenDuong } from '../../nguon/kieu'
 import { dungThongBao } from '../../dinhDanh/boiCanhThongBao'
-import { TheChua, TieuDeThe } from '../../thanhPhan/theChua'
+import { TheChua } from '../../thanhPhan/theChua'
 import { KhungQuanLyDiemDung } from '../../thanhPhan/khungQuanLyDiemDung'
-import { TruongChon } from '../../thanhPhan/truongNhap'
-import { chuoiLoTrinh, taiDiemDungTheoTuyen } from '../../tienIch/loTrinhTuyen'
-import type { DiemDungChan } from '../../nguon/kieu'
+import { taiDiemDungTheoTuyen } from '../../tienIch/loTrinhTuyen'
 
 export function TrangDiemDungChan() {
   const [searchParams] = useSearchParams()
@@ -15,6 +14,7 @@ export function TrangDiemDungChan() {
   const [dsTuyen, datTuyen] = useState<TuyenDuong[]>([])
   const [maTuyen, datMaTuyen] = useState<number | ''>('')
   const [diemDungTheoTuyen, datDiemDungTheoTuyen] = useState<Record<number, DiemDungChan[]>>({})
+  const [tuKhoa, datTuKhoa] = useState('')
 
   async function taiTuyen() {
     try {
@@ -38,44 +38,120 @@ export function TrangDiemDungChan() {
   }, [])
 
   const tuyenChon = dsTuyen.find((t) => t.ma === maTuyen)
+  const soDiemChon = maTuyen !== '' ? (diemDungTheoTuyen[maTuyen]?.length ?? 0) : 0
+
+  const dsTuyenLoc = useMemo(() => {
+    const q = tuKhoa.trim().toLowerCase()
+    if (!q) return dsTuyen
+    return dsTuyen.filter((t) => {
+      const chuoi = `${t.diemDi} ${t.diemDen}`.toLowerCase()
+      return chuoi.includes(q)
+    })
+  }, [dsTuyen, tuKhoa])
 
   return (
-    <div className="admin-page">
-      <header className="admin-page__head">
-        <h1 className="admin-page__title">Điểm dừng chân</h1>
-        <p className="admin-page__sub">Quản lý các điểm dừng trên lộ trình từng tuyến (theo thứ tự đi qua).</p>
+    <div className="admin-page admin-page--stops">
+      <header className="stops-hero">
+        <div className="stops-hero__copy">
+          <p className="stops-hero__kicker">
+            <MapPinned size={16} strokeWidth={2.25} aria-hidden />
+            Lộ trình &amp; điểm dừng
+          </p>
+          <h1 className="stops-hero__title">Điểm dừng chân</h1>
+          <p className="stops-hero__lead">
+            Cấu hình thứ tự đi qua và thời gian dừng trên từng tuyến — khách chọn điểm đón/trả khi đặt vé.
+          </p>
+        </div>
+        <div className="stops-hero__stat" aria-live="polite">
+          <span className="stops-hero__stat-label">Tuyến đang quản lý</span>
+          <span className="stops-hero__stat-value">{dsTuyen.length}</span>
+          <span className="stops-hero__stat-hint">
+            {tuyenChon
+              ? `${tuyenChon.diemDi} → ${tuyenChon.diemDen} · ${soDiemChon} điểm dừng`
+              : 'Chọn tuyến bên trái để bắt đầu'}
+          </span>
+        </div>
       </header>
-      <TheChua padding="lg">
-        <TieuDeThe
-          title="Chọn tuyến"
-          action={
-            <TruongChon
-              nhan="Tuyến"
-              value={maTuyen === '' ? '' : String(maTuyen)}
-              onChange={(e) => datMaTuyen(e.target.value ? Number(e.target.value) : '')}
-            >
-              {dsTuyen.map((t) => (
-                <option key={t.ma} value={t.ma}>
-                  {chuoiLoTrinh(t, diemDungTheoTuyen[t.ma] ?? [])}
-                </option>
-              ))}
-            </TruongChon>
-          }
-        />
-      </TheChua>
-      {tuyenChon && maTuyen !== '' ? (
-        <TheChua padding="lg">
-          <KhungQuanLyDiemDung
-            maTuyen={maTuyen}
-            tuyen={tuyenChon}
-            onDsThayDoi={(ds) => datDiemDungTheoTuyen((prev) => ({ ...prev, [maTuyen]: ds }))}
-          />
-        </TheChua>
-      ) : (
-        <TheChua padding="lg">
-          <p className="muted">Chọn tuyến để quản lý điểm dừng.</p>
-        </TheChua>
-      )}
+
+      <div className="stops-layout">
+        <aside className="stops-sidebar">
+          <TheChua padding="lg" className="stops-sidebar__card">
+            <div className="stops-sidebar__head">
+              <h2 className="stops-sidebar__title">
+                <Route size={18} aria-hidden />
+                Danh sách tuyến
+              </h2>
+              <span className="stops-sidebar__count">{dsTuyenLoc.length}</span>
+            </div>
+            <label className="stops-sidebar__search">
+              <Search size={16} aria-hidden className="stops-sidebar__search-ico" />
+              <input
+                type="search"
+                className="stops-sidebar__search-input"
+                placeholder="Tìm điểm đi, điểm đến…"
+                value={tuKhoa}
+                onChange={(e) => datTuKhoa(e.target.value)}
+              />
+            </label>
+            <div className="stops-route-list" role="listbox" aria-label="Chọn tuyến">
+              {dsTuyenLoc.length === 0 ? (
+                <p className="stops-route-list__empty muted">
+                  {dsTuyen.length === 0 ? 'Chưa có tuyến nào.' : 'Không khớp từ khóa tìm kiếm.'}
+                </p>
+              ) : (
+                dsTuyenLoc.map((t) => {
+                  const soDiem = diemDungTheoTuyen[t.ma]?.length ?? 0
+                  const active = maTuyen === t.ma
+                  return (
+                    <button
+                      key={t.ma}
+                      type="button"
+                      role="option"
+                      aria-selected={active}
+                      className={`stops-route-item${active ? ' stops-route-item--active' : ''}`}
+                      onClick={() => datMaTuyen(t.ma)}
+                    >
+                      <span className="stops-route-item__route">
+                        <span className="stops-route-item__di">{t.diemDi}</span>
+                        <span className="stops-route-item__arrow" aria-hidden>
+                          →
+                        </span>
+                        <span className="stops-route-item__den">{t.diemDen}</span>
+                      </span>
+                      <span className="stops-route-item__meta">
+                        <span
+                          className={`stops-route-item__badge${soDiem > 0 ? ' stops-route-item__badge--on' : ''}`}
+                        >
+                          {soDiem} điểm
+                        </span>
+                        {t.khoangCachKm != null ? <span>{t.khoangCachKm} km</span> : null}
+                      </span>
+                    </button>
+                  )
+                })
+              )}
+            </div>
+          </TheChua>
+        </aside>
+
+        <main className="stops-main">
+          {tuyenChon && maTuyen !== '' ? (
+            <KhungQuanLyDiemDung
+              maTuyen={maTuyen}
+              tuyen={tuyenChon}
+              onDsThayDoi={(ds) => datDiemDungTheoTuyen((prev) => ({ ...prev, [maTuyen]: ds }))}
+            />
+          ) : (
+            <TheChua padding="lg" className="stops-empty">
+              <MapPinned size={40} strokeWidth={1.5} className="stops-empty__icon" aria-hidden />
+              <h2 className="stops-empty__title">Chọn tuyến để cấu hình</h2>
+              <p className="stops-empty__text muted">
+                Mỗi tuyến có lộ trình riêng. Thêm điểm dừng giữa điểm đi và điểm đến để khách chọn nơi lên/xuống xe.
+              </p>
+            </TheChua>
+          )}
+        </main>
+      </div>
     </div>
   )
 }

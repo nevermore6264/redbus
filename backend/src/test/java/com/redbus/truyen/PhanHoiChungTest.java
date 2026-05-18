@@ -1,18 +1,15 @@
 package com.redbus.truyen;
 
-import com.redbus.hotro.NguonCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("PhanHoiChung — factory ok/loi và dữ liệu phản hồi API")
+@DisplayName("PhanHoiChung")
 class PhanHoiChungTest {
 
     @Test
-    @DisplayName("ok(T) trả về thanhCong=true, thongDiep=OK và duLieu đúng")
+    @DisplayName("ok(T) trả về thành công với thông điệp mặc định OK")
     void okVoiDuLieu_traVeThanhCong() {
         PhanHoiChung<String> p = PhanHoiChung.ok("du-lieu");
         assertTrue(p.isThanhCong());
@@ -30,7 +27,7 @@ class PhanHoiChungTest {
     }
 
     @Test
-    @DisplayName("loi(thongDiep) trả về thanhCong=false và duLieu null")
+    @DisplayName("loi(thongDiep) trả về thất bại và duLieu null")
     void loi_traVeThatBai() {
         PhanHoiChung<Void> p = PhanHoiChung.loi("Lỗi xác thực");
         assertFalse(p.isThanhCong());
@@ -38,35 +35,16 @@ class PhanHoiChungTest {
         assertNull(p.getDuLieu());
     }
 
-    @ParameterizedTest(name = "case {0}: ok với chuỗi dữ liệu độ dài theo chỉ số {0}")
-    @MethodSource("com.redbus.hotro.NguonCase#chiSo")
-    @DisplayName("1000 case: ok(String) với payload khác nhau")
-    void ok1000BienTheChuoi(int chiSo) {
-        String dl = NguonCase.chuoiTheoChiSo(chiSo);
-        PhanHoiChung<String> p = PhanHoiChung.ok(dl);
-        assertEquals(dl, p.getDuLieu());
-        assertTrue(p.isThanhCong());
-    }
-
-    @ParameterizedTest(name = "case {0}: loi với thông điệp «{1}»")
-    @MethodSource("com.redbus.hotro.NguonCase#chiSoVaChuoiMau")
-    @DisplayName("1000 case: loi với thông điệp khác nhau")
-    void loi1000BienThe(int chiSo, String thongDiep) {
-        PhanHoiChung<Object> p = PhanHoiChung.loi(thongDiep + "-" + chiSo);
-        assertFalse(p.isThanhCong());
-        assertTrue(p.getThongDiep().contains(String.valueOf(chiSo)));
-    }
-
-    @ParameterizedTest(name = "case {0}: builder Lombok gán đủ trường")
-    @MethodSource("com.redbus.hotro.NguonCase#chiSo")
-    @DisplayName("1000 case: builder/setter round-trip")
-    void builderRoundTrip(int chiSo) {
+    @Test
+    @DisplayName("builder gán đủ các trường")
+    void builder_ganDuTruong() {
         PhanHoiChung<Long> p = PhanHoiChung.<Long>builder()
-                .thanhCong(chiSo % 2 == 0)
-                .thongDiep("msg-" + chiSo)
-                .duLieu((long) chiSo)
+                .thanhCong(true)
+                .thongDiep("msg")
+                .duLieu(99L)
                 .build();
-        assertEquals(chiSo % 2 == 0, p.isThanhCong());
-        assertEquals((long) chiSo, p.getDuLieu());
+        assertTrue(p.isThanhCong());
+        assertEquals("msg", p.getThongDiep());
+        assertEquals(99L, p.getDuLieu());
     }
 }

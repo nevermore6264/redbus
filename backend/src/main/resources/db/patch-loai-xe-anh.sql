@@ -1,4 +1,3 @@
--- Ảnh minh họa theo loại xe (nhiều ảnh / loại). Chạy trên DB đã có sẵn.
 CREATE TABLE IF NOT EXISTS loai_xe_anh (
     ma BIGINT AUTO_INCREMENT PRIMARY KEY,
     ma_loai_xe BIGINT NOT NULL,

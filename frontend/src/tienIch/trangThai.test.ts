@@ -2,40 +2,17 @@ import { describe, expect, it } from 'vitest'
 import { trangThaiSangTiengViet } from './trangThai'
 
 describe('trangThaiSangTiengViet', () => {
-  it('tra ve gach ngang khi ma null', () => {
+  it('trả về gạch ngang khi mã null hoặc rỗng', () => {
     expect(trangThaiSangTiengViet(null)).toBe('—')
-  })
-
-  it('tra ve gach ngang khi ma rong', () => {
     expect(trangThaiSangTiengViet('')).toBe('—')
   })
 
-  it('dich PENDING sang Cho thanh toan', () => {
+  it('dịch mã trạng thái đã biết', () => {
     expect(trangThaiSangTiengViet('PENDING')).toBe('Chờ thanh toán')
-  })
-
-  it('dich paid khong phan biet hoa thuong', () => {
     expect(trangThaiSangTiengViet(' paid ')).toBe('Đã thanh toán')
   })
 
-  it('tra ve ma goc khi khong co trong bang', () => {
-    expect(trangThaiSangTiengViet('CUSTOM_X')).toBe('CUSTOM_X')
+  it('giữ nguyên mã khi không có trong bảng', () => {
+    expect(trangThaiSangTiengViet('CUSTOM')).toBe('CUSTOM')
   })
-})
-
-// 1000 case tham so hoa
-describe('trangThaiSangTiengViet — 1000 case', () => {
-  const known = ['PENDING', 'PAID', 'CANCELLED', 'EXPIRED', 'SUCCESS', 'FAILED', 'SCHEDULED'] as const
-
-  for (let i = 1; i <= 1000; i++) {
-    it(`case ${i}: xu ly ma trang thai theo chi so ${i}`, () => {
-      const ma = i <= known.length ? known[i - 1] : `UNKNOWN_${i}`
-      const out = trangThaiSangTiengViet(ma)
-      if (i <= known.length) {
-        expect(out).not.toBe(ma)
-      } else {
-        expect(out).toBe(ma)
-      }
-    })
-  }
 })

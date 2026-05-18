@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redbus.anhxa.AnhXaBaoCao">
+
+    <resultMap id="mucBieuDo" type="com.redbus.truyen.MucBieuDo">
+        <result property="nhan" column="nhan"/>
+        <result property="soLuong" column="so_luong"/>
+        <result property="giaTri" column="gia_tri"/>
+    </resultMap>
+
+    <select id="doanhThuTheoNgay" resultMap="mucBieuDo">
+        SELECT DATE_FORMAT(x.ngay, '%d/%m') AS nhan,
+               COUNT(*) AS so_luong,
+               COALESCE(SUM(x.so_tien_thanh_toan), 0) AS gia_tri
+        FROM (
+            SELECT DATE(v.thoi_gian_thanh_toan) AS ngay, v.so_tien_thanh_toan
+            FROM ve_xe v
+            WHERE v.trang_thai = 'PAID'
+              AND v.thoi_gian_thanh_toan IS NOT NULL
+              AND v.thoi_gian_thanh_toan &gt;= DATE_SUB(CURDATE(), INTERVAL #{soNgay} - 1 DAY)
+        ) x
+        GROUP BY x.ngay
+        ORDER BY x.ngay ASC
+    </select>
+
+    <select id="demVeTheoTrangThai" resultMap="mucBieuDo">
+        SELECT v.trang_thai AS nhan, COUNT(*) AS so_luong, 0 AS gia_tri
+        FROM ve_xe v
+        GROUP BY v.trang_thai
+        ORDER BY so_luong DESC
+    </select>
+
+    <select id="veTheoPhuongThuc" resultMap="mucBieuDo">
+        SELECT COALESCE(h.ten, h.ma_loai, 'Khác') AS nhan,
+               COUNT(*) AS so_luong,
+               COALESCE(SUM(v.so_tien_thanh_toan), 0) AS gia_tri
+        FROM ve_xe v
+        LEFT JOIN hinh_thuc_thanh_toan h ON v.ma_hinh_thuc = h.ma
+        WHERE v.trang_thai = 'PAID'
+        GROUP BY COALESCE(h.ten, h.ma_loai, 'Khác')
+        ORDER BY so_luong DESC
+    </select>
+
+    <select id="topTuyenTheoVe" resultMap="mucBieuDo">
+        SELECT CONCAT(t.diem_di, ' → ', t.diem_den) AS nhan,
+               COUNT(v.ma) AS so_luong,
+               COALESCE(SUM(v.so_tien_thanh_toan), 0) AS gia_tri
+        FROM ve_xe v
+        INNER JOIN chuyen_xe cx ON v.ma_chuyen = cx.ma
+        INNER JOIN tuyen_duong t ON cx.ma_tuyen = t.ma
+        WHERE v.trang_thai = 'PAID'
+        GROUP BY t.ma, t.diem_di, t.diem_den, CONCAT(t.diem_di, ' → ', t.diem_den)
+        ORDER BY so_luong DESC
+        LIMIT #{gioiHan}
+    </select>
+
+    <select id="phanBoDiemDanhGia" resultMap="mucBieuDo">
+        SELECT CONCAT(d.diem_so, ' sao') AS nhan,
+               COUNT(*) AS so_luong,
+               d.diem_so AS gia_tri
+        FROM danh_gia_chuyen d
+        GROUP BY d.diem_so, CONCAT(d.diem_so, ' sao')
+        ORDER BY d.diem_so ASC
+    </select>
+</mapper>
