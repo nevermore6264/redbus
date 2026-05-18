@@ -56,6 +56,7 @@ public class DichVuThanhToan {
     private final AnhXaGheNgoi anhXaGheNgoi;
     private final DichVuGuiMail dichVuGuiMail;
     private final DichVuThongBao dichVuThongBao;
+    private final DichVuHetHanVe dichVuHetHanVe;
 
     @Autowired(required = false)
     private PayOS payOS;
@@ -214,6 +215,7 @@ public class DichVuThanhToan {
     }
 
     private VeXe kiemTraVeChoThanhToan(Long maVe, Long maKhach) {
+        dichVuHetHanVe.xuLyHetHanChoKhach(maKhach);
         VeXe ve = anhXaVeXe.timTheoMa(maVe);
         if (ve == null || !ve.getMaKhach().equals(maKhach)) {
             throw new IllegalArgumentException("Vé không hợp lệ");
@@ -221,10 +223,8 @@ public class DichVuThanhToan {
         if ("PAID".equals(ve.getTrangThai())) {
             throw new IllegalStateException("Đã thanh toán");
         }
-        if ("CANCELLED".equals(ve.getTrangThai())) {
-            throw new IllegalStateException("Vé đã hủy");
-        }
-        return ve;
+        dichVuHetHanVe.damBaoChuaHetHan(ve);
+        return anhXaVeXe.timTheoMa(maVe);
     }
 
     private HinhThucThanhToan layHinhThuc(String maLoai) {

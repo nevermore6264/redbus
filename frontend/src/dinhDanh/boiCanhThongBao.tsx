@@ -42,15 +42,15 @@ export function NhaCungCapThongBao({ con }: { con: ReactNode }) {
           role="status"
         >
           {thongBao.loai === 'thanhCong' ? (
-            <CheckCircle2 size={20} />
+            <CheckCircle2 size={26} strokeWidth={2.25} aria-hidden />
           ) : thongBao.loai === 'thongTin' ? (
-            <Info size={20} />
+            <Info size={26} strokeWidth={2.25} aria-hidden />
           ) : (
-            <AlertCircle size={20} />
+            <AlertCircle size={26} strokeWidth={2.25} aria-hidden />
           )}
           <span className="toast__msg">{thongBao.noiDung}</span>
           <button type="button" className="toast__close" onClick={anDi} aria-label="Dong">
-            <X size={18} />
+            <X size={20} strokeWidth={2.25} />
           </button>
         </div>
       )}

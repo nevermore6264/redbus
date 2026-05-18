@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Armchair, CalendarClock, MapPin, RefreshCw, Tag, Ticket } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
 import type { PhanHoi, PhanHoiLinkPayOs, VeXe, ChuyenXe, TuyenDuong, GheNgoi } from '../nguon/kieu'
@@ -11,6 +11,12 @@ import { NhanHieu } from '../thanhPhan/nhanHieu'
 import { dinhDangNgayGio, dinhDangVnd } from '../tienIch/dinhDang'
 import { trangThaiSangTiengViet } from '../tienIch/trangThai'
 import { rutGonTenDiaDanh } from '../tienIch/rutGonDiaDanh'
+import { DemNguocThanhToanVe } from '../thanhPhan/DemNguocThanhToanVe'
+import { conLaiGiayThanhToan, daHetHanThanhToan } from '../tienIch/hetHanThanhToan'
+
+function laVeDaHuy(trangThai: string) {
+  return trangThai === 'CANCELLED' || trangThai === 'EXPIRED'
+}
 
 type BamPhu = {
   diemDi: string
@@ -38,6 +44,9 @@ export function TrangVeCuaToi() {
   const [maKhuyenMai, datMaKhuyenMai] = useState('')
   const [boLoc, datBoLoc] = useState<BoLoc>('ALL')
   const [veDangXuLy, datVeDangXuLy] = useState<number | null>(null)
+  const [lucHienTai, datLucHienTai] = useState(() => Date.now())
+  const daThongBaoHetHan = useRef<Set<number>>(new Set())
+  const dangLamMoiHetHan = useRef(false)
 
   async function lamMoi() {
     datTai(true)
@@ -77,8 +86,43 @@ export function TrangVeCuaToi() {
     void lamMoi()
   }, [])
 
+  const coVeChoThanhToan = useMemo(
+    () => dsVe.some((v) => v.trangThai === 'PENDING'),
+    [dsVe],
+  )
+
+  useEffect(() => {
+    if (!coVeChoThanhToan) return
+    const id = window.setInterval(() => datLucHienTai(Date.now()), 1000)
+    return () => window.clearInterval(id)
+  }, [coVeChoThanhToan])
+
+  useEffect(() => {
+    const hetHan = dsVe.filter(
+      (v) => v.trangThai === 'PENDING' && daHetHanThanhToan(v.thoiGianDat, lucHienTai),
+    )
+    if (hetHan.length === 0 || dangLamMoiHetHan.current) return
+    let canRefresh = false
+    for (const v of hetHan) {
+      if (!daThongBaoHetHan.current.has(v.ma)) {
+        daThongBaoHetHan.current.add(v.ma)
+        canRefresh = true
+      }
+    }
+    if (!canRefresh) return
+    dangLamMoiHetHan.current = true
+    hienThi({
+      loai: 'thongTin',
+      noiDung: 'Vé đã quá hạn thanh toán và được hủy tự động.',
+    })
+    void lamMoi().finally(() => {
+      dangLamMoiHetHan.current = false
+    })
+  }, [lucHienTai, dsVe])
+
   const dsHien = useMemo(() => {
     if (boLoc === 'ALL') return dsVe
+    if (boLoc === 'CANCELLED') return dsVe.filter((v) => laVeDaHuy(v.trangThai))
     return dsVe.filter((v) => v.trangThai === boLoc)
   }, [dsVe, boLoc])
 
@@ -87,7 +131,7 @@ export function TrangVeCuaToi() {
     for (const v of dsVe) {
       if (v.trangThai === 'PENDING') dem.PENDING++
       else if (v.trangThai === 'PAID') dem.PAID++
-      else if (v.trangThai === 'CANCELLED') dem.CANCELLED++
+      else if (laVeDaHuy(v.trangThai)) dem.CANCELLED++
     }
     return dem
   }, [dsVe])
@@ -207,12 +251,17 @@ export function TrangVeCuaToi() {
             : dsHien.map((t) => {
                 const x = phu[t.ma]
                 const dangXuLy = veDangXuLy === t.ma
+                const choThanhToan = t.trangThai === 'PENDING'
+                const conLaiGiay = choThanhToan
+                  ? conLaiGiayThanhToan(t.thoiGianDat, lucHienTai)
+                  : 0
+                const hetHanLocal = choThanhToan && conLaiGiay <= 0
                 const di = x ? rutGonTenDiaDanh(x.diemDi) : '…'
                 const den = x ? rutGonTenDiaDanh(x.diemDen) : '…'
                 return (
                   <article
                     key={t.ma}
-                    className={`ve-card${t.trangThai === 'PENDING' ? ' ve-card--pending' : ''}${t.trangThai === 'CANCELLED' ? ' ve-card--cancelled' : ''}`}
+                    className={`ve-card${choThanhToan ? ' ve-card--pending' : ''}${t.trangThai === 'CANCELLED' ? ' ve-card--cancelled' : ''}${t.trangThai === 'EXPIRED' ? ' ve-card--expired' : ''}`}
                   >
                     <header className="ve-card__head">
                       <span className="ve-card__id">Vé #{t.ma}</span>
@@ -244,7 +293,11 @@ export function TrangVeCuaToi() {
                       <li className="ve-card__price">{x?.gia ?? '…'}</li>
                     </ul>
 
-                    {t.trangThai === 'PENDING' ? (
+                    {choThanhToan && t.thoiGianDat ? (
+                      <DemNguocThanhToanVe thoiGianDat={t.thoiGianDat} lucHienTai={lucHienTai} />
+                    ) : null}
+
+                    {choThanhToan && !hetHanLocal ? (
                       <footer className="ve-card__actions">
                         <div className="ve-card__pay-group">
                           <NutBam

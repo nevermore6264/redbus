@@ -38,6 +38,7 @@ public class DichVuDatVe {
     private final AnhXaTuyenDuong anhXaTuyenDuong;
     private final DichVuThongBao dichVuThongBao;
     private final DichVuGuiMail dichVuGuiMail;
+    private final DichVuHetHanVe dichVuHetHanVe;
 
     private static final DateTimeFormatter FMT_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -50,6 +51,7 @@ public class DichVuDatVe {
         if (kh == null) {
             throw new IllegalStateException("Chưa có hồ sơ khách hàng");
         }
+        dichVuHetHanVe.xuLyHetHanChoKhach(kh.getMa());
         return anhXaVeXe.timTheoMaKhach(kh.getMa());
     }
 
@@ -119,7 +121,9 @@ public class DichVuDatVe {
             throw new IllegalStateException("Ghế " + ghe.getMaGhe() + " đang bị khóa");
         }
         for (VeXe v : anhXaVeXe.timTheoMaChuyen(cx.getMa())) {
-            if (v.getMaGhe().equals(ghe.getMa()) && !"CANCELLED".equals(v.getTrangThai())) {
+            if (v.getMaGhe().equals(ghe.getMa())
+                    && !"CANCELLED".equals(v.getTrangThai())
+                    && !"EXPIRED".equals(v.getTrangThai())) {
                 throw new IllegalStateException("Ghế " + ghe.getMaGhe() + " đã được giữ");
             }
         }
@@ -166,6 +170,10 @@ public class DichVuDatVe {
         if ("PAID".equals(ve.getTrangThai())) {
             throw new IllegalStateException("Vé đã thanh toán — liên hệ hoàn tiền");
         }
+        if ("EXPIRED".equals(ve.getTrangThai())) {
+            throw new IllegalStateException("Vé đã quá hạn thanh toán");
+        }
+        dichVuHetHanVe.damBaoChuaHetHan(ve);
         anhXaVeXe.capNhatTrangThai(maVe, "CANCELLED");
     }
 }

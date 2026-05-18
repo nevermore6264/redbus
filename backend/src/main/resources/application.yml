@@ -47,6 +47,8 @@ server:
     context-path: /api
 
 app:
+  ve:
+    phut-cho-thanh-toan: ${VE_PHUT_CHO_TT:15}
   mail:
     enabled: ${MAIL_ENABLED:true}
     from: ${MAIL_FROM:${spring.mail.username}}

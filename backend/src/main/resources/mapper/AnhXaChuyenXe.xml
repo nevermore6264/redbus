@@ -29,7 +29,8 @@
 
     <select id="danhSachMaGheDaGiu" resultType="long">
         SELECT ma_ghe_ngoi FROM ve_xe
-        WHERE ma_chuyen = #{maChuyen} AND UPPER(trang_thai) != 'CANCELLED'
+        WHERE ma_chuyen = #{maChuyen}
+          AND UPPER(trang_thai) NOT IN ('CANCELLED', 'EXPIRED')
     </select>
 
     <select id="demTheoTrangThai" resultType="int">
