@@ -6,9 +6,7 @@ import { nhomTheoTang, xayDungLuoiGhe } from '../tienIch/soDoGhe'
 type Props = {
   dsGhe: GheNgoi[]
   gheDaGiu: Set<number>
-  /** Một ghế (chế độ cũ). */
   maGheChon?: number | null
-  /** Nhiều ghế (ưu tiên nếu có). */
   dsMaGheChon?: Set<number>
   onChonMaGhe: (ma: number) => void
 }

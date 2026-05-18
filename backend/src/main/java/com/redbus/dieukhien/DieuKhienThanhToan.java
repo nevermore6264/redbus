@@ -55,7 +55,6 @@ public class DieuKhienThanhToan {
         return PhanHoiChung.ok(dichVuThanhToan.traCuuKetQua(nguoiDung.getUsername(), orderCode));
     }
 
-    /** PayOS gọi webhook khi thanh toán thành công — không cần JWT. */
     @PostMapping("/payos/webhook")
     public Map<String, Boolean> webhookPayOs(@RequestBody String body) {
         dichVuThanhToan.xuLyWebhookPayOs(body);

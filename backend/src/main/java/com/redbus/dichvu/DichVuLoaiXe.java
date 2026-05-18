@@ -162,7 +162,6 @@ public class DichVuLoaiXe {
         try {
             Files.deleteIfExists(p);
         } catch (IOException ignored) {
-            // best effort
         }
     }
 

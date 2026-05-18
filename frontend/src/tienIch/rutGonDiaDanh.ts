@@ -1,4 +1,3 @@
-/** Rút gọn địa chỉ dài (phường/xã, tỉnh…) để hiển thị trên card, list. */
 export function rutGonTenDiaDanh(ten: string, max = 36): string {
   const s = ten.trim()
   if (!s) return '—'

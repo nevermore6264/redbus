@@ -3220,7 +3220,6 @@ code {
   }
 }
 
-/* Trong modal: điểm đi / đến xếp dọc, select đủ rộng */
 .modal-body .form-dia-danh-cap__hang {
   grid-template-columns: 1fr;
   gap: 0.75rem;
@@ -6790,7 +6789,6 @@ code {
   max-width: 380px;
 }
 
-/* —— Vé của tôi (card list) —— */
 .ve-panel__toolbar {
   padding: 1.15rem 1.25rem 0;
   background: linear-gradient(180deg, var(--surface-2), transparent);

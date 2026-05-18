@@ -49,7 +49,6 @@ public class DieuKhienChuyenXe {
         return PhanHoiChung.ok(dichVuChuyenXe.them(cx));
     }
 
-    /** Gen lịch chuyến: chỉ các ngày chưa có chuyến nào (6h, 9h, 13h, 17h, 21h mỗi tuyến). */
     @PostMapping("/gen-lich")
     @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public PhanHoiChung<KetQuaGenLich> genLich(@RequestBody YeuCauGenLich yeuCau) {

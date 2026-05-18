@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.redbus.anhxa.AnhXaThanhToan">
 
-    <!-- Doc tu ve_xe da PAID + hinh thuc; map sang DTO lich su / bao cao -->
     <resultMap id="banDo" type="com.redbus.mohinh.GiaoDichThanhToan">
         <id property="ma" column="ma"/>
         <result property="maVe" column="ma_ve"/>
