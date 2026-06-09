@@ -16,6 +16,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = DieuKhienChat.class)
@@ -33,5 +34,15 @@ class DieuKhienChatTest {
     void hoiThoai_daDangNhap_tra200() throws Exception {
         when(dichVuChat.hoiThoai(eq("khach"), eq(2L))).thenReturn(List.of());
         mockMvc.perform(get("/chat/hoi-thoai").param("doiPhuong", "2")).andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "staff")
+    @DisplayName("GET /chat/toi trả mã tài khoản hiện tại")
+    void toi_traMaTaiKhoan() throws Exception {
+        when(dichVuChat.maTaiKhoanHienTai("staff")).thenReturn(9L);
+        mockMvc.perform(get("/chat/toi"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.duLieu.maTaiKhoan").value(9));
     }
 }
