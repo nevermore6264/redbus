@@ -262,3 +262,18 @@ export interface ThongTinKhachHang {
 
   hoatDong?: boolean
 }
+
+export interface TinNhanChat {
+  ma: number
+  maNguoiGui: number
+  maNguoiNhan: number
+  noiDung: string
+  thoiGianTao?: string
+  daDocNhan?: boolean
+}
+
+export interface LienHeHoTro {
+  ma: number
+  tenDangNhap: string
+  vaiTro: string
+}

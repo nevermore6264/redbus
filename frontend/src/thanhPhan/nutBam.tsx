@@ -55,6 +55,7 @@ function chonIcon(chuoi: string, bien: BienNut): LucideIcon | null {
   if (/Làm mới|Cập nhật|Tải lại/i.test(s)) return RefreshCw
   if (/Gửi mã OTP/i.test(s)) return Send
   if (/Gửi đánh giá/i.test(s)) return Send
+  if (/^Gửi$/i.test(s)) return Send
   if (/Đổi mật khẩu/i.test(s)) return KeyRound
   if (/Đánh dấu đã đọc/i.test(s)) return CheckCheck
   if (bien === 'nguyHiem' || /^Xóa|^Đang xóa/i.test(s)) return Trash2

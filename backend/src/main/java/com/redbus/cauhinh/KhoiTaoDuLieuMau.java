@@ -23,7 +23,7 @@ import java.util.List;
 @Slf4j
 public class KhoiTaoDuLieuMau {
 
-    private static final String MK_KHACH_DEMO = "Customer@123";
+    private static final String MK_KHACH_DEMO = "git ";
 
     private final AnhXaTaiKhoan anhXaTaiKhoan;
     private final PasswordEncoder boMaHoaMatKhau;

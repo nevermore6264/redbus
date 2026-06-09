@@ -13,6 +13,7 @@ import {
   MapPinned,
   Newspaper,
   BusFront,
+  MessageCircle,
 } from 'lucide-react'
 import { dungNguoiDung } from '../dinhDanh/boiCanhNguoiDung'
 
@@ -70,6 +71,10 @@ export function KhungQuanTri() {
             <NavLink className={lopLk} to="/quan-tri/khach-hang">
               <Users size={18} />
               Khách hàng
+            </NavLink>
+            <NavLink className={lopLk} to="/quan-tri/ho-tro">
+              <MessageCircle size={18} />
+              Hỗ trợ / Chat
             </NavLink>
             <NavLink className={lopLk} to="/quan-tri/khuyen-mai">
               <Tag size={18} />

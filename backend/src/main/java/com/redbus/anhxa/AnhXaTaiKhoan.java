@@ -4,6 +4,8 @@ import com.redbus.mohinh.TaiKhoan;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface AnhXaTaiKhoan {
 
@@ -21,4 +23,6 @@ public interface AnhXaTaiKhoan {
             @Param("ma") Long ma,
             @Param("email") String email,
             @Param("hoatDong") Boolean hoatDong);
+
+    List<TaiKhoan> danhSachHoTro();
 }

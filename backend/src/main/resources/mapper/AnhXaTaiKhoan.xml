@@ -28,4 +28,10 @@
     <update id="capNhatEmailVaHoatDong">
         UPDATE tai_khoan SET email = #{email}, hoat_dong = #{hoatDong} WHERE ma = #{ma}
     </update>
+
+    <select id="danhSachHoTro" resultMap="banDoTaiKhoan">
+        SELECT * FROM tai_khoan
+        WHERE vai_tro IN ('ADMIN', 'STAFF') AND hoat_dong = 1
+        ORDER BY vai_tro, ten_dang_nhap
+    </select>
 </mapper>

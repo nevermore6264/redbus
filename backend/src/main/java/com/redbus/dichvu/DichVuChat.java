@@ -4,6 +4,7 @@ import com.redbus.anhxa.AnhXaTaiKhoan;
 import com.redbus.anhxa.AnhXaTinNhanChat;
 import com.redbus.mohinh.TaiKhoan;
 import com.redbus.mohinh.TinNhanChat;
+import com.redbus.truyen.LienHeHoTroPhanHoi;
 import com.redbus.truyen.YeuCauGuiChat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,24 @@ public class DichVuChat {
 
     private final AnhXaTinNhanChat anhXaTinNhanChat;
     private final AnhXaTaiKhoan anhXaTaiKhoan;
+
+    public Long maTaiKhoanHienTai(String tenDangNhap) {
+        TaiKhoan tk = anhXaTaiKhoan.timTheoTenDangNhap(tenDangNhap);
+        if (tk == null) {
+            throw new IllegalArgumentException("Không tìm thấy tài khoản");
+        }
+        return tk.getMa();
+    }
+
+    public List<LienHeHoTroPhanHoi> danhSachLienHeHoTro() {
+        return anhXaTaiKhoan.danhSachHoTro().stream()
+                .map(tk -> LienHeHoTroPhanHoi.builder()
+                        .ma(tk.getMa())
+                        .tenDangNhap(tk.getTenDangNhap())
+                        .vaiTro(tk.getVaiTro())
+                        .build())
+                .toList();
+    }
 
     public List<TinNhanChat> hoiThoai(String tenDangNhap, Long maDoiPhuongTaiKhoan) {
         TaiKhoan tk = anhXaTaiKhoan.timTheoTenDangNhap(tenDangNhap);

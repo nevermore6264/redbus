@@ -2,6 +2,7 @@ package com.redbus.dieukhien;
 
 import com.redbus.dichvu.DichVuChat;
 import com.redbus.mohinh.TinNhanChat;
+import com.redbus.truyen.LienHeHoTroPhanHoi;
 import com.redbus.truyen.PhanHoiChung;
 import com.redbus.truyen.YeuCauGuiChat;
 import jakarta.validation.Valid;
@@ -12,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/chat")
@@ -19,6 +21,18 @@ import java.util.List;
 public class DieuKhienChat {
 
     private final DichVuChat dichVuChat;
+
+    @GetMapping("/toi")
+    @PreAuthorize("isAuthenticated()")
+    public PhanHoiChung<Map<String, Long>> toi(@AuthenticationPrincipal UserDetails nguoiDung) {
+        return PhanHoiChung.ok(Map.of("maTaiKhoan", dichVuChat.maTaiKhoanHienTai(nguoiDung.getUsername())));
+    }
+
+    @GetMapping("/ho-tro")
+    @PreAuthorize("isAuthenticated()")
+    public PhanHoiChung<List<LienHeHoTroPhanHoi>> danhSachHoTro() {
+        return PhanHoiChung.ok(dichVuChat.danhSachLienHeHoTro());
+    }
 
     @GetMapping("/hoi-thoai")
     @PreAuthorize("isAuthenticated()")

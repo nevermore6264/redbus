@@ -13,6 +13,7 @@ import {
   Receipt,
   Star,
   UserCircle,
+  MessageCircle,
 } from 'lucide-react'
 import { dungNguoiDung } from '../dinhDanh/boiCanhNguoiDung'
 import { dungModalXacThuc } from '../dinhDanh/boiCanhModalXacThuc'
@@ -115,6 +116,12 @@ export function KhungChinh() {
                     <Bell size={18} strokeWidth={2} />
                   </span>
                   <span className="nav-link__text">Thông báo</span>
+                </Link>
+                <Link className={lopLk('/ho-tro')} to="/ho-tro">
+                  <span className="nav-link__ico" aria-hidden>
+                    <MessageCircle size={18} strokeWidth={2} />
+                  </span>
+                  <span className="nav-link__text">Hỗ trợ</span>
                 </Link>
                 <Link className={lopLk('/tin-tuc')} to="/tin-tuc">
                   <span className="nav-link__ico" aria-hidden>

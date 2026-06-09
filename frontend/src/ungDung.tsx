@@ -25,7 +25,9 @@ import { TrangTinTuc } from './trang/TrangTinTuc'
 import { TrangTinChiTiet } from './trang/TrangTinChiTiet'
 import { TrangDanhGia } from './trang/TrangDanhGia'
 import { TrangTraCuuVe } from './trang/TrangTraCuuVe'
+import { TrangHoTroChat } from './trang/TrangHoTroChat'
 import { TrangKhongTimThay } from './trang/TrangKhongTimThay'
+import { TrangHoTroChatQuanTri } from './trang/quanTri/TrangHoTroChat'
 
 export function UngDung() {
   return (
@@ -42,6 +44,7 @@ export function UngDung() {
         <Route path="danh-gia" element={<CanVaiTro vaiTro={['CUSTOMER']} con={<TrangDanhGia />} />} />
         <Route path="ho-so" element={<CanVaiTro vaiTro={['CUSTOMER']} con={<TrangHoSo />} />} />
         <Route path="thong-bao" element={<CanVaiTro vaiTro={['CUSTOMER']} con={<TrangThongBao />} />} />
+        <Route path="ho-tro" element={<CanVaiTro vaiTro={['CUSTOMER']} con={<TrangHoTroChat />} />} />
         <Route
           path="lich-su-thanh-toan"
           element={<CanVaiTro vaiTro={['CUSTOMER']} con={<TrangLichSuThanhToan />} />}
@@ -69,6 +72,7 @@ export function UngDung() {
         <Route path="diem-dung" element={<TrangDiemDungChan />} />
         <Route path="khuyen-mai" element={<TrangKhuyenMai />} />
         <Route path="tin-tuc" element={<TrangTinTucQuanTri />} />
+        <Route path="ho-tro" element={<TrangHoTroChatQuanTri />} />
         <Route path="*" element={<Navigate to="tong-quan" replace />} />
       </Route>
 
