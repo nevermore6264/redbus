@@ -9464,3 +9464,135 @@ code {
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+.html-editor__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.html-editor__tabs {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.html-editor__tab {
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.html-editor__tab--active {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.html-editor__hint {
+  margin: 0.25rem 0 0.5rem;
+}
+
+.html-editor__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.html-editor__tool {
+  min-width: auto;
+  padding: 0.25rem 0.55rem;
+}
+
+.html-editor__img-btn {
+  cursor: pointer;
+}
+
+.html-editor__area {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  min-height: 14rem;
+}
+
+.html-editor__preview {
+  min-height: 14rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.tin-anh-upload__hint {
+  margin: 0.15rem 0 0.5rem;
+}
+
+.tin-anh-upload__preview {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.65rem;
+  margin-bottom: 0.5rem;
+}
+
+.tin-anh-upload__preview img {
+  width: 160px;
+  max-height: 120px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.tin-anh-upload__pick input[type='file'] {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.tin-anh-upload__pick {
+  position: relative;
+  display: inline-block;
+}
+
+.article-body--html h2,
+.article-body--html h3 {
+  margin: 1rem 0 0.5rem;
+  line-height: 1.3;
+}
+
+.article-body--html p {
+  margin: 0 0 0.75rem;
+  line-height: 1.65;
+}
+
+.article-body--html ul,
+.article-body--html ol {
+  margin: 0 0 0.85rem;
+  padding-left: 1.25rem;
+}
+
+.article-body--html img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+  margin: 0.5rem 0;
+}
+
+.article-body--html a {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.article-body--html blockquote {
+  margin: 0.75rem 0;
+  padding: 0.5rem 0.85rem;
+  border-left: 3px solid var(--primary);
+  background: var(--surface-2);
+}

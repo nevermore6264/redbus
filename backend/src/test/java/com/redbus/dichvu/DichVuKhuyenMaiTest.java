@@ -131,6 +131,39 @@ class DichVuKhuyenMaiTest {
     }
 
     @Test
+    @DisplayName("them từ chối thiếu ngày hiệu lực")
+    void them_thieuNgay_nemLoi() {
+        KhuyenMai k = banSao(hopLe);
+        k.setMaCode("KMDATE2");
+        k.setNgayBatDau(null);
+        k.setNgayKetThuc(null);
+        assertThrows(IllegalArgumentException.class, () -> dichVu.them(k));
+    }
+
+    @Test
+    @DisplayName("them từ chối số tiền giảm tối đa âm")
+    void them_soTienGiamToiDaAm_nemLoi() {
+        KhuyenMai k = banSao(hopLe);
+        k.setMaCode("KMNEG");
+        k.setSoTienGiamToiDa(BigDecimal.valueOf(-1));
+        assertThrows(IllegalArgumentException.class, () -> dichVu.them(k));
+    }
+
+    @Test
+    @DisplayName("layTheoMa trả khuyến mãi khi tồn tại")
+    void layTheoMa_coDuLieu_traVe() {
+        when(anhXaKhuyenMai.timTheoMa(1L)).thenReturn(hopLe);
+        assertEquals("KM10", dichVu.layTheoMa(1L).getMaCode());
+    }
+
+    @Test
+    @DisplayName("tatCa trả danh sách từ mapper")
+    void tatCa_goiMapper() {
+        when(anhXaKhuyenMai.tatCa()).thenReturn(List.of(hopLe));
+        assertEquals(1, dichVu.tatCa().size());
+    }
+
+    @Test
     @DisplayName("xoa gọi mapper sau khi xác nhận tồn tại")
     void xoa_tonTai_goiMapper() {
         when(anhXaKhuyenMai.timTheoMa(1L)).thenReturn(hopLe);

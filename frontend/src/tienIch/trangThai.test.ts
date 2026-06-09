@@ -15,4 +15,12 @@ describe('trangThaiSangTiengViet', () => {
   it('giữ nguyên mã khi không có trong bảng', () => {
     expect(trangThaiSangTiengViet('CUSTOM')).toBe('CUSTOM')
   })
+
+  it('dịch đủ các trạng thái vé đã biết', () => {
+    expect(trangThaiSangTiengViet('CANCELLED')).toBe('Đã hủy')
+    expect(trangThaiSangTiengViet('EXPIRED')).toBe('Quá hạn thanh toán')
+    expect(trangThaiSangTiengViet('SUCCESS')).toBe('Thành công')
+    expect(trangThaiSangTiengViet('FAILED')).toBe('Thất bại')
+    expect(trangThaiSangTiengViet('SCHEDULED')).toBe('Đã lên lịch')
+  })
 })

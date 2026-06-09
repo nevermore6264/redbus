@@ -65,4 +65,53 @@ class DichVuHetHanVeTest {
         assertThrows(IllegalStateException.class, () -> dichVu.damBaoChuaHetHan(ve));
         verify(anhXaVeXe).capNhatTrangThai(5L, "EXPIRED");
     }
+
+    @Test
+    @DisplayName("daHetHan trả false với vé PAID")
+    void daHetHan_paid_traFalse() {
+        VeXe ve = VeXe.builder().trangThai("PAID").thoiGianDat(LocalDateTime.now().minusHours(2)).build();
+        assertFalse(dichVu.daHetHan(ve));
+    }
+
+    @Test
+    @DisplayName("daHetHan trả false khi PENDING còn trong thời hạn")
+    void daHetHan_pendingConHan_traFalse() {
+        VeXe ve = VeXe.builder().trangThai("PENDING").thoiGianDat(LocalDateTime.now().minusMinutes(5)).build();
+        assertFalse(dichVu.daHetHan(ve));
+    }
+
+    @Test
+    @DisplayName("damBaoChuaHetHan ném lỗi vé đã hủy")
+    void damBaoChuaHetHan_cancelled_nemLoi() {
+        VeXe ve = VeXe.builder().trangThai("CANCELLED").build();
+        assertThrows(IllegalStateException.class, () -> dichVu.damBaoChuaHetHan(ve));
+    }
+
+    @Test
+    @DisplayName("lucHetHan trả null khi thiếu thời gian đặt")
+    void lucHetHan_thieuThoiGian_traNull() {
+        assertNull(dichVu.lucHetHan(VeXe.builder().build()));
+    }
+
+    @Test
+    @DisplayName("lucHetHan = thời gian đặt + phút chờ")
+    void lucHetHan_tinhDung() {
+        LocalDateTime dat = LocalDateTime.of(2026, 5, 18, 10, 0);
+        LocalDateTime het = dichVu.lucHetHan(VeXe.builder().thoiGianDat(dat).build());
+        assertEquals(dat.plusMinutes(15), het);
+    }
+
+    @Test
+    @DisplayName("xuLyHetHanChoKhach gọi mapper với mã khách")
+    void xuLyHetHanChoKhach_goMapper() {
+        when(anhXaVeXe.huyPendingQuaHanTheoKhach(7L, 15)).thenReturn(2);
+        assertEquals(2, dichVu.xuLyHetHanChoKhach(7L));
+    }
+
+    @Test
+    @DisplayName("xuLyHetHanTatCa trả số vé hủy")
+    void xuLyHetHanTatCa_traSoLuong() {
+        when(anhXaVeXe.huyPendingQuaHanTatCa(15)).thenReturn(5);
+        assertEquals(5, dichVu.xuLyHetHanTatCa());
+    }
 }

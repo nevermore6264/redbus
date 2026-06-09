@@ -15,4 +15,12 @@ describe('kiemTraQuanTri', () => {
     expect(chuanHoaBienSo(' 51a - 12345 ')).toBe('51A-12345')
     expect(chuanHoaMaCode(' km 10 ')).toBe('KM10')
   })
+
+  it('chuanHoaChuoi xử lý chuỗi chỉ có khoảng trắng', () => {
+    expect(chuanHoaChuoi('     ')).toBe('')
+  })
+
+  it('soSanhKhongPhanBiet với nhiều khoảng trắng giữa từ', () => {
+    expect(soSanhKhongPhanBiet('Ha   Noi', 'ha noi')).toBe(true)
+  })
 })

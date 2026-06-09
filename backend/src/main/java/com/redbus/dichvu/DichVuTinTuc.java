@@ -2,16 +2,29 @@ package com.redbus.dichvu;
 
 import com.redbus.anhxa.AnhXaTinTuc;
 import com.redbus.mohinh.TinTuc;
+import com.redbus.truyen.DuongAnhPhanHoi;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class DichVuTinTuc {
 
+    private static final String TIEN_TO_CONG_KHAI = "tai-nguyen/";
+
     private final AnhXaTinTuc anhXaTinTuc;
+
+    @Value("${app.upload.thu-muc:uploads}")
+    private String thuMucUpload;
 
     public List<TinTuc> congKhai(int gioiHan) {
         return anhXaTinTuc.congKhai(Math.min(Math.max(gioiHan, 1), 50));
@@ -69,5 +82,48 @@ public class DichVuTinTuc {
     public void xoa(Long ma) {
         layTheoMa(ma);
         anhXaTinTuc.xoa(ma);
+    }
+
+    public DuongAnhPhanHoi taiAnh(MultipartFile tep) {
+        if (tep == null || tep.isEmpty()) {
+            throw new IllegalArgumentException("Chưa chọn tệp ảnh");
+        }
+        String moRong = layMoRongAnToan(tep.getOriginalFilename());
+        if (moRong.isEmpty()) {
+            throw new IllegalArgumentException("Chỉ chấp nhận ảnh: jpg, jpeg, png, webp, gif");
+        }
+        if (tep.getSize() > 8 * 1024 * 1024) {
+            throw new IllegalArgumentException("Ảnh tối đa 8MB");
+        }
+        String tenTep = UUID.randomUUID().toString().replace("-", "") + moRong;
+        String duongTuongDoi = "tin-tuc/" + tenTep;
+        Path thuMuc = Path.of(thuMucUpload).resolve("tin-tuc");
+        try {
+            Files.createDirectories(thuMuc);
+            Files.copy(tep.getInputStream(), thuMuc.resolve(tenTep), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Không ghi được ảnh", e);
+        }
+        return DuongAnhPhanHoi.builder().duongAnh(TIEN_TO_CONG_KHAI + duongTuongDoi).build();
+    }
+
+    private static String layMoRongAnToan(String tenGoc) {
+        if (tenGoc == null) {
+            return "";
+        }
+        String t = tenGoc.toLowerCase();
+        if (t.endsWith(".jpg") || t.endsWith(".jpeg")) {
+            return ".jpg";
+        }
+        if (t.endsWith(".png")) {
+            return ".png";
+        }
+        if (t.endsWith(".webp")) {
+            return ".webp";
+        }
+        if (t.endsWith(".gif")) {
+            return ".gif";
+        }
+        return "";
     }
 }

@@ -51,6 +51,22 @@ class DichVuXacThucTest {
     }
 
     @Test
+    @DisplayName("dangKy từ chối email trùng")
+    void dangKy_emailTrung_nemLoi() {
+        when(anhXaTaiKhoan.timTheoTenDangNhap("new")).thenReturn(null);
+        when(anhXaTaiKhoan.timTheoEmail("a@b.com")).thenReturn(TaiKhoan.builder().ma(2L).build());
+        assertThrows(IllegalArgumentException.class,
+                () -> dichVu.dangKy(yeuCauDangKy("new", "a@b.com", "123456", "A")));
+    }
+
+    @Test
+    @DisplayName("dangNhap ném lỗi khi tài khoản biến mất sau authenticate")
+    void dangNhap_khongTimTaiKhoan_nemLoi() {
+        when(anhXaTaiKhoan.timTheoTenDangNhap("u")).thenReturn(null);
+        assertThrows(IllegalStateException.class, () -> dichVu.dangNhap(yeuCauDangNhap("u", "pw")));
+    }
+
+    @Test
     @DisplayName("dangNhap xác thực và trả token")
     void dangNhap_thanhCong() {
         YeuCauDangNhap yc = yeuCauDangNhap("u", "pw");

@@ -5,7 +5,9 @@ import { dungNguoiDung } from '../../dinhDanh/boiCanhNguoiDung'
 import { dungThongBao } from '../../dinhDanh/boiCanhThongBao'
 import { TheChua, TieuDeThe } from '../../thanhPhan/theChua'
 import { NutBam, NutSuaQt, NutXoaQt } from '../../thanhPhan/nutBam'
-import { TruongNhap, TruongVanBan } from '../../thanhPhan/truongNhap'
+import { TruongNhap } from '../../thanhPhan/truongNhap'
+import { TruongNoiDungHtml } from '../../thanhPhan/TruongNoiDungHtml'
+import { TruongTaiAnhTin } from '../../thanhPhan/TruongTaiAnhTin'
 import { CuaSo } from '../../thanhPhan/cuaSo'
 import { CuaSoXacNhanXoa } from '../../thanhPhan/cuaSoXacNhanXoa'
 import { chuanHoaChuoi } from '../../tienIch/kiemTraQuanTri'
@@ -163,7 +165,7 @@ export function TrangTinTucQuanTri() {
         open={mo}
         title={sua ? 'Sửa tin' : 'Thêm tin'}
         onClose={() => datMo(false)}
-        size="lg"
+        size="xl"
         footer={
           <>
             <NutBam bien="huy" onClick={() => datMo(false)} con="Hủy" />
@@ -184,20 +186,14 @@ export function TrangTinTucQuanTri() {
             value={bieu.tomTat}
             onChange={(e) => datBieu({ ...bieu, tomTat: e.target.value })}
           />
-          <TruongVanBan
+          <TruongNoiDungHtml
             id="nd-tin"
-            nhan="Nội dung"
-            rows={6}
             value={bieu.noiDung}
-            onChange={(e) => datBieu({ ...bieu, noiDung: e.target.value })}
+            onChange={(html) => datBieu({ ...bieu, noiDung: html })}
             loi={loiBieu.noiDung}
             required
           />
-          <TruongNhap
-            nhan="URL ảnh đại diện"
-            value={bieu.duongAnh}
-            onChange={(e) => datBieu({ ...bieu, duongAnh: e.target.value })}
-          />
+          <TruongTaiAnhTin giaTri={bieu.duongAnh} onDoi={(duongAnh) => datBieu({ ...bieu, duongAnh })} />
           <TruongNhap
             type="datetime-local"
             nhan="Ngày đăng"

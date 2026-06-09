@@ -79,4 +79,32 @@ class DichVuBaoCaoTest {
         assertTrue(csv.contains("Bao cao RedBus"));
         assertTrue(csv.contains("Chi tieu,Gia tri"));
     }
+
+    @Test
+    @DisplayName("bieuDo gộp dữ liệu DB vào 7 ngày gần nhất")
+    void bieuDo_coDuLieuTuDb() {
+        MucBieuDo m = MucBieuDo.builder().nhan("18/05").giaTri(BigDecimal.valueOf(50_000)).build();
+        when(anhXaBaoCao.doanhThuTheoNgay(7)).thenReturn(List.of(m));
+        when(anhXaBaoCao.demVeTheoTrangThai()).thenReturn(List.of(m));
+        when(anhXaBaoCao.veTheoPhuongThuc()).thenReturn(List.of());
+        when(anhXaBaoCao.topTuyenTheoVe(5)).thenReturn(List.of());
+        when(anhXaBaoCao.phanBoDiemDanhGia()).thenReturn(List.of());
+        BaoCaoBieuDoPhanHoi kq = dichVu.bieuDo();
+        assertTrue(kq.getDoanhThuTheoNgay().stream().anyMatch(x -> "18/05".equals(x.getNhan())));
+    }
+
+    @Test
+    @DisplayName("baoCaoMoRong điểm đánh giá null trả 0")
+    void baoCaoMoRong_diemNull_tra0() {
+        when(anhXaThanhToan.tatCa()).thenReturn(List.of());
+        when(anhXaDanhGiaChuyen.diemTrungBinh()).thenReturn(null);
+        when(anhXaVeXe.demTheoTrangThai(anyString())).thenReturn(0);
+        when(anhXaChuyenXe.demTheoTrangThai(anyString())).thenReturn(0);
+        when(anhXaDanhGiaChuyen.demTatCa()).thenReturn(0L);
+        when(anhXaTinTuc.demHoatDong()).thenReturn(0L);
+        when(anhXaKhuyenMai.demDangHoatDong(any())).thenReturn(0L);
+        when(anhXaDiemDungChan.demTatCa()).thenReturn(0L);
+        when(anhXaLoaiXe.demTatCa()).thenReturn(0L);
+        assertEquals(BigDecimal.ZERO, dichVu.baoCaoMoRong().getDiemTrungBinhDanhGia());
+    }
 }

@@ -46,9 +46,11 @@ export function TrangTinChiTiet() {
           {t.tieuDe}
         </h1>
         {t.tomTat ? <p className="lead">{t.tomTat}</p> : null}
-        <div className="article-body" style={{ marginTop: '1.25rem', whiteSpace: 'pre-wrap' }}>
-          {t.noiDung}
-        </div>
+        <div
+          className="article-body article-body--html"
+          style={{ marginTop: '1.25rem' }}
+          dangerouslySetInnerHTML={{ __html: t.noiDung }}
+        />
       </TheChua>
     </div>
   )

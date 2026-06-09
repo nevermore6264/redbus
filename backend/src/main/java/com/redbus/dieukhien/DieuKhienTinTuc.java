@@ -2,10 +2,13 @@ package com.redbus.dieukhien;
 
 import com.redbus.dichvu.DichVuTinTuc;
 import com.redbus.mohinh.TinTuc;
+import com.redbus.truyen.DuongAnhPhanHoi;
 import com.redbus.truyen.PhanHoiChung;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -34,6 +37,12 @@ public class DieuKhienTinTuc {
     @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public PhanHoiChung<List<TinTuc>> tatCaQuanTri() {
         return PhanHoiChung.ok(dichVuTinTuc.tatCa());
+    }
+
+    @PostMapping(value = "/upload-anh", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    public PhanHoiChung<DuongAnhPhanHoi> uploadAnh(@RequestParam("tep") MultipartFile tep) {
+        return PhanHoiChung.ok(dichVuTinTuc.taiAnh(tep));
     }
 
     @PostMapping
