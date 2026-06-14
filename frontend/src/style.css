@@ -9597,7 +9597,6 @@ code {
   background: var(--surface-2);
 }
 
-/* —— Chat hỗ trợ —— */
 .chat-box {
   display: flex;
   flex-direction: column;

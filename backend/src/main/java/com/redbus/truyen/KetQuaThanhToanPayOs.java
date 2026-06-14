@@ -11,4 +11,5 @@ public class KetQuaThanhToanPayOs {
     private Long maVe;
     private String trangThaiVe;
     private boolean daThanhToan;
+    private String trangThaiPayOs;
 }

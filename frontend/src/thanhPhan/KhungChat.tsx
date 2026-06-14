@@ -41,7 +41,6 @@ export function KhungChat({ maDoiPhuong, tenDoiPhuong }: Props) {
         const x = await moKhoiDuLieu(khachHttp.get<PhanHoi<{ maTaiKhoan: number }>>('/chat/toi'))
         if (!huy) datMaToi(x.maTaiKhoan)
       } catch {
-        /* maToi optional for display */
       }
     })()
     return () => {

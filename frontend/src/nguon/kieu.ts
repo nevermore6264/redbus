@@ -43,6 +43,7 @@ export interface KetQuaThanhToanPayOs {
   maVe: number
   trangThaiVe: string
   daThanhToan: boolean
+  trangThaiPayOs?: string
 }
 
 export interface KetQuaGenLich {

@@ -31,6 +31,8 @@ import vn.payos.exception.PayOSException;
 import vn.payos.model.webhooks.WebhookData;
 import vn.payos.model.v2.paymentRequests.CreatePaymentLinkRequest;
 import vn.payos.model.v2.paymentRequests.CreatePaymentLinkResponse;
+import vn.payos.model.v2.paymentRequests.PaymentLink;
+import vn.payos.model.v2.paymentRequests.PaymentLinkStatus;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -130,37 +132,76 @@ public class DichVuThanhToan {
             }
             String maDon = String.valueOf(data.getOrderCode());
             VeXe ve = anhXaVeXe.timTheoMaDonPayOs(maDon);
-            if (ve == null || "PAID".equals(ve.getTrangThai())) {
+            if (ve == null) {
                 return;
             }
-            HinhThucThanhToan ht = layHinhThuc("CHUYEN_KHOAN");
-            KetQuaGia gia = giaTuVeTam(ve);
-            hoanTatThanhToan(ve, ht, gia, maDon);
-            KhachHang kh = anhXaKhachHang.timTheoMa(ve.getMaKhach());
-            if (kh != null) {
-                TaiKhoan tk = anhXaTaiKhoan.timTheoMa(kh.getMaTaiKhoan());
-                if (tk != null) {
-                    guiMailVaThongBao(tk.getTenDangNhap(), ve.getMa(), "PayOS / Chuyển khoản");
-                }
-            }
+            hoanTatTuPayOs(maDon, ve, null);
         } catch (PayOSException e) {
             log.error("Webhook PayOS không hợp lệ: {}", e.getMessage());
             throw new IllegalArgumentException("Webhook PayOS không hợp lệ");
         }
     }
 
+    @Transactional
     public KetQuaThanhToanPayOs traCuuKetQua(String tenDangNhap, Long orderCode) {
         KhachHang kh = layKhach(tenDangNhap);
         VeXe ve = anhXaVeXe.timTheoMaDonPayOs(String.valueOf(orderCode));
         if (ve == null || !ve.getMaKhach().equals(kh.getMa())) {
             throw new IllegalArgumentException("Không tìm thấy giao dịch");
         }
+        String trangThaiPayOs = null;
+        if (!"PAID".equals(ve.getTrangThai())) {
+            trangThaiPayOs = dongBoTuPayOs(orderCode, ve, tenDangNhap);
+            ve = anhXaVeXe.timTheoMa(ve.getMa());
+        }
         return KetQuaThanhToanPayOs.builder()
                 .orderCode(orderCode)
                 .maVe(ve.getMa())
                 .trangThaiVe(ve.getTrangThai())
                 .daThanhToan("PAID".equals(ve.getTrangThai()))
+                .trangThaiPayOs(trangThaiPayOs)
                 .build();
+    }
+
+    private String dongBoTuPayOs(Long orderCode, VeXe ve, String tenDangNhap) {
+        if (payOS == null) {
+            log.debug("Bỏ qua đồng bộ PayOS: chưa cấu hình client");
+            return null;
+        }
+        try {
+            PaymentLink link = payOS.paymentRequests().get(orderCode);
+            if (link == null || link.getStatus() == null) {
+                return null;
+            }
+            PaymentLinkStatus status = link.getStatus();
+            if (status == PaymentLinkStatus.PAID) {
+                hoanTatTuPayOs(String.valueOf(orderCode), ve, tenDangNhap);
+            }
+            return status.getValue();
+        } catch (PayOSException e) {
+            log.warn("Không đồng bộ được PayOS orderCode={}: {}", orderCode, e.getMessage());
+            return null;
+        }
+    }
+
+    private void hoanTatTuPayOs(String maDon, VeXe ve, String tenDangNhap) {
+        if (ve == null || "PAID".equals(ve.getTrangThai())) {
+            return;
+        }
+        HinhThucThanhToan ht = layHinhThuc("CHUYEN_KHOAN");
+        KetQuaGia gia = giaTuVeTam(ve);
+        hoanTatThanhToan(ve, ht, gia, maDon);
+        if (tenDangNhap != null) {
+            guiMailVaThongBao(tenDangNhap, ve.getMa(), "PayOS / Chuyển khoản");
+            return;
+        }
+        KhachHang kh = anhXaKhachHang.timTheoMa(ve.getMaKhach());
+        if (kh != null) {
+            TaiKhoan tk = anhXaTaiKhoan.timTheoMa(kh.getMaTaiKhoan());
+            if (tk != null) {
+                guiMailVaThongBao(tk.getTenDangNhap(), ve.getMa(), "PayOS / Chuyển khoản");
+            }
+        }
     }
 
     private void hoanTatThanhToan(VeXe ve, HinhThucThanhToan ht, KetQuaGia gia, String maDonPayOs) {

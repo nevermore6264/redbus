@@ -7,9 +7,6 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerA
 import org.springframework.context.annotation.Profile;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 
-/**
- * Cấu hình Spring Boot tối giản cho @WebMvcTest (profile slice-test).
- */
 @SpringBootConfiguration
 @EnableAutoConfiguration(
         exclude = {

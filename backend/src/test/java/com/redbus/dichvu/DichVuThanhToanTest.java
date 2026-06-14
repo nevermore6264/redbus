@@ -73,6 +73,19 @@ class DichVuThanhToanTest {
     }
 
     @Test
+    @DisplayName("traCuuKetQua trả PAID khi vé đã thanh toán")
+    void traCuu_daThanhToan() {
+        when(anhXaTaiKhoan.timTheoTenDangNhap("u")).thenReturn(TaiKhoan.builder().ma(1L).build());
+        when(anhXaKhachHang.timTheoMaTaiKhoan(1L)).thenReturn(KhachHang.builder().ma(2L).build());
+        when(anhXaVeXe.timTheoMaDonPayOs("123")).thenReturn(
+                VeXe.builder().ma(5L).maKhach(2L).trangThai("PAID").build());
+        var kq = dichVu.traCuuKetQua("u", 123L);
+        assertTrue(kq.isDaThanhToan());
+        assertEquals("PAID", kq.getTrangThaiVe());
+        assertEquals(5L, kq.getMaVe());
+    }
+
+    @Test
     @DisplayName("layKhach ném lỗi khi không tìm thấy tài khoản")
     void layKhach_khongCoTaiKhoan_nemLoi() {
         when(anhXaTaiKhoan.timTheoTenDangNhap("ghost")).thenReturn(null);

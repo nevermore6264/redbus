@@ -18,3 +18,5 @@ app:
     checksum-key: your-payos-checksum-key
     return-url: http://localhost:5173/thanh-toan/ket-qua
     cancel-url: http://localhost:5173/ve-cua-toi
+    # Webhook PayOS không gọi được localhost. Sau khi thanh toán, trang /thanh-toan/ket-qua
+    # tự gọi API PayOS để đồng bộ và cập nhật vé PAID (không cần ngrok khi dev).
