@@ -9431,6 +9431,86 @@ code {
 
 .ve-card__extra {
   margin-bottom: 0.65rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.doi-ve {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.doi-ve__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2, #f8fafc);
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.doi-ve__note svg {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.doi-ve__current {
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  border: 1px dashed var(--border);
+}
+
+.doi-ve__current p {
+  margin: 0.25rem 0 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.doi-ve__search {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.65rem;
+}
+
+.doi-ve__search .field {
+  flex: 1;
+  min-width: 200px;
+  margin: 0;
+}
+
+.doi-ve__sub {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.doi-ve__trip-list {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.doi-ve__trip-list .trip-card {
+  width: 100%;
+  text-align: left;
+}
+
+.doi-ve-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  width: 100%;
 }
 
 .rate-trip-list {

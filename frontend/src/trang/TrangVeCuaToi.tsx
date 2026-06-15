@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Armchair, CalendarClock, MapPin, RefreshCw, Tag, Ticket } from 'lucide-react'
+import { Armchair, CalendarClock, MapPin, RefreshCw, Tag, Ticket, CalendarRange } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
 import type { PhanHoi, PhanHoiLinkPayOs, VeDienTu, VeXe, ChuyenXe, TuyenDuong, GheNgoi } from '../nguon/kieu'
 import { dungThongBao } from '../dinhDanh/boiCanhThongBao'
@@ -14,19 +14,15 @@ import { rutGonTenDiaDanh } from '../tienIch/rutGonDiaDanh'
 import { DemNguocThanhToanVe } from '../thanhPhan/DemNguocThanhToanVe'
 import { CuaSo } from '../thanhPhan/cuaSo'
 import { VeDienTuPanel } from '../thanhPhan/VeDienTuPanel'
+import { CuaSoDoiVe, coTheDoiVe, type ThongTinVeDoi } from '../thanhPhan/CuaSoDoiVe'
 import { conLaiGiayThanhToan, daHetHanThanhToan } from '../tienIch/hetHanThanhToan'
 
 function laVeDaHuy(trangThai: string) {
   return trangThai === 'CANCELLED' || trangThai === 'EXPIRED'
 }
 
-type BamPhu = {
-  diemDi: string
-  diemDen: string
-  tuyenDayDu: string
-  gio: string
+type BamPhu = ThongTinVeDoi & {
   gia: string
-  maGhe: string
 }
 
 type BoLoc = 'ALL' | 'PENDING' | 'PAID' | 'CANCELLED'
@@ -47,6 +43,7 @@ export function TrangVeCuaToi() {
   const [boLoc, datBoLoc] = useState<BoLoc>('ALL')
   const [veDangXuLy, datVeDangXuLy] = useState<number | null>(null)
   const [veDienTu, datVeDienTu] = useState<VeDienTu | null>(null)
+  const [veDoiChon, datVeDoiChon] = useState<VeXe | null>(null)
   const [lucHienTai, datLucHienTai] = useState(() => Date.now())
   const daThongBaoHetHan = useRef<Set<number>>(new Set())
   const dangLamMoiHetHan = useRef(false)
@@ -75,6 +72,10 @@ export function TrangVeCuaToi() {
           gio: dinhDangNgayGio(cx.thoiDiemKhoiHanh),
           gia: dinhDangVnd(cx.giaVe),
           maGhe: g?.maGhe ?? String(t.maGhe),
+          maTuyen: cx.maTuyen,
+          maChuyen: cx.ma,
+          maGheId: t.maGhe,
+          thoiDiemKhoiHanh: cx.thoiDiemKhoiHanh,
         }
       }
       datPhu(phuMoi)
@@ -271,6 +272,9 @@ export function TrangVeCuaToi() {
                   ? conLaiGiayThanhToan(t.thoiGianDat, lucHienTai)
                   : 0
                 const hetHanLocal = choThanhToan && conLaiGiay <= 0
+                const duocDoiVe =
+                  (t.trangThai === 'PAID' || t.trangThai === 'PENDING') &&
+                  coTheDoiVe(x?.thoiDiemKhoiHanh)
                 const di = x ? rutGonTenDiaDanh(x.diemDi) : '…'
                 const den = x ? rutGonTenDiaDanh(x.diemDen) : '…'
                 return (
@@ -318,6 +322,23 @@ export function TrangVeCuaToi() {
                     {t.trangThai === 'PAID' ? (
                       <div className="ve-card__extra">
                         <NutBam bien="vien" className="btn--sm" onClick={() => void xemVeDienTu(t.ma)} con="Vé điện tử / QR" />
+                      </div>
+                    ) : null}
+
+                    {duocDoiVe ? (
+                      <div className="ve-card__extra">
+                        <NutBam
+                          bien="vien"
+                          className="btn--sm"
+                          disabled={dangXuLy}
+                          onClick={() => datVeDoiChon(t)}
+                          con={
+                            <>
+                              <CalendarRange size={15} aria-hidden />
+                              Đổi chuyến / ngày
+                            </>
+                          }
+                        />
                       </div>
                     ) : null}
 
@@ -380,6 +401,14 @@ export function TrangVeCuaToi() {
       <CuaSo open={veDienTu != null} title="Vé điện tử" size="ticket" onClose={() => datVeDienTu(null)}>
         {veDienTu ? <VeDienTuPanel ve={veDienTu} /> : null}
       </CuaSo>
+
+      <CuaSoDoiVe
+        open={veDoiChon != null}
+        ve={veDoiChon}
+        phu={veDoiChon ? phu[veDoiChon.ma] ?? null : null}
+        onClose={() => datVeDoiChon(null)}
+        onThanhCong={() => void lamMoi()}
+      />
     </NenTrangKhach>
   )
 }

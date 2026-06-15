@@ -3,7 +3,10 @@ package com.redbus.dichvu;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redbus.truyen.DonViHanhChinh;
+import com.redbus.truyen.DiemBanDoPhanHoi;
+import com.redbus.truyen.LoTrinhBanDoPhanHoi;
 import com.redbus.truyen.UocTinhLoTrinhPhanHoi;
+import com.redbus.truyen.YeuCauBanDoLoTrinh;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -15,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -83,6 +87,48 @@ public class DichVuDiaDanh {
                 .build();
     }
 
+    public LoTrinhBanDoPhanHoi xayDungBanDoLoTrinh(YeuCauBanDoLoTrinh yeuCau) {
+        String di = chuanHoaDiaChi(yeuCau.getDiemDi());
+        String den = chuanHoaDiaChi(yeuCau.getDiemDen());
+        if (di.isEmpty() || den.isEmpty()) {
+            throw new IllegalArgumentException("Điểm đi và điểm đến không được để trống");
+        }
+
+        List<DiemBanDoPhanHoi> ketQua = new ArrayList<>();
+
+        ToaDo toaDoDi = traCuuToaDo(di)
+                .orElseThrow(() -> new IllegalArgumentException("Không xác định được tọa độ cho: " + di));
+        ketQua.add(diemBanDo(di, toaDoDi));
+
+        List<YeuCauBanDoLoTrinh.DiemDungBanDo> dung =
+                yeuCau.getDiemDung() != null ? yeuCau.getDiemDung() : List.of();
+        for (YeuCauBanDoLoTrinh.DiemDungBanDo d : dung) {
+            if (d.getTenDiem() == null || d.getTenDiem().isBlank()) {
+                continue;
+            }
+            if (hopLeToaDo(d.getViDo(), d.getKinhDo())) {
+                ketQua.add(
+                        DiemBanDoPhanHoi.builder()
+                                .ten(d.getTenDiem().trim())
+                                .viDo(d.getViDo())
+                                .kinhDo(d.getKinhDo())
+                                .build());
+                continue;
+            }
+            nghiNominatim();
+            traCuuToaDo(d.getTenDiem().trim())
+                    .map(t -> diemBanDo(d.getTenDiem().trim(), t))
+                    .ifPresent(ketQua::add);
+        }
+
+        nghiNominatim();
+        ToaDo toaDoDen = traCuuToaDo(den)
+                .orElseThrow(() -> new IllegalArgumentException("Không xác định được tọa độ cho: " + den));
+        ketQua.add(diemBanDo(den, toaDoDen));
+
+        return LoTrinhBanDoPhanHoi.builder().diem(ketQua).build();
+    }
+
     static double haversineKm(double lat1, double lon1, double lat2, double lon2) {
         final double banKinhTraiDatKm = 6371.0;
         double dLat = Math.toRadians(lat2 - lat1);
@@ -95,6 +141,21 @@ public class DichVuDiaDanh {
                                 * Math.sin(dLon / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return banKinhTraiDatKm * c;
+    }
+
+    private static DiemBanDoPhanHoi diemBanDo(String ten, ToaDo toaDo) {
+        return DiemBanDoPhanHoi.builder()
+                .ten(ten)
+                .viDo(toaDo.lat())
+                .kinhDo(toaDo.lng())
+                .build();
+    }
+
+    private static boolean hopLeToaDo(Double viDo, Double kinhDo) {
+        if (viDo == null || kinhDo == null) {
+            return false;
+        }
+        return viDo >= 8 && viDo <= 24 && kinhDo >= 102 && kinhDo <= 110;
     }
 
     private String chuanHoaDiaChi(String diaChi) {
@@ -128,7 +189,10 @@ public class DichVuDiaDanh {
             if (!ketQua.has("lat") || !ketQua.has("lon")) {
                 return Optional.empty();
             }
-            return Optional.of(new ToaDo(Double.parseDouble(ketQua.get("lat").asText()), Double.parseDouble(ketQua.get("lon").asText())));
+            return Optional.of(
+                    new ToaDo(
+                            Double.parseDouble(ketQua.get("lat").asText()),
+                            Double.parseDouble(ketQua.get("lon").asText())));
         } catch (Exception e) {
             return Optional.empty();
         }

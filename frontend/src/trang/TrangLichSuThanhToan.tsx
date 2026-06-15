@@ -9,6 +9,7 @@ import { TheChua } from '../thanhPhan/theChua'
 import { NhanHieu } from '../thanhPhan/nhanHieu'
 import { dinhDangVnd, dinhDangNgayGio } from '../tienIch/dinhDang'
 import { trangThaiSangTiengViet } from '../tienIch/trangThai'
+import { phuongThucSangTiengViet, phuongThucTone } from '../tienIch/phuongThuc'
 
 const SK_HANG = 6
 
@@ -81,7 +82,11 @@ export function TrangLichSuThanhToan() {
                       <td className="mono">{g.ma}</td>
                       <td>{g.maVe}</td>
                       <td>{dinhDangVnd(g.soTien)}</td>
-                      <td>{g.phuongThuc}</td>
+                      <td>
+                        <NhanHieu tone={phuongThucTone(g.phuongThuc)}>
+                          {phuongThucSangTiengViet(g.phuongThuc)}
+                        </NhanHieu>
+                      </td>
                       <td>
                         <NhanHieu tone={g.trangThai}>{trangThaiSangTiengViet(g.trangThai)}</NhanHieu>
                       </td>

@@ -441,7 +441,7 @@ export function TrangDatVe() {
               <LoTrinhTuyen tuyen={tuyenHienTai} diemDung={dsDiemDung} kieu="timeline" />
             </div>
           ) : null}
-          {tuyenHienTai && dsDiemDung.length > 0 ? (
+          {tuyenHienTai ? (
             <BanDoLoTrinh diemDi={tuyenHienTai.diemDi} diemDen={tuyenHienTai.diemDen} dsDiem={dsDiemDung} />
           ) : null}
           <ul className={`trip-cards ${dsChuyen.length === 0 ? 'trip-cards--empty' : ''}`}>

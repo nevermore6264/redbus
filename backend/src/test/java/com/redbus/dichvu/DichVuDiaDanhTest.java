@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redbus.truyen.DonViHanhChinh;
+import com.redbus.truyen.LoTrinhBanDoPhanHoi;
 import com.redbus.truyen.UocTinhLoTrinhPhanHoi;
+import com.redbus.truyen.YeuCauBanDoLoTrinh;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -92,5 +94,26 @@ class DichVuDiaDanhTest {
     @DisplayName("uocTinhLoTrinh báo lỗi khi điểm trùng")
     void uocTinhLoTrinh_trungDiem() {
         assertThrows(IllegalArgumentException.class, () -> dichVu.uocTinhLoTrinh("A", "a"));
+    }
+
+    @Test
+    @DisplayName("xayDungBanDoLoTrinh trả điểm đi và điểm đến")
+    void banDoLoTrinh_haiDauMut() {
+        ArrayNode hn = JsonNodeFactory.instance.arrayNode();
+        hn.addObject().put("lat", "21.0285").put("lon", "105.8542");
+        ArrayNode hcm = JsonNodeFactory.instance.arrayNode();
+        hcm.addObject().put("lat", "10.8231").put("lon", "106.6297");
+        when(restTemplate.exchange(any(), eq(HttpMethod.GET), any(HttpEntity.class), eq(JsonNode.class)))
+                .thenReturn(ResponseEntity.ok(hn))
+                .thenReturn(ResponseEntity.ok(hcm));
+
+        YeuCauBanDoLoTrinh yc = new YeuCauBanDoLoTrinh();
+        yc.setDiemDi("Hà Nội");
+        yc.setDiemDen("TP. Hồ Chí Minh");
+
+        LoTrinhBanDoPhanHoi kq = dichVu.xayDungBanDoLoTrinh(yc);
+        assertEquals(2, kq.getDiem().size());
+        assertEquals("Hà Nội", kq.getDiem().get(0).getTen());
+        assertEquals("TP. Hồ Chí Minh", kq.getDiem().get(1).getTen());
     }
 }

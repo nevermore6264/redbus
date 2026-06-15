@@ -7,8 +7,11 @@ const sac: Record<string, string> = {
   EXPIRED: 'badge--expired',
   SCHEDULED: 'badge--info',
   SUCCESS: 'badge--ok',
+  FAILED: 'badge--muted',
   BLOCKED: 'badge--muted',
   AVAILABLE: 'badge--ok',
+  TIEN_MAT: 'badge--warn',
+  CHUYEN_KHOAN: 'badge--info',
 }
 
 export function NhanHieu({ children, tone }: { children: ReactNode; tone?: string }) {

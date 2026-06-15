@@ -2,12 +2,15 @@ package com.redbus.dieukhien;
 
 import com.redbus.dichvu.DichVuDiaDanh;
 import com.redbus.truyen.DonViHanhChinh;
+import com.redbus.truyen.LoTrinhBanDoPhanHoi;
 import com.redbus.truyen.PhanHoiChung;
 import com.redbus.truyen.UocTinhLoTrinhPhanHoi;
+import com.redbus.truyen.YeuCauBanDoLoTrinh;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/dia-danh")
@@ -30,5 +33,10 @@ public class DieuKhienDiaDanh {
     public PhanHoiChung<UocTinhLoTrinhPhanHoi> uocTinhLoTrinh(
             @RequestParam String diemDi, @RequestParam String diemDen) {
         return PhanHoiChung.ok(dichVuDiaDanh.uocTinhLoTrinh(diemDi, diemDen));
+    }
+
+    @PostMapping("/ban-do-lo-trinh")
+    public PhanHoiChung<LoTrinhBanDoPhanHoi> banDoLoTrinh(@Valid @RequestBody YeuCauBanDoLoTrinh yeuCau) {
+        return PhanHoiChung.ok(dichVuDiaDanh.xayDungBanDoLoTrinh(yeuCau));
     }
 }
