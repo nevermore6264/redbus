@@ -41,6 +41,7 @@ export function TrangChuyenXe() {
     Partial<Record<'maTuyen' | 'maXe' | 'thoiDiemKhoiHanh' | 'thoiDiemDen' | 'giaVe' | 'chung', string>>
   >({})
   const [tuNgayGen, datTuNgayGen] = useState(() => new Date().toISOString().slice(0, 10))
+  const minNgayGen = new Date().toISOString().slice(0, 10)
   const [soNgayGen, datSoNgayGen] = useState(7)
   const [maTuyenGen, datMaTuyenGen] = useState<number | ''>('')
   const [dangGen, datDangGen] = useState(false)
@@ -289,7 +290,7 @@ export function TrangChuyenXe() {
             <div>
               <h2 className="trip-gen-card__title">Gen lịch tự động</h2>
               <p className="trip-gen-card__sub muted">
-                Tạo chuyến 6h, 9h, 13h, 17h, 21h — chỉ các ngày chưa có lịch trên tuyến.
+                Tạo chuyến 6h, 9h, 13h, 17h, 21h từ hiện tại — chỉ các ngày chưa có lịch trên tuyến.
               </p>
             </div>
           </div>
@@ -298,6 +299,7 @@ export function TrangChuyenXe() {
               nhan="Từ ngày"
               type="date"
               value={tuNgayGen}
+              min={minNgayGen}
               onChange={(e) => datTuNgayGen(e.target.value)}
             />
             <TruongNhap

@@ -98,8 +98,15 @@ public class DichVuChuyenXe {
     }
 
     public List<ChuyenXe> timTheoTuyen(Long maTuyen, LocalDateTime tuLuc) {
-        LocalDateTime moc = tuLuc != null ? tuLuc : LocalDateTime.now().minusDays(1);
-        return anhXaChuyenXe.timTheoTuyenVaSauThoiDiem(maTuyen, moc);
+        return anhXaChuyenXe.timTheoTuyenVaSauThoiDiem(maTuyen, mocTimKiem(tuLuc));
+    }
+
+    private LocalDateTime mocTimKiem(LocalDateTime tuLuc) {
+        LocalDateTime bayGio = LocalDateTime.now();
+        if (tuLuc == null || tuLuc.isBefore(bayGio)) {
+            return bayGio;
+        }
+        return tuLuc;
     }
 
     public List<ChuyenXe> tatCa() {
@@ -167,7 +174,11 @@ public class DichVuChuyenXe {
 
     @Transactional
     public KetQuaGenLich genLich(YeuCauGenLich yeuCau) {
-        LocalDate tuNgay = yeuCau.getTuNgay() != null ? yeuCau.getTuNgay() : LocalDate.now();
+        LocalDate homNay = LocalDate.now();
+        LocalDate tuNgay = yeuCau.getTuNgay() != null ? yeuCau.getTuNgay() : homNay;
+        if (tuNgay.isBefore(homNay)) {
+            tuNgay = homNay;
+        }
         int soNgay = yeuCau.getSoNgay() != null && yeuCau.getSoNgay() > 0 ? yeuCau.getSoNgay() : 7;
         if (soNgay > 31) {
             throw new IllegalArgumentException("Tối đa 31 ngày mỗi lần gen");
@@ -233,6 +244,7 @@ public class DichVuChuyenXe {
 
     private int taoChuyenChoNgay(LocalDate ngay, List<TuyenDuong> tuyen, List<XeKhach> xe) {
         int dem = 0;
+        LocalDateTime bayGio = LocalDateTime.now();
         for (int r = 0; r < tuyen.size(); r++) {
             TuyenDuong t = tuyen.get(r);
             XeKhach x = xe.get(r % xe.size());
@@ -242,6 +254,9 @@ public class DichVuChuyenXe {
             BigDecimal gia = tinhGiaVe(t);
             for (int h : GIO_KHOI_HANH_MAC_DINH) {
                 LocalDateTime khoi = LocalDateTime.of(ngay, LocalTime.of(h, 0));
+                if (khoi.isBefore(bayGio)) {
+                    continue;
+                }
                 if (anhXaChuyenXe.timTrungChuyen(t.getMa(), x.getMa(), khoi, null) != null) {
                     continue;
                 }

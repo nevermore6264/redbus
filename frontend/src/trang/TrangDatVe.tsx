@@ -44,11 +44,13 @@ import { dinhDangNgayGio, dinhDangVnd } from '../tienIch/dinhDang'
 import { chuoiLoTrinh, taiDiemDungTheoTuyen } from '../tienIch/loTrinhTuyen'
 import { trangThaiSangTiengViet } from '../tienIch/trangThai'
 
-function isoSangLocalInput(iso: string) {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return null
+function sangLocalDatetime(d: Date) {
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+function minDatetimeLocal() {
+  return sangLocalDatetime(new Date())
 }
 
 export function TrangDatVe() {
@@ -59,11 +61,7 @@ export function TrangDatVe() {
   const { hienThi } = dungThongBao()
   const [dsTuyen, datTuyen] = useState<TuyenDuong[]>([])
   const [maTuyen, datMaTuyen] = useState<number | ''>('')
-  const [tuNgay, datTuNgay] = useState(() => {
-    const d = new Date()
-    d.setDate(d.getDate() - 1)
-    return d.toISOString().slice(0, 16)
-  })
+  const [tuNgay, datTuNgay] = useState(() => new Date().toISOString().slice(0, 16))
   const [dsChuyen, datChuyen] = useState<ChuyenXe[]>([])
   const [dsChuyenLoc, datDsChuyenLoc] = useState<ChuyenXeLoc[]>([])
   const [giaMin, datGiaMin] = useState('')
@@ -139,8 +137,11 @@ export function TrangDatVe() {
           datMaTuyen(ds[0].ma)
         }
         if (tuLucTuUrl) {
-          const local = isoSangLocalInput(tuLucTuUrl)
-          if (local) datTuNgay(local)
+          const d = new Date(tuLucTuUrl)
+          if (!Number.isNaN(d.getTime())) {
+            const bayGio = new Date()
+            datTuNgay(sangLocalDatetime(d.getTime() < bayGio.getTime() ? bayGio : d))
+          }
         }
       } catch {
         hienThi({ loai: 'loi', noiDung: 'Không tải được danh sách tuyến' })
@@ -382,6 +383,7 @@ export function TrangDatVe() {
                   className="field__input"
                   type="datetime-local"
                   value={tuNgay}
+                  min={minDatetimeLocal()}
                   onChange={(e) => datTuNgay(e.target.value)}
                   placeholder="Chọn ngày giờ để lọc chuyến khởi hành từ mốc này"
                 />

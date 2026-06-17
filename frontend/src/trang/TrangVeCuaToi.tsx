@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Armchair, CalendarClock, MapPin, RefreshCw, Tag, Ticket, CalendarRange } from 'lucide-react'
+import { Armchair, CalendarClock, CalendarRange, MapPin, RefreshCw, Tag, Ticket } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
 import type { PhanHoi, PhanHoiLinkPayOs, VeDienTu, VeXe, ChuyenXe, TuyenDuong, GheNgoi } from '../nguon/kieu'
 import { dungThongBao } from '../dinhDanh/boiCanhThongBao'
@@ -44,6 +44,7 @@ export function TrangVeCuaToi() {
   const [veDangXuLy, datVeDangXuLy] = useState<number | null>(null)
   const [veDienTu, datVeDienTu] = useState<VeDienTu | null>(null)
   const [veDoiChon, datVeDoiChon] = useState<VeXe | null>(null)
+  const [cheDoDoiVe, datCheDoDoiVe] = useState<'chuyen' | 'ghe'>('chuyen')
   const [lucHienTai, datLucHienTai] = useState(() => Date.now())
   const daThongBaoHetHan = useRef<Set<number>>(new Set())
   const dangLamMoiHetHan = useRef(false)
@@ -201,11 +202,27 @@ export function TrangVeCuaToi() {
     }
   }
 
+  function moDoiVe(t: VeXe, cheDo: 'chuyen' | 'ghe') {
+    datCheDoDoiVe(cheDo)
+    datVeDoiChon(t)
+  }
+
+  const veDienTuGoc = useMemo(
+    () => (veDienTu ? dsVe.find((v) => v.ma === veDienTu.ma) ?? null : null),
+    [veDienTu, dsVe],
+  )
+
+  const phuVeDienTu = veDienTuGoc ? phu[veDienTuGoc.ma] : undefined
+  const duocDoiVeDienTu =
+    veDienTuGoc != null &&
+    (veDienTuGoc.trangThai === 'PAID' || veDienTuGoc.trangThai === 'PENDING') &&
+    coTheDoiVe(phuVeDienTu?.thoiDiemKhoiHanh)
+
   return (
     <NenTrangKhach
       Icon={Ticket}
       tieuDe="Vé của tôi"
-      moTa="Quản lý vé, thanh toán PayOS hoặc tiền mặt tại quầy."
+      moTa="Quản lý vé, thanh toán, đổi chuyến/ghế (trước giờ khởi hành 2 giờ) và vé điện tử."
     >
       <TheChua padding="none" className="cust-panel ve-panel" aria-busy={tai}>
         <div className="ve-panel__toolbar">
@@ -275,6 +292,11 @@ export function TrangVeCuaToi() {
                 const duocDoiVe =
                   (t.trangThai === 'PAID' || t.trangThai === 'PENDING') &&
                   coTheDoiVe(x?.thoiDiemKhoiHanh)
+                const ganGioKhoiHanh =
+                  (t.trangThai === 'PAID' || t.trangThai === 'PENDING') &&
+                  !coTheDoiVe(x?.thoiDiemKhoiHanh) &&
+                  x?.thoiDiemKhoiHanh != null &&
+                  new Date(x.thoiDiemKhoiHanh).getTime() > Date.now()
                 const di = x ? rutGonTenDiaDanh(x.diemDi) : '…'
                 const den = x ? rutGonTenDiaDanh(x.diemDen) : '…'
                 return (
@@ -319,27 +341,51 @@ export function TrangVeCuaToi() {
                       <DemNguocThanhToanVe thoiGianDat={t.thoiGianDat} lucHienTai={lucHienTai} />
                     ) : null}
 
-                    {t.trangThai === 'PAID' ? (
+                    {(t.trangThai === 'PAID' || duocDoiVe) ? (
                       <div className="ve-card__extra">
-                        <NutBam bien="vien" className="btn--sm" onClick={() => void xemVeDienTu(t.ma)} con="Vé điện tử / QR" />
+                        {t.trangThai === 'PAID' ? (
+                          <NutBam
+                            bien="vien"
+                            className="btn--sm"
+                            onClick={() => void xemVeDienTu(t.ma)}
+                            con="Vé điện tử / QR"
+                          />
+                        ) : null}
+                        {duocDoiVe ? (
+                          <>
+                            <NutBam
+                              bien="vien"
+                              className="btn--sm"
+                              disabled={dangXuLy}
+                              onClick={() => moDoiVe(t, 'ghe')}
+                              con={
+                                <>
+                                  <Armchair size={15} aria-hidden />
+                                  Đổi ghế
+                                </>
+                              }
+                            />
+                            <NutBam
+                              bien="vien"
+                              className="btn--sm"
+                              disabled={dangXuLy}
+                              onClick={() => moDoiVe(t, 'chuyen')}
+                              con={
+                                <>
+                                  <CalendarRange size={15} aria-hidden />
+                                  Đổi chuyến / ngày
+                                </>
+                              }
+                            />
+                          </>
+                        ) : null}
                       </div>
                     ) : null}
 
-                    {duocDoiVe ? (
-                      <div className="ve-card__extra">
-                        <NutBam
-                          bien="vien"
-                          className="btn--sm"
-                          disabled={dangXuLy}
-                          onClick={() => datVeDoiChon(t)}
-                          con={
-                            <>
-                              <CalendarRange size={15} aria-hidden />
-                              Đổi chuyến / ngày
-                            </>
-                          }
-                        />
-                      </div>
+                    {ganGioKhoiHanh ? (
+                      <p className="ve-card__doi-hint muted small">
+                        Đổi vé chỉ khả dụng trước giờ khởi hành ít nhất 2 giờ.
+                      </p>
                     ) : null}
 
                     {choThanhToan && !hetHanLocal ? (
@@ -399,13 +445,35 @@ export function TrangVeCuaToi() {
       </TheChua>
 
       <CuaSo open={veDienTu != null} title="Vé điện tử" size="ticket" onClose={() => datVeDienTu(null)}>
-        {veDienTu ? <VeDienTuPanel ve={veDienTu} /> : null}
+        {veDienTu ? (
+          <VeDienTuPanel
+            ve={veDienTu}
+            coTheDoiVe={duocDoiVeDienTu}
+            onDoiGhe={
+              veDienTuGoc && duocDoiVeDienTu
+                ? () => {
+                    datVeDienTu(null)
+                    moDoiVe(veDienTuGoc, 'ghe')
+                  }
+                : undefined
+            }
+            onDoiChuyen={
+              veDienTuGoc && duocDoiVeDienTu
+                ? () => {
+                    datVeDienTu(null)
+                    moDoiVe(veDienTuGoc, 'chuyen')
+                  }
+                : undefined
+            }
+          />
+        ) : null}
       </CuaSo>
 
       <CuaSoDoiVe
         open={veDoiChon != null}
         ve={veDoiChon}
         phu={veDoiChon ? phu[veDoiChon.ma] ?? null : null}
+        cheDo={cheDoDoiVe}
         onClose={() => datVeDoiChon(null)}
         onThanhCong={() => void lamMoi()}
       />

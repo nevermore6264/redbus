@@ -11,6 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.mockito.ArgumentCaptor;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -68,7 +70,7 @@ class DichVuChuyenXeTest {
     @Test
     @DisplayName("timKiemNangCao lọc theo giá và loại xe")
     void timKiem_locGiaVaLoaiXe() {
-        LocalDateTime kh = LocalDateTime.of(2026, 6, 1, 9, 0);
+        LocalDateTime kh = LocalDateTime.now().plusDays(2).withHour(9).withMinute(0).withSecond(0).withNano(0);
         ChuyenXe cx = ChuyenXe.builder().ma(1L).maTuyen(1L).maXe(10L).giaVe(BigDecimal.valueOf(200_000)).thoiDiemKhoiHanh(kh).build();
         when(anhXaChuyenXe.timTheoTuyenVaSauThoiDiem(1L, kh)).thenReturn(List.of(cx));
         when(anhXaXeKhach.timTheoMa(10L)).thenReturn(XeKhach.builder().ma(10L).maLoaiXe(2L).build());
@@ -101,6 +103,17 @@ class DichVuChuyenXeTest {
                 .thoiDiemDen(khoi.minusHours(1))
                 .build();
         assertThrows(IllegalArgumentException.class, () -> dichVu.them(cx));
+    }
+
+    @Test
+    @DisplayName("timTheoTuyen không trả chuyến quá khứ")
+    void timTheoTuyen_quaKhu_dungMocHienTai() {
+        LocalDateTime quaKhu = LocalDateTime.now().minusDays(5);
+        when(anhXaChuyenXe.timTheoTuyenVaSauThoiDiem(eq(1L), any())).thenReturn(List.of());
+        dichVu.timTheoTuyen(1L, quaKhu);
+        ArgumentCaptor<LocalDateTime> cap = ArgumentCaptor.forClass(LocalDateTime.class);
+        verify(anhXaChuyenXe).timTheoTuyenVaSauThoiDiem(eq(1L), cap.capture());
+        assertFalse(cap.getValue().isBefore(LocalDateTime.now().minusSeconds(5)));
     }
 
     @Test

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Search, Ticket } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
 import type { PhanHoi, VeDienTu } from '../nguon/kieu'
 import { dungThongBao } from '../dinhDanh/boiCanhThongBao'
+import { dungNguoiDung } from '../dinhDanh/boiCanhNguoiDung'
 import { NenTrangKhach } from '../thanhPhan/NenTrangKhach'
 import { TheChua } from '../thanhPhan/theChua'
 import { NutBam } from '../thanhPhan/nutBam'
@@ -13,6 +14,7 @@ import { phanTichMaTuQr } from '../tienIch/maVeQr'
 
 export function TrangTraCuuVe() {
   const { hienThi } = dungThongBao()
+  const { nguoiDung } = dungNguoiDung()
   const [searchParams] = useSearchParams()
   const [maVe, datMaVe] = useState('')
   const [sdt, datSdt] = useState('')
@@ -51,7 +53,7 @@ export function TrangTraCuuVe() {
     <NenTrangKhach
       Icon={Ticket}
       tieuDe="Tra cứu vé"
-      moTa="Nhập mã vé (VD: RB12AB34CD) và số điện thoại đặt vé — không cần đăng nhập."
+      moTa="Nhập mã vé (VD: RB12AB34CD) và số điện thoại đặt vé — không cần đăng nhập. Đổi chuyến/ghế: đăng nhập tại Vé của tôi."
     >
       <TheChua padding="lg" className="cust-panel">
         {tuQr && maVe ? (
@@ -86,7 +88,17 @@ export function TrangTraCuuVe() {
             }
           />
         </form>
-        {ketQua ? <VeDienTuPanel ve={ketQua} /> : null}
+        {ketQua ? (
+          <>
+            {nguoiDung?.vaiTro === 'CUSTOMER' ? (
+              <p className="tra-cuu-doi-hint form-alert">
+                Cần đổi chuyến hoặc ghế? Vào{' '}
+                <Link to="/ve-cua-toi">Vé của tôi</Link> — trước giờ khởi hành ít nhất 2 giờ, cùng tuyến.
+              </p>
+            ) : null}
+            <VeDienTuPanel ve={ketQua} />
+          </>
+        ) : null}
       </TheChua>
     </NenTrangKhach>
   )

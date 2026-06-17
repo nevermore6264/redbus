@@ -51,7 +51,7 @@ function chonIcon(chuoi: string, bien: BienNut): LucideIcon | null {
   if (/đăng nhập|Đăng nhập/i.test(s)) return LogIn
   if (/Đăng ký/i.test(s)) return UserPlus
   if (/^Đăng xuất/i.test(s)) return LogOut
-  if (/Tìm chuyến/i.test(s)) return Search
+  if (/Tìm chuyến|Tra cứu/i.test(s)) return Search
   if (/Làm mới|Cập nhật|Tải lại/i.test(s)) return RefreshCw
   if (/Gửi mã OTP/i.test(s)) return Send
   if (/Gửi đánh giá/i.test(s)) return Send

@@ -50,12 +50,12 @@ public class DieuKhienChuyenXe {
         return PhanHoiChung.ok(dichVuChuyenXe.tatCa());
     }
 
-    @GetMapping("/{ma}")
+    @GetMapping("/{ma:\\d+}")
     public PhanHoiChung<ChuyenXe> chiTiet(@PathVariable Long ma) {
         return PhanHoiChung.ok(dichVuChuyenXe.layTheoMa(ma));
     }
 
-    @GetMapping("/{ma}/ghe-da-giu")
+    @GetMapping("/{ma:\\d+}/ghe-da-giu")
     public PhanHoiChung<List<Long>> gheDaGiu(@PathVariable Long ma) {
         return PhanHoiChung.ok(dichVuChuyenXe.maGheDaGiu(ma));
     }
@@ -72,14 +72,14 @@ public class DieuKhienChuyenXe {
         return PhanHoiChung.ok(dichVuChuyenXe.genLich(yeuCau));
     }
 
-    @PutMapping("/{ma}")
+    @PutMapping("/{ma:\\d+}")
     @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public PhanHoiChung<ChuyenXe> capNhat(@PathVariable Long ma, @RequestBody ChuyenXe cx) {
         cx.setMa(ma);
         return PhanHoiChung.ok(dichVuChuyenXe.capNhat(cx));
     }
 
-    @DeleteMapping("/{ma}")
+    @DeleteMapping("/{ma:\\d+}")
     @PreAuthorize("hasRole('ADMIN')")
     public PhanHoiChung<Void> xoa(@PathVariable Long ma) {
         dichVuChuyenXe.xoa(ma);

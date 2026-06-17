@@ -1,70 +1,82 @@
-import { useRef, useState } from 'react'
-import { Check, Copy, Download } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import { toPng } from 'html-to-image'
-import { QRCode } from 'react-qr-code'
-import type { VeDienTu } from '../nguon/kieu'
-import { dinhDangNgayGio, dinhDangVnd } from '../tienIch/dinhDang'
-import { layNoiDungQr, taoLinkTraCuuVe } from '../tienIch/maVeQr'
-import { trangThaiSangTiengViet } from '../tienIch/trangThai'
-import { NutBam } from './nutBam'
+import { useRef, useState } from "react";
+import { Check, Copy, Download, Armchair, CalendarRange } from "lucide-react";
+import { Link } from "react-router-dom";
+import { toPng } from "html-to-image";
+import { QRCode } from "react-qr-code";
+import type { VeDienTu } from "../nguon/kieu";
+import { dinhDangNgayGio, dinhDangVnd } from "../tienIch/dinhDang";
+import { layNoiDungQr, taoLinkTraCuuVe } from "../tienIch/maVeQr";
+import { trangThaiSangTiengViet } from "../tienIch/trangThai";
+import { NutBam } from "./nutBam";
 
 type Props = {
-  ve: VeDienTu
-}
+  ve: VeDienTu;
+  coTheDoiVe?: boolean;
+  onDoiGhe?: () => void;
+  onDoiChuyen?: () => void;
+};
 
-export function VeDienTuPanel({ ve }: Props) {
-  const theVe = useRef<HTMLDivElement>(null)
-  const [dangTaiAnh, datDangTaiAnh] = useState(false)
-  const [daSaoChep, datDaSaoChep] = useState(false)
-  const [daSaoChepLink, datDaSaoChepLink] = useState(false)
+export function VeDienTuPanel({
+  ve,
+  coTheDoiVe,
+  onDoiGhe,
+  onDoiChuyen,
+}: Props) {
+  const theVe = useRef<HTMLDivElement>(null);
+  const [dangTaiAnh, datDangTaiAnh] = useState(false);
+  const [daSaoChep, datDaSaoChep] = useState(false);
+  const [daSaoChepLink, datDaSaoChepLink] = useState(false);
 
-  const ma = ve.maVeHienThi.toUpperCase()
-  const linkTraCuu = `/tra-cuu-ve?ma=${encodeURIComponent(ma)}`
-  const noiDungQr = layNoiDungQr(ve.noiDungQr, ma)
-  const linkTraCuuDayDu = taoLinkTraCuuVe(window.location.origin, ma)
+  const ma = ve.maVeHienThi.toUpperCase();
+  const linkTraCuu = `/tra-cuu-ve?ma=${encodeURIComponent(ma)}`;
+  const noiDungQr = layNoiDungQr(ve.noiDungQr, ma);
+  const linkTraCuuDayDu = taoLinkTraCuuVe(window.location.origin, ma);
   const dangLocalhost =
-    typeof window !== 'undefined' && /localhost|127\.0\.0\.1/i.test(window.location.hostname)
+    typeof window !== "undefined" &&
+    /localhost|127\.0\.0\.1/i.test(window.location.hostname);
 
   async function saoChepMa() {
     try {
-      await navigator.clipboard.writeText(ma)
-      datDaSaoChep(true)
-      window.setTimeout(() => datDaSaoChep(false), 2000)
+      await navigator.clipboard.writeText(ma);
+      datDaSaoChep(true);
+      window.setTimeout(() => datDaSaoChep(false), 2000);
     } catch {
-      window.prompt('Sao chép mã vé:', ma)
+      window.prompt("Sao chép mã vé:", ma);
     }
   }
 
   async function saoChepLinkTraCuu() {
     try {
-      await navigator.clipboard.writeText(linkTraCuuDayDu)
-      datDaSaoChepLink(true)
-      window.setTimeout(() => datDaSaoChepLink(false), 2000)
+      await navigator.clipboard.writeText(linkTraCuuDayDu);
+      datDaSaoChepLink(true);
+      window.setTimeout(() => datDaSaoChepLink(false), 2000);
     } catch {
-      window.prompt('Sao chép link tra cứu:', linkTraCuuDayDu)
+      window.prompt("Sao chép link tra cứu:", linkTraCuuDayDu);
     }
   }
 
   async function taiAnhPng() {
-    const el = theVe.current
-    if (!el || dangTaiAnh) return
-    datDangTaiAnh(true)
+    const el = theVe.current;
+    if (!el || dangTaiAnh) return;
+    datDangTaiAnh(true);
     try {
       const dataUrl = await toPng(el, {
         pixelRatio: 2,
-        backgroundColor: '#ffffff',
+        backgroundColor: "#ffffff",
         cacheBust: true,
-        filter: (node) => !(node instanceof HTMLElement && node.dataset.exportExclude === 'true'),
-      })
-      const a = document.createElement('a')
-      a.href = dataUrl
-      a.download = `ve-${ma}.png`
-      a.click()
+        filter: (node) =>
+          !(
+            node instanceof HTMLElement && node.dataset.exportExclude === "true"
+          ),
+      });
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `ve-${ma}.png`;
+      a.click();
     } catch {
-      window.alert('Không tạo được ảnh. Thử lại sau.')
+      window.alert("Không tạo được ảnh. Thử lại sau.");
     } finally {
-      datDangTaiAnh(false)
+      datDangTaiAnh(false);
     }
   }
 
@@ -84,18 +96,28 @@ export function VeDienTuPanel({ ve }: Props) {
                 className="e-ticket__copy"
                 onClick={() => void saoChepMa()}
                 aria-label="Sao chép mã vé"
-                con={daSaoChep ? <Check size={16} aria-hidden /> : <Copy size={16} aria-hidden />}
+                con={
+                  daSaoChep ? (
+                    <Check size={16} aria-hidden />
+                  ) : (
+                    <Copy size={16} aria-hidden />
+                  )
+                }
               />
             </div>
-            <p className="e-ticket__status">{trangThaiSangTiengViet(ve.trangThai)}</p>
+            <p className="e-ticket__status">
+              {trangThaiSangTiengViet(ve.trangThai)}
+            </p>
           </div>
         </div>
         <ol className="e-ticket__steps">
           <li>
-            <strong>Khi lên xe:</strong> xuất trình QR hoặc đọc mã <strong>{ma}</strong> cho nhân viên.
+            <strong>Khi lên xe:</strong> xuất trình QR hoặc đọc mã{" "}
+            <strong>{ma}</strong> cho nhân viên.
           </li>
           <li>
-            <strong>Nhân viên / tra cứu:</strong> quét QR (mở trang tra cứu) hoặc nhập mã + số điện thoại đặt vé tại{' '}
+            <strong>Nhân viên / tra cứu:</strong> quét QR (mở trang tra cứu)
+            hoặc nhập mã + số điện thoại đặt vé tại{" "}
             <Link to={linkTraCuu}>Tra cứu vé</Link>.
           </li>
         </ol>
@@ -117,9 +139,11 @@ export function VeDienTuPanel({ ve }: Props) {
             </>
           ) : null}
           <dt>Khởi hành</dt>
-          <dd>{ve.thoiDiemKhoiHanh ? dinhDangNgayGio(ve.thoiDiemKhoiHanh) : '—'}</dd>
+          <dd>
+            {ve.thoiDiemKhoiHanh ? dinhDangNgayGio(ve.thoiDiemKhoiHanh) : "—"}
+          </dd>
           <dt>Ghế</dt>
-          <dd>{ve.maGhe ?? '—'}</dd>
+          <dd>{ve.maGhe ?? "—"}</dd>
           {ve.soTienThanhToan != null ? (
             <>
               <dt>Đã thanh toán</dt>
@@ -128,20 +152,44 @@ export function VeDienTuPanel({ ve }: Props) {
           ) : null}
         </dl>
       </div>
-      {import.meta.env.DEV && dangLocalhost ? (
-        <p className="e-ticket__dev-hint muted small" data-export-exclude="true">
-          <strong>Test QR trên điện thoại (chưa deploy):</strong> máy tính và ĐT cùng WiFi → trên PC chạy{' '}
-          <code>ipconfig</code> lấy IPv4 (vd. 192.168.1.100) → mở trên ĐT{' '}
-          <code>http://192.168.1.100:5173</code> → đăng nhập → mở lại vé điện tử (QR sẽ trỏ đúng IP). Cấu hình thêm{' '}
-          <code>VITE_API_URL=http://IP:8080/api</code> và <code>CORS_ORIGINS</code> trên backend.
-        </p>
-      ) : null}
       <div className="e-ticket__actions" data-export-exclude="true">
+        {coTheDoiVe && (onDoiGhe || onDoiChuyen) ? (
+          <div className="e-ticket__doi-row">
+            {onDoiGhe ? (
+              <NutBam
+                bien="vien"
+                className="btn--block"
+                onClick={onDoiGhe}
+                con={
+                  <>
+                    <Armchair size={16} aria-hidden />
+                    Đổi ghế
+                  </>
+                }
+              />
+            ) : null}
+            {onDoiChuyen ? (
+              <NutBam
+                bien="vien"
+                className="btn--block"
+                onClick={onDoiChuyen}
+                con={
+                  <>
+                    <CalendarRange size={16} aria-hidden />
+                    Đổi chuyến / ngày
+                  </>
+                }
+              />
+            ) : null}
+          </div>
+        ) : null}
         <NutBam
           bien="mo"
           className="btn--block"
           onClick={() => void saoChepLinkTraCuu()}
-          con={daSaoChepLink ? 'Đã copy link' : 'Copy link tra cứu (gửi sang ĐT)'}
+          con={
+            daSaoChepLink ? "Đã copy link" : "Copy link tra cứu (gửi sang ĐT)"
+          }
         />
         <NutBam
           bien="vien"
@@ -157,5 +205,5 @@ export function VeDienTuPanel({ ve }: Props) {
         />
       </div>
     </div>
-  )
+  );
 }

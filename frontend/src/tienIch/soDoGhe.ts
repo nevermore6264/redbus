@@ -2,12 +2,20 @@ import type { GheNgoi } from '../nguon/kieu'
 
 export type HangGhe = (GheNgoi | null)[][]
 
-
 function soThuTu(g: GheNgoi): number {
   const n = Number(g.maGhe)
   return Number.isFinite(n) ? n : 0
 }
 
+function soNguyen(v: unknown): number | null {
+  if (v == null || v === '') return null
+  const n = Number(v)
+  return Number.isFinite(n) && n > 0 ? n : null
+}
+
+export function tangGhe(g: GheNgoi): number {
+  return soNguyen(g.tang) ?? 1
+}
 
 export function tinSoCotTrai(maxCot: number): number {
   if (maxCot <= 1) return 1
@@ -24,7 +32,7 @@ export function xayDungLuoiGhe(ds: GheNgoi[]): {
     return { maxHang: 0, maxCot: 0, cotTrai: 0, hangGhe: [] }
   }
 
-  const duHangCot = ds.every((s) => s.hang != null && s.cot != null)
+  const duHangCot = ds.every((s) => soNguyen(s.hang) != null && soNguyen(s.cot) != null)
 
   if (!duHangCot) {
     const sx = [...ds].sort((a, b) => soThuTu(a) - soThuTu(b))
@@ -46,15 +54,15 @@ export function xayDungLuoiGhe(ds: GheNgoi[]): {
     }
   }
 
-  const maxHang = Math.max(...ds.map((s) => s.hang!))
-  const maxCot = Math.max(...ds.map((s) => s.cot!))
+  const maxHang = Math.max(...ds.map((s) => soNguyen(s.hang)!))
+  const maxCot = Math.max(...ds.map((s) => soNguyen(s.cot)!))
   const cotTrai = tinSoCotTrai(maxCot)
 
   const hangGhe: HangGhe = []
   for (let h = 1; h <= maxHang; h++) {
     const hang: (GheNgoi | null)[] = []
     for (let c = 1; c <= maxCot; c++) {
-      hang.push(ds.find((s) => s.hang === h && s.cot === c) ?? null)
+      hang.push(ds.find((s) => soNguyen(s.hang) === h && soNguyen(s.cot) === c) ?? null)
     }
     hangGhe.push(hang)
   }
@@ -65,7 +73,7 @@ export function xayDungLuoiGhe(ds: GheNgoi[]): {
 export function nhomTheoTang(ds: GheNgoi[]): { tang: number; ghe: GheNgoi[] }[] {
   const m = new Map<number, GheNgoi[]>()
   for (const g of ds) {
-    const t = g.tang ?? 1
+    const t = tangGhe(g)
     if (!m.has(t)) m.set(t, [])
     m.get(t)!.push(g)
   }

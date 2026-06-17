@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CalendarDays, Clock, Info } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
 import type { ChuyenXe, ChuyenXeLoc, GheNgoi, PhanHoi, VeXe } from '../nguon/kieu'
@@ -25,6 +25,7 @@ type Props = {
   open: boolean
   ve: VeXe | null
   phu: ThongTinVeDoi | null
+  cheDo?: 'chuyen' | 'ghe'
   onClose: () => void
   onThanhCong: () => void
 }
@@ -41,7 +42,7 @@ export function coTheDoiVe(thoiDiemKhoiHanh: string | undefined): boolean {
   return kh - Date.now() >= 2 * 60 * 60 * 1000
 }
 
-export function CuaSoDoiVe({ open, ve, phu, onClose, onThanhCong }: Props) {
+export function CuaSoDoiVe({ open, ve, phu, cheDo = 'chuyen', onClose, onThanhCong }: Props) {
   const { hienThi } = dungThongBao()
   const [tuNgay, datTuNgay] = useState('')
   const [dsChuyen, datDsChuyen] = useState<ChuyenXe[]>([])
@@ -50,22 +51,125 @@ export function CuaSoDoiVe({ open, ve, phu, onClose, onThanhCong }: Props) {
   const [gheDaGiu, datGheDaGiu] = useState<Set<number>>(new Set())
   const [maGheChon, datMaGheChon] = useState<number | null>(null)
   const [taiTim, datTaiTim] = useState(false)
+  const [taiGhe, datTaiGhe] = useState(false)
   const [dangGui, datDangGui] = useState(false)
   const [daTim, datDaTim] = useState(false)
 
+  const thoiDiemKhoiHanh = phu?.thoiDiemKhoiHanh
+  const khuGheRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
-    if (!open || !phu) return
-    const goc = phu.thoiDiemKhoiHanh ? new Date(phu.thoiDiemKhoiHanh) : new Date()
+    if (!open || !phu || !ve) return
+
+    let huy = false
+
+    const goc = thoiDiemKhoiHanh ? new Date(thoiDiemKhoiHanh) : new Date()
     const d = new Date(goc)
     d.setHours(0, 0, 0, 0)
-    datTuNgay(sangLocalDatetime(d))
+    const bayGio = new Date()
+    datTuNgay(sangLocalDatetime(d.getTime() < bayGio.getTime() ? bayGio : d))
     datDsChuyen([])
-    datChon(null)
-    datDsGhe([])
-    datGheDaGiu(new Set())
     datMaGheChon(null)
     datDaTim(false)
-  }, [open, ve?.ma, phu])
+
+    async function napGheChoChuyen(cx: ChuyenXe) {
+      datTaiGhe(true)
+      try {
+        const [ghe, thuTu] = await Promise.all([
+          moKhoiDuLieu(khachHttp.get<PhanHoi<GheNgoi[]>>(`/ghe-ngoi/xe/${cx.maXe}`)),
+          moKhoiDuLieu(khachHttp.get<PhanHoi<number[]>>(`/chuyen-xe/${cx.ma}/ghe-da-giu`)),
+        ])
+        if (huy) return
+        const held = new Set(thuTu)
+        if (cx.ma === ve.maChuyen) {
+          held.delete(ve.maGhe)
+        }
+        datChon(cx)
+        datDsGhe(ghe)
+        datGheDaGiu(held)
+        if (ghe.length === 0) {
+          hienThi({ loai: 'thongTin', noiDung: 'Xe chưa có sơ đồ ghế — liên hệ hỗ trợ' })
+        }
+      } catch (e: unknown) {
+        if (!huy) {
+          datChon(null)
+          datDsGhe([])
+          datGheDaGiu(new Set())
+          hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi tải ghế' })
+        }
+      } finally {
+        if (!huy) datTaiGhe(false)
+      }
+    }
+
+    if (cheDo === 'ghe') {
+      void (async () => {
+        datTaiGhe(true)
+        try {
+          const cx = await moKhoiDuLieu(
+            khachHttp.get<PhanHoi<ChuyenXe>>(`/chuyen-xe/${ve.maChuyen}`),
+          )
+          if (huy) return
+          await napGheChoChuyen(cx)
+        } catch (e: unknown) {
+          if (!huy) {
+            datChon(null)
+            datDsGhe([])
+            datGheDaGiu(new Set())
+            datTaiGhe(false)
+            hienThi({
+              loai: 'loi',
+              noiDung: e instanceof Error ? e.message : 'Không tải được chuyến hiện tại',
+            })
+          }
+        }
+      })()
+    } else {
+      datChon(null)
+      datDsGhe([])
+      datGheDaGiu(new Set())
+      datTaiGhe(false)
+    }
+
+    return () => {
+      huy = true
+    }
+  }, [open, ve?.ma, ve?.maChuyen, cheDo, thoiDiemKhoiHanh])
+
+  async function taiGheChoChuyen(c: ChuyenXe) {
+    if (!ve) return
+    datMaGheChon(null)
+    datChon(c)
+    datDsGhe([])
+    datGheDaGiu(new Set())
+    datTaiGhe(true)
+    try {
+      const [ghe, thuTu] = await Promise.all([
+        moKhoiDuLieu(khachHttp.get<PhanHoi<GheNgoi[]>>(`/ghe-ngoi/xe/${c.maXe}`)),
+        moKhoiDuLieu(khachHttp.get<PhanHoi<number[]>>(`/chuyen-xe/${c.ma}/ghe-da-giu`)),
+      ])
+      const held = new Set(thuTu)
+      if (c.ma === ve.maChuyen) {
+        held.delete(ve.maGhe)
+      }
+      datDsGhe(ghe)
+      datGheDaGiu(held)
+      if (ghe.length === 0) {
+        hienThi({ loai: 'thongTin', noiDung: 'Chuyến này chưa có ghế để chọn' })
+      } else {
+        requestAnimationFrame(() => {
+          khuGheRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        })
+      }
+    } catch (e: unknown) {
+      datChon(null)
+      datDsGhe([])
+      datGheDaGiu(new Set())
+      hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi tải ghế' })
+    } finally {
+      datTaiGhe(false)
+    }
+  }
 
   async function timChuyen() {
     if (!phu || !tuNgay) return
@@ -96,23 +200,7 @@ export function CuaSoDoiVe({ open, ve, phu, onClose, onThanhCong }: Props) {
   }
 
   async function khiChonChuyen(c: ChuyenXe) {
-    if (!ve) return
-    datChon(c)
-    datMaGheChon(null)
-    try {
-      const [ghe, thuTu] = await Promise.all([
-        moKhoiDuLieu(khachHttp.get<PhanHoi<GheNgoi[]>>(`/ghe-ngoi/xe/${c.maXe}`)),
-        moKhoiDuLieu(khachHttp.get<PhanHoi<number[]>>(`/chuyen-xe/${c.ma}/ghe-da-giu`)),
-      ])
-      const held = new Set(thuTu)
-      if (c.ma === ve.maChuyen) {
-        held.delete(ve.maGhe)
-      }
-      datGhe(ghe)
-      datGheDaGiu(held)
-    } catch (e: unknown) {
-      hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi tải ghế' })
-    }
+    await taiGheChoChuyen(c)
   }
 
   async function xacNhan() {
@@ -147,10 +235,12 @@ export function CuaSoDoiVe({ open, ve, phu, onClose, onThanhCong }: Props) {
 
   const gheLabel = maGheChon != null ? dsGhe.find((g) => g.ma === maGheChon)?.maGhe : null
 
+  const tieuDe = cheDo === 'ghe' ? 'Đổi ghế' : 'Đổi chuyến / đổi ngày'
+
   return (
     <CuaSo
       open={open}
-      title="Đổi chuyến / đổi ngày"
+      title={tieuDe}
       size="xl"
       onClose={onClose}
       footer={
@@ -182,69 +272,99 @@ export function CuaSoDoiVe({ open, ve, phu, onClose, onThanhCong }: Props) {
           </div>
 
           <div className="doi-ve__search">
-            <TruongNhap
-              nhan="Ngày chuyến mới"
-              type="datetime-local"
-              value={tuNgay}
-              onChange={(e) => datTuNgay(e.target.value)}
-            />
-            <NutBam bien="chinh" className="btn--sm" dangTai={taiTim} onClick={() => void timChuyen()} con="Tìm chuyến" />
+            {cheDo === 'chuyen' ? (
+              <>
+                <TruongNhap
+                  nhan="Ngày chuyến mới"
+                  type="datetime-local"
+                  value={tuNgay}
+                  min={sangLocalDatetime(new Date())}
+                  onChange={(e) => datTuNgay(e.target.value)}
+                />
+                <NutBam
+                  bien="chinh"
+                  className="doi-ve__search-btn"
+                  dangTai={taiTim}
+                  onClick={() => void timChuyen()}
+                  con="Tìm chuyến"
+                />
+              </>
+            ) : (
+              <p className="muted small">
+                Chọn ghế trống khác trên chuyến <strong>{phu.gio}</strong>.
+              </p>
+            )}
           </div>
 
-          {daTim ? (
-            <div className="doi-ve__trips">
-              <h3 className="doi-ve__sub">
-                <CalendarDays size={17} aria-hidden />
-                Chọn chuyến ({dsChuyen.length})
-              </h3>
-              {dsChuyen.length === 0 ? (
-                <p className="muted">Không có chuyến trong khoảng thời gian này.</p>
-              ) : (
-                <ul className="trip-cards doi-ve__trip-list">
-                  {dsChuyen.map((c) => {
-                    const on = chon?.ma === c.ma
-                    const laHienTai = c.ma === ve.maChuyen
-                    return (
-                      <li key={c.ma}>
-                        <button
-                          type="button"
-                          className={`trip-card${on ? ' trip-card--on' : ''}`}
-                          onClick={() => void khiChonChuyen(c)}
-                        >
-                          <div className="trip-card__main">
-                            <span className="trip-card__time">{dinhDangNgayGio(c.thoiDiemKhoiHanh)}</span>
-                            <span className="trip-card__meta">
-                              {laHienTai ? 'Chuyến hiện tại · ' : ''}
-                              {dinhDangVnd(c.giaVe)}
-                            </span>
-                          </div>
-                        </button>
-                      </li>
-                    )
-                  })}
-                </ul>
-              )}
-            </div>
-          ) : null}
+          <div className={`doi-ve__main${cheDo === 'chuyen' && daTim ? ' doi-ve__main--split' : ''}`}>
+            {cheDo === 'chuyen' && daTim ? (
+              <div className="doi-ve__trips">
+                <h3 className="doi-ve__sub">
+                  <CalendarDays size={17} aria-hidden />
+                  Chọn chuyến ({dsChuyen.length})
+                </h3>
+                {dsChuyen.length === 0 ? (
+                  <p className="muted">Không có chuyến trong khoảng thời gian này.</p>
+                ) : (
+                  <ul className="doi-ve__trip-list">
+                    {dsChuyen.map((c) => {
+                      const on = chon?.ma === c.ma
+                      const laHienTai = c.ma === ve.maChuyen
+                      return (
+                        <li key={c.ma}>
+                          <button
+                            type="button"
+                            className={`doi-ve__trip-btn${on ? ' doi-ve__trip-btn--on' : ''}`}
+                            onClick={() => void khiChonChuyen(c)}
+                          >
+                            <span className="doi-ve__trip-time">{dinhDangNgayGio(c.thoiDiemKhoiHanh)}</span>
+                            <span className="doi-ve__trip-price">{dinhDangVnd(c.giaVe)}</span>
+                            {laHienTai ? <span className="doi-ve__trip-tag">Chuyến hiện tại</span> : null}
+                          </button>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
+              </div>
+            ) : null}
 
-          {chon ? (
-            <div className="doi-ve__seat">
-              <h3 className="doi-ve__sub">
-                <span>Chọn ghế mới</span>
-                {gheLabel ? (
-                  <span className="muted">
-                    Đã chọn: <strong>{gheLabel}</strong>
-                  </span>
-                ) : null}
-              </h3>
-              <SoDoGheXe
-                dsGhe={dsGhe}
-                gheDaGiu={gheDaGiu}
-                maGheChon={maGheChon}
-                onChonMaGhe={(ma) => datMaGheChon(ma)}
-              />
-            </div>
-          ) : null}
+            {(cheDo === 'ghe' || chon || taiGhe) ? (
+              <div className="doi-ve__seat" ref={khuGheRef}>
+                <h3 className="doi-ve__sub">
+                  <span>Chọn ghế mới</span>
+                  {chon ? (
+                    <span className="muted small">
+                      {dinhDangNgayGio(chon.thoiDiemKhoiHanh)}
+                    </span>
+                  ) : null}
+                  {gheLabel ? (
+                    <span className="doi-ve__picked">
+                      Ghế <strong>{gheLabel}</strong>
+                    </span>
+                  ) : null}
+                </h3>
+                {taiGhe ? (
+                  <div className="doi-ve__seat-loading" aria-busy="true">
+                    <span className="doi-ve__seat-spinner" aria-hidden />
+                    <span>Đang tải sơ đồ ghế…</span>
+                  </div>
+                ) : chon && dsGhe.length > 0 ? (
+                  <SoDoGheXe
+                    compact
+                    dsGhe={dsGhe}
+                    gheDaGiu={gheDaGiu}
+                    maGheChon={maGheChon}
+                    onChonMaGhe={(ma) => datMaGheChon(ma)}
+                  />
+                ) : chon ? (
+                  <p className="muted small">Không có ghế để hiển thị trên chuyến này.</p>
+                ) : (
+                  <p className="muted small">Chọn một chuyến bên trái để xem ghế trống.</p>
+                )}
+              </div>
+            ) : null}
+          </div>
         </div>
       ) : null}
     </CuaSo>

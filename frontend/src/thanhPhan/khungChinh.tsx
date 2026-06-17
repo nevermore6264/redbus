@@ -11,6 +11,7 @@ import {
   Newspaper,
   Phone,
   Receipt,
+  Search,
   Star,
   UserCircle,
   MessageCircle,
@@ -19,6 +20,7 @@ import { dungNguoiDung } from '../dinhDanh/boiCanhNguoiDung'
 import { dungModalXacThuc } from '../dinhDanh/boiCanhModalXacThuc'
 import { NutBam, NutLienKet, NutVanBan } from './nutBam'
 import { useThongBaoSse } from '../tienIch/useThongBaoSse'
+import { THONG_TIN_LIEN_HE } from '../tienIch/thongTinLienHe'
 
 export function KhungChinh() {
   const { nguoiDung, dangXuat } = dungNguoiDung()
@@ -87,6 +89,9 @@ export function KhungChinh() {
                   <span className="nav-link__text">Tin tức</span>
                 </Link>
                 <Link className={lopLk('/tra-cuu-ve')} to="/tra-cuu-ve">
+                  <span className="nav-link__ico" aria-hidden>
+                    <Search size={18} strokeWidth={2} />
+                  </span>
                   <span className="nav-link__text">Tra cứu vé</span>
                 </Link>
               </>
@@ -136,6 +141,9 @@ export function KhungChinh() {
                   <span className="nav-link__text">Đánh giá</span>
                 </Link>
                 <Link className={lopLk('/tra-cuu-ve')} to="/tra-cuu-ve">
+                  <span className="nav-link__ico" aria-hidden>
+                    <Search size={18} strokeWidth={2} />
+                  </span>
                   <span className="nav-link__text">Tra cứu vé</span>
                 </Link>
               </>
@@ -212,6 +220,9 @@ export function KhungChinh() {
                   <Link to="/dat-ve">Đặt vé</Link>
                 </li>
                 <li>
+                  <Link to="/tra-cuu-ve">Tra cứu vé</Link>
+                </li>
+                <li>
                   <Link to="/tin-tuc">Tin tức &amp; ưu đãi</Link>
                 </li>
               </ul>
@@ -261,20 +272,20 @@ export function KhungChinh() {
               <ul className="footer__contact">
                 <li>
                   <Phone size={16} aria-hidden />
-                  <span>Hotline: 1900 xxx xxx (giờ hành chính)</span>
+                  <a href={`tel:${THONG_TIN_LIEN_HE.hotlineTel}`}>
+                    Hotline: {THONG_TIN_LIEN_HE.hotline} ({THONG_TIN_LIEN_HE.gioHotline})
+                  </a>
                 </li>
                 <li>
                   <Mail size={16} aria-hidden />
-                  <a href="mailto:support@redbus.local">support@redbus.local</a>
+                  <a href={`mailto:${THONG_TIN_LIEN_HE.email}`}>{THONG_TIN_LIEN_HE.email}</a>
                 </li>
                 <li>
                   <MapPin size={16} aria-hidden />
-                  <span>Trụ sở: Việt Nam · Văn phòng đại diện RedBus</span>
+                  <span>Trụ sở: {THONG_TIN_LIEN_HE.diaChi}</span>
                 </li>
               </ul>
-              <p className="footer__note">
-                Phản hồi trong vòng 24–48 giờ làm việc. Khẩn cấp trên xe vui lòng liên hệ nhân viên phục vụ.
-              </p>
+              <p className="footer__note">{THONG_TIN_LIEN_HE.ghiChuPhanHoi}</p>
             </div>
           </div>
         </div>

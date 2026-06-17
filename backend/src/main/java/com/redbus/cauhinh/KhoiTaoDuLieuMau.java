@@ -115,7 +115,7 @@ public class KhoiTaoDuLieuMau {
         if (anhXaTaiKhoan.timTheoTenDangNhap("admin") == null) {
             anhXaTaiKhoan.them(TaiKhoan.builder()
                     .tenDangNhap("admin")
-                    .email("admin@redbus.local")
+                    .email("admin_redbus@gmail.com")
                     .matKhauMaHoa(boMaHoaMatKhau.encode("Admin@123"))
                     .vaiTro("ADMIN")
                     .hoatDong(true)
@@ -124,7 +124,7 @@ public class KhoiTaoDuLieuMau {
         if (anhXaTaiKhoan.timTheoTenDangNhap("staff") == null) {
             anhXaTaiKhoan.them(TaiKhoan.builder()
                     .tenDangNhap("staff")
-                    .email("staff@redbus.local")
+                    .email("staff_redbus@gmail.com")
                     .matKhauMaHoa(boMaHoaMatKhau.encode("Staff@123"))
                     .vaiTro("STAFF")
                     .hoatDong(true)
@@ -152,7 +152,7 @@ public class KhoiTaoDuLieuMau {
             }
             TaiKhoan moi = TaiKhoan.builder()
                     .tenDangNhap(row[0])
-                    .email(row[0] + "@demo.redbus.local")
+                    .email(row[0] + "@gmail.com")
                     .matKhauMaHoa(boMaHoaMatKhau.encode(MK_KHACH_DEMO))
                     .vaiTro("CUSTOMER")
                     .hoatDong(true)
