@@ -35,12 +35,21 @@ export interface PhanHoiLinkPayOs {
   checkoutUrl: string
   orderCode: number
   maVe: number
+  dsMaVe?: number[]
   soTien: number
+}
+
+export interface PhanHoiThanhToanGop {
+  dsMaVe: number[]
+  tongTien: number
 }
 
 export interface KetQuaThanhToanPayOs {
   orderCode: number
   maVe: number
+  dsMaVe?: number[]
+  soVe?: number
+  soVeDaThanhToan?: number
   trangThaiVe: string
   daThanhToan: boolean
   trangThaiPayOs?: string

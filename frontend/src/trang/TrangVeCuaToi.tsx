@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Armchair, CalendarClock, CalendarRange, MapPin, RefreshCw, Tag, Ticket } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
-import type { PhanHoi, PhanHoiLinkPayOs, VeDienTu, VeXe, ChuyenXe, TuyenDuong, GheNgoi } from '../nguon/kieu'
+import type { PhanHoi, PhanHoiLinkPayOs, PhanHoiThanhToanGop, VeDienTu, VeXe, ChuyenXe, TuyenDuong, GheNgoi } from '../nguon/kieu'
 import { dungThongBao } from '../dinhDanh/boiCanhThongBao'
 import { NenTrangKhach } from '../thanhPhan/NenTrangKhach'
 import { TheChua, TieuDeThe } from '../thanhPhan/theChua'
@@ -23,6 +23,7 @@ function laVeDaHuy(trangThai: string) {
 
 type BamPhu = ThongTinVeDoi & {
   gia: string
+  giaSo: number
 }
 
 type BoLoc = 'ALL' | 'PENDING' | 'PAID' | 'CANCELLED'
@@ -41,6 +42,7 @@ export function TrangVeCuaToi() {
   const [tai, datTai] = useState(true)
   const [maKhuyenMai, datMaKhuyenMai] = useState('')
   const [boLoc, datBoLoc] = useState<BoLoc>('ALL')
+  const [veDaChon, datVeDaChon] = useState<Set<number>>(() => new Set())
   const [veDangXuLy, datVeDangXuLy] = useState<number | null>(null)
   const [veDienTu, datVeDienTu] = useState<VeDienTu | null>(null)
   const [veDoiChon, datVeDoiChon] = useState<VeXe | null>(null)
@@ -72,6 +74,7 @@ export function TrangVeCuaToi() {
           tuyenDayDu: `${r.diemDi} → ${r.diemDen}`,
           gio: dinhDangNgayGio(cx.thoiDiemKhoiHanh),
           gia: dinhDangVnd(cx.giaVe),
+          giaSo: Number(cx.giaVe),
           maGhe: g?.maGhe ?? String(t.maGhe),
           maTuyen: cx.maTuyen,
           maChuyen: cx.ma,
@@ -140,6 +143,89 @@ export function TrangVeCuaToi() {
     }
     return dem
   }, [dsVe])
+
+  const veChoThanhToan = useMemo(
+    () =>
+      dsVe.filter(
+        (v) =>
+          v.trangThai === 'PENDING' &&
+          !daHetHanThanhToan(v.thoiGianDat, lucHienTai),
+      ),
+    [dsVe, lucHienTai],
+  )
+
+  const soVeDaChon = veDaChon.size
+  const tongTamTinh = useMemo(() => {
+    let tong = 0
+    for (const ma of veDaChon) {
+      tong += phu[ma]?.giaSo ?? 0
+    }
+    return tong
+  }, [veDaChon, phu])
+
+  function chonVe(ma: number, chon: boolean) {
+    datVeDaChon((prev) => {
+      const next = new Set(prev)
+      if (chon) next.add(ma)
+      else next.delete(ma)
+      return next
+    })
+  }
+
+  function chonTatCaChoThanhToan() {
+    datVeDaChon(new Set(veChoThanhToan.map((v) => v.ma)))
+  }
+
+  function boChonTatCa() {
+    datVeDaChon(new Set())
+  }
+
+  function thanPayload() {
+    return maKhuyenMai.trim() ? { maKhuyenMai: maKhuyenMai.trim() } : {}
+  }
+
+  async function thanhToanGopTienMat() {
+    const ds = [...veDaChon]
+    if (ds.length === 0) return
+    datVeDangXuLy(-1)
+    try {
+      const than = { dsMaVe: ds, ...thanPayload() }
+      const kq = await moKhoiDuLieu(
+        khachHttp.post<PhanHoi<PhanHoiThanhToanGop>>('/thanh-toan/gop/tien-mat', than),
+      )
+      hienThi({
+        loai: 'thanhCong',
+        noiDung: `Đã thanh toán gộp ${kq.dsMaVe.length} vé (${dinhDangVnd(kq.tongTien)})`,
+      })
+      boChonTatCa()
+      void lamMoi()
+    } catch (e: unknown) {
+      hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Thanh toán gộp thất bại' })
+    } finally {
+      datVeDangXuLy(null)
+    }
+  }
+
+  async function thanhToanGopPayOs() {
+    const ds = [...veDaChon]
+    if (ds.length === 0) return
+    datVeDangXuLy(-1)
+    try {
+      const than = { dsMaVe: ds, ...thanPayload() }
+      const link = await moKhoiDuLieu(
+        khachHttp.post<PhanHoi<PhanHoiLinkPayOs>>('/thanh-toan/gop/payos', than),
+      )
+      if (link.checkoutUrl) {
+        window.location.href = link.checkoutUrl
+      } else {
+        hienThi({ loai: 'loi', noiDung: 'Không nhận được link PayOS' })
+        datVeDangXuLy(null)
+      }
+    } catch (e: unknown) {
+      hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Không tạo được link PayOS' })
+      datVeDangXuLy(null)
+    }
+  }
 
   async function thanhToanTienMat(maVe: number) {
     datVeDangXuLy(maVe)
@@ -270,7 +356,47 @@ export function TrangVeCuaToi() {
               </button>
             ))}
           </div>
+
+          {veChoThanhToan.length > 0 ? (
+            <div className="ve-panel__bulk-hint muted small">
+              Chọn nhiều vé chờ thanh toán để thanh toán gộp một lần (tối đa 10 vé).
+              {veChoThanhToan.length > 1 ? (
+                <button type="button" className="ve-panel__bulk-link" onClick={chonTatCaChoThanhToan}>
+                  Chọn tất cả ({veChoThanhToan.length})
+                </button>
+              ) : null}
+            </div>
+          ) : null}
         </div>
+
+        {soVeDaChon > 0 ? (
+          <div className="ve-panel__bulk-bar" role="region" aria-label="Thanh toán gộp">
+            <div className="ve-panel__bulk-info">
+              <strong>{soVeDaChon} vé</strong>
+              <span className="muted"> · Tạm tính {dinhDangVnd(tongTamTinh)}</span>
+              {maKhuyenMai.trim() ? (
+                <span className="muted small"> (KM áp dụng từng vé khi thanh toán)</span>
+              ) : null}
+            </div>
+            <div className="ve-panel__bulk-actions">
+              <NutBam
+                bien="chinh"
+                className="btn--sm"
+                dangTai={veDangXuLy === -1}
+                onClick={() => void thanhToanGopPayOs()}
+                con={`PayOS gộp (${soVeDaChon})`}
+              />
+              <NutBam
+                bien="vien"
+                className="btn--sm"
+                disabled={veDangXuLy === -1}
+                onClick={() => void thanhToanGopTienMat()}
+                con="Tiền mặt gộp"
+              />
+              <NutBam bien="vien" className="btn--sm" onClick={boChonTatCa} con="Bỏ chọn" />
+            </div>
+          </div>
+        ) : null}
 
         <div className="ve-list">
           {tai && dsVe.length === 0
@@ -289,6 +415,7 @@ export function TrangVeCuaToi() {
                   ? conLaiGiayThanhToan(t.thoiGianDat, lucHienTai)
                   : 0
                 const hetHanLocal = choThanhToan && conLaiGiay <= 0
+                const daChon = veDaChon.has(t.ma)
                 const duocDoiVe =
                   (t.trangThai === 'PAID' || t.trangThai === 'PENDING') &&
                   coTheDoiVe(x?.thoiDiemKhoiHanh)
@@ -302,9 +429,19 @@ export function TrangVeCuaToi() {
                 return (
                   <article
                     key={t.ma}
-                    className={`ve-card${choThanhToan ? ' ve-card--pending' : ''}${t.trangThai === 'CANCELLED' ? ' ve-card--cancelled' : ''}${t.trangThai === 'EXPIRED' ? ' ve-card--expired' : ''}`}
+                    className={`ve-card${choThanhToan ? ' ve-card--pending' : ''}${daChon ? ' ve-card--selected' : ''}${t.trangThai === 'CANCELLED' ? ' ve-card--cancelled' : ''}${t.trangThai === 'EXPIRED' ? ' ve-card--expired' : ''}`}
                   >
                     <header className="ve-card__head">
+                      {choThanhToan && !hetHanLocal ? (
+                        <label className="ve-card__check">
+                          <input
+                            type="checkbox"
+                            checked={daChon}
+                            onChange={(e) => chonVe(t.ma, e.target.checked)}
+                            aria-label={`Chọn vé #${t.ma} để thanh toán gộp`}
+                          />
+                        </label>
+                      ) : null}
                       <span className="ve-card__id">
                         Vé #{t.ma}
                         {t.maVeHienThi ? <span className="ve-card__code muted"> · {t.maVeHienThi}</span> : null}

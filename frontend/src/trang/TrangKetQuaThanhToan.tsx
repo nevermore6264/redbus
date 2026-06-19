@@ -102,7 +102,9 @@ export function TrangKetQuaThanhToan() {
             <CheckCircle2 size={48} className="payos-ket-qua__icon payos-ket-qua__icon--ok" aria-hidden />
             <h2>Thanh toán thành công</h2>
             <p className="muted">
-              Vé #{ketQua?.maVe} đã được xác nhận. Email xác nhận đã được gửi (nếu đã cấu hình Gmail).
+              {ketQua?.soVe != null && ketQua.soVe > 1
+                ? `Đã xác nhận ${ketQua.soVeDaThanhToan ?? ketQua.soVe}/${ketQua.soVe} vé (mã đơn ${ketQua.orderCode}). Email xác nhận đã được gửi (nếu đã cấu hình Gmail).`
+                : `Vé #${ketQua?.maVe} đã được xác nhận. Email xác nhận đã được gửi (nếu đã cấu hình Gmail).`}
             </p>
           </>
         ) : thatBai ? (
@@ -110,7 +112,10 @@ export function TrangKetQuaThanhToan() {
             <XCircle size={48} className="payos-ket-qua__icon payos-ket-qua__icon--loi" aria-hidden />
             <h2>Thanh toán chưa hoàn tất</h2>
             <p className="muted">
-              Giao dịch PayOS: {ketQua?.trangThaiPayOs}. Vé #{ketQua?.maVe} vẫn ở trạng thái chờ thanh toán.
+              Giao dịch PayOS: {ketQua?.trangThaiPayOs}.{' '}
+              {ketQua?.soVe != null && ketQua.soVe > 1
+                ? `${ketQua.soVe} vé trong đơn #${ketQua.orderCode} vẫn chờ thanh toán.`
+                : `Vé #${ketQua?.maVe} vẫn ở trạng thái chờ thanh toán.`}{' '}
               Bạn có thể thử lại tại trang Vé của tôi.
             </p>
           </>

@@ -8510,6 +8510,60 @@ code {
   background: rgba(255, 255, 255, 0.25);
 }
 
+.ve-panel__bulk-hint {
+  padding: 0 0 0.25rem;
+  line-height: 1.45;
+}
+
+.ve-panel__bulk-link {
+  margin-left: 0.5rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--primary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.ve-panel__bulk-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin: 0 1.25rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--primary);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary) 8%, var(--surface));
+}
+
+.ve-panel__bulk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ve-card--selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 35%, transparent);
+}
+
+.ve-card__check {
+  display: flex;
+  align-items: center;
+  margin-right: 0.35rem;
+}
+
+.ve-card__check input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
 .ve-list {
   display: flex;
   flex-direction: column;
@@ -8614,7 +8668,8 @@ code {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
   margin-bottom: 0.65rem;
 }
 

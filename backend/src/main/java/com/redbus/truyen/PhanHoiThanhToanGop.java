@@ -8,11 +8,8 @@ import java.util.List;
 
 @Data
 @Builder
-public class PhanHoiLinkPayOs {
+public class PhanHoiThanhToanGop {
 
-    private String checkoutUrl;
-    private Long orderCode;
-    private Long maVe;
     private List<Long> dsMaVe;
-    private BigDecimal soTien;
+    private BigDecimal tongTien;
 }
