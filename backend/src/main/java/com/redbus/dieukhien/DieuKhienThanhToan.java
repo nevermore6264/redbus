@@ -5,7 +5,10 @@ import com.redbus.mohinh.GiaoDichThanhToan;
 import com.redbus.truyen.KetQuaThanhToanPayOs;
 import com.redbus.truyen.PhanHoiChung;
 import com.redbus.truyen.PhanHoiLinkPayOs;
+import com.redbus.truyen.PhanHoiThanhToanGop;
+import com.redbus.truyen.YeuCauThanhToanGop;
 import com.redbus.truyen.YeuCauThanhToanTienMat;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -46,6 +49,22 @@ public class DieuKhienThanhToan {
             @RequestBody(required = false) YeuCauThanhToanTienMat yeuCau) {
         String maKm = yeuCau != null ? yeuCau.getMaKhuyenMai() : null;
         return PhanHoiChung.ok(dichVuThanhToan.taoLinkPayOs(nguoiDung.getUsername(), maVe, maKm));
+    }
+
+    @PostMapping("/gop/tien-mat")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public PhanHoiChung<PhanHoiThanhToanGop> tienMatGop(
+            @AuthenticationPrincipal UserDetails nguoiDung,
+            @Valid @RequestBody YeuCauThanhToanGop yeuCau) {
+        return PhanHoiChung.ok(dichVuThanhToan.tienMatGop(nguoiDung.getUsername(), yeuCau));
+    }
+
+    @PostMapping("/gop/payos")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public PhanHoiChung<PhanHoiLinkPayOs> payosGop(
+            @AuthenticationPrincipal UserDetails nguoiDung,
+            @Valid @RequestBody YeuCauThanhToanGop yeuCau) {
+        return PhanHoiChung.ok(dichVuThanhToan.taoLinkPayOsGop(nguoiDung.getUsername(), yeuCau));
     }
 
     @GetMapping("/payos/ket-qua")

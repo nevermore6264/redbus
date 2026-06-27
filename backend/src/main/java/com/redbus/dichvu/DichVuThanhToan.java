@@ -20,6 +20,8 @@ import com.redbus.mohinh.TuyenDuong;
 import com.redbus.mohinh.VeXe;
 import com.redbus.truyen.KetQuaThanhToanPayOs;
 import com.redbus.truyen.PhanHoiLinkPayOs;
+import com.redbus.truyen.PhanHoiThanhToanGop;
+import com.redbus.truyen.YeuCauThanhToanGop;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +40,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +51,7 @@ import java.util.List;
 public class DichVuThanhToan {
 
     private static final DateTimeFormatter FMT_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final int TOI_DA_VE_GOP = 10;
 
     private final AnhXaThanhToan anhXaThanhToan;
     private final AnhXaVeXe anhXaVeXe;
@@ -76,43 +82,78 @@ public class DichVuThanhToan {
 
     @Transactional
     public GiaoDichThanhToan tienMatTaiQuay(String tenDangNhap, Long maVe, String maKhuyenMai) {
+        PhanHoiThanhToanGop kq = tienMatGop(tenDangNhap, yeuCauGop(List.of(maVe), maKhuyenMai));
+        return anhXaThanhToan.timTheoMa(kq.getDsMaVe().get(0));
+    }
+
+    @Transactional
+    public PhanHoiThanhToanGop tienMatGop(String tenDangNhap, YeuCauThanhToanGop yeuCau) {
         KhachHang kh = layKhach(tenDangNhap);
-        VeXe ve = kiemTraVeChoThanhToan(maVe, kh.getMa());
+        List<VeXe> ds = kiemTraDsVeChoThanhToan(yeuCau.getDsMaVe(), kh.getMa());
         HinhThucThanhToan ht = layHinhThuc("TIEN_MAT");
-        KetQuaGia gia = tinhGia(ve, maKhuyenMai);
-        hoanTatThanhToan(ve, ht, gia, null);
-        guiMailVaThongBao(tenDangNhap, ve.getMa(), "Tiền mặt");
-        return anhXaThanhToan.timTheoMa(maVe);
+        BigDecimal tong = BigDecimal.ZERO;
+        List<Long> maVeDaTt = new ArrayList<>();
+        for (VeXe ve : ds) {
+            KetQuaGia gia = tinhGia(ve, yeuCau.getMaKhuyenMai());
+            hoanTatThanhToan(ve, ht, gia, null);
+            tong = tong.add(gia.gia());
+            maVeDaTt.add(ve.getMa());
+            guiMailVaThongBao(tenDangNhap, ve.getMa(), "Tiền mặt");
+        }
+        if (ds.size() > 1) {
+            TaiKhoan tk = anhXaTaiKhoan.timTheoTenDangNhap(tenDangNhap);
+            if (tk != null) {
+                dichVuThongBao.guiNhanh(
+                        tk.getMa(),
+                        "Thanh toán gộp thành công",
+                        ds.size() + " vé đã thanh toán tiền mặt.");
+            }
+        }
+        return PhanHoiThanhToanGop.builder().dsMaVe(maVeDaTt).tongTien(tong).build();
     }
 
     @Transactional
     public PhanHoiLinkPayOs taoLinkPayOs(String tenDangNhap, Long maVe, String maKhuyenMai) {
+        return taoLinkPayOsGop(tenDangNhap, yeuCauGop(List.of(maVe), maKhuyenMai));
+    }
+
+    @Transactional
+    public PhanHoiLinkPayOs taoLinkPayOsGop(String tenDangNhap, YeuCauThanhToanGop yeuCau) {
         if (payOS == null) {
             throw new IllegalStateException("Chưa cấu hình PayOS (app.payos.client-id)");
         }
         KhachHang kh = layKhach(tenDangNhap);
-        VeXe ve = kiemTraVeChoThanhToan(maVe, kh.getMa());
-        KetQuaGia gia = tinhGia(ve, maKhuyenMai);
-        long orderCode = taoMaDonPayOs(maVe);
-        String moTa = ("Ve " + maVe).length() > 25 ? ("Ve " + maVe).substring(0, 25) : ("Ve " + maVe);
+        List<VeXe> ds = kiemTraDsVeChoThanhToan(yeuCau.getDsMaVe(), kh.getMa());
+        long orderCode = taoMaDonPayOsGop();
+        String maDon = String.valueOf(orderCode);
+        BigDecimal tong = BigDecimal.ZERO;
+        List<Long> maVeList = new ArrayList<>();
 
-        CreatePaymentLinkRequest yeuCau =
+        for (VeXe ve : ds) {
+            KetQuaGia gia = tinhGia(ve, yeuCau.getMaKhuyenMai());
+            tong = tong.add(gia.gia());
+            maVeList.add(ve.getMa());
+            anhXaVeXe.capNhatTamPayOs(ve.getMa(), maDon, gia.maKhuyenMai(), gia.gia());
+        }
+
+        String moTa = moTaDonPayOs(ds.size());
+        CreatePaymentLinkRequest yeuCauPay =
                 CreatePaymentLinkRequest.builder()
                         .orderCode(orderCode)
-                        .amount(gia.gia.longValue())
+                        .amount(tong.longValue())
                         .description(moTa)
                         .returnUrl(returnUrl + "?orderCode=" + orderCode)
                         .cancelUrl(cancelUrl)
                         .build();
 
         try {
-            CreatePaymentLinkResponse phanHoi = payOS.paymentRequests().create(yeuCau);
-            anhXaVeXe.capNhatTamPayOs(maVe, String.valueOf(orderCode), gia.maKhuyenMai(), gia.gia());
+            CreatePaymentLinkResponse phanHoi = payOS.paymentRequests().create(yeuCauPay);
             return PhanHoiLinkPayOs.builder()
                     .checkoutUrl(phanHoi.getCheckoutUrl())
                     .orderCode(orderCode)
-                    .maVe(maVe)
-                    .soTien(gia.gia)
+                    .maVe(maVeList.get(0))
+                    .dsMaVe(maVeList)
+                    .soTien(tong)
                     .build();
         } catch (PayOSException e) {
             log.error("PayOS tạo link thất bại: {}", e.getMessage());
@@ -131,11 +172,17 @@ public class DichVuThanhToan {
                 return;
             }
             String maDon = String.valueOf(data.getOrderCode());
-            VeXe ve = anhXaVeXe.timTheoMaDonPayOs(maDon);
-            if (ve == null) {
+            List<VeXe> ds = anhXaVeXe.danhSachTheoMaDonPayOs(maDon);
+            if (ds.isEmpty()) {
+                VeXe don = anhXaVeXe.timTheoMaDonPayOs(maDon);
+                if (don != null) {
+                    ds = List.of(don);
+                }
+            }
+            if (ds.isEmpty()) {
                 return;
             }
-            hoanTatTuPayOs(maDon, ve, null);
+            hoanTatDonPayOs(maDon, null);
         } catch (PayOSException e) {
             log.error("Webhook PayOS không hợp lệ: {}", e.getMessage());
             throw new IllegalArgumentException("Webhook PayOS không hợp lệ");
@@ -145,25 +192,44 @@ public class DichVuThanhToan {
     @Transactional
     public KetQuaThanhToanPayOs traCuuKetQua(String tenDangNhap, Long orderCode) {
         KhachHang kh = layKhach(tenDangNhap);
-        VeXe ve = anhXaVeXe.timTheoMaDonPayOs(String.valueOf(orderCode));
-        if (ve == null || !ve.getMaKhach().equals(kh.getMa())) {
-            throw new IllegalArgumentException("Không tìm thấy giao dịch");
-        }
+        String maDon = String.valueOf(orderCode);
+        List<VeXe> ds = layVeTheoDonPayOs(maDon, kh.getMa());
         String trangThaiPayOs = null;
-        if (!"PAID".equals(ve.getTrangThai())) {
-            trangThaiPayOs = dongBoTuPayOs(orderCode, ve, tenDangNhap);
-            ve = anhXaVeXe.timTheoMa(ve.getMa());
+        if (ds.stream().anyMatch(v -> !"PAID".equals(v.getTrangThai()))) {
+            trangThaiPayOs = dongBoDonPayOs(orderCode, tenDangNhap);
+            ds = layVeTheoDonPayOs(maDon, kh.getMa());
         }
+        long soDaTt = ds.stream().filter(v -> "PAID".equals(v.getTrangThai())).count();
+        boolean tatCaPaid = soDaTt == ds.size() && !ds.isEmpty();
+        List<Long> maVeList = ds.stream().map(VeXe::getMa).collect(Collectors.toList());
+        VeXe veDau = ds.get(0);
         return KetQuaThanhToanPayOs.builder()
                 .orderCode(orderCode)
-                .maVe(ve.getMa())
-                .trangThaiVe(ve.getTrangThai())
-                .daThanhToan("PAID".equals(ve.getTrangThai()))
+                .maVe(veDau.getMa())
+                .dsMaVe(maVeList)
+                .soVe(ds.size())
+                .soVeDaThanhToan((int) soDaTt)
+                .trangThaiVe(veDau.getTrangThai())
+                .daThanhToan(tatCaPaid)
                 .trangThaiPayOs(trangThaiPayOs)
                 .build();
     }
 
-    private String dongBoTuPayOs(Long orderCode, VeXe ve, String tenDangNhap) {
+    private List<VeXe> layVeTheoDonPayOs(String maDon, Long maKhach) {
+        List<VeXe> ds = anhXaVeXe.danhSachTheoMaDonPayOs(maDon);
+        if (ds.isEmpty()) {
+            VeXe don = anhXaVeXe.timTheoMaDonPayOs(maDon);
+            if (don != null) {
+                ds = List.of(don);
+            }
+        }
+        if (ds.isEmpty() || ds.stream().anyMatch(v -> !v.getMaKhach().equals(maKhach))) {
+            throw new IllegalArgumentException("Không tìm thấy giao dịch");
+        }
+        return ds;
+    }
+
+    private String dongBoDonPayOs(Long orderCode, String tenDangNhap) {
         if (payOS == null) {
             log.debug("Bỏ qua đồng bộ PayOS: chưa cấu hình client");
             return null;
@@ -175,7 +241,7 @@ public class DichVuThanhToan {
             }
             PaymentLinkStatus status = link.getStatus();
             if (status == PaymentLinkStatus.PAID) {
-                hoanTatTuPayOs(String.valueOf(orderCode), ve, tenDangNhap);
+                hoanTatDonPayOs(String.valueOf(orderCode), tenDangNhap);
             }
             return status.getValue();
         } catch (PayOSException e) {
@@ -183,23 +249,42 @@ public class DichVuThanhToan {
             return null;
         }
     }
-
-    private void hoanTatTuPayOs(String maDon, VeXe ve, String tenDangNhap) {
-        if (ve == null || "PAID".equals(ve.getTrangThai())) {
-            return;
+    private void hoanTatDonPayOs(String maDon, String tenDangNhap) {
+        List<VeXe> ds = anhXaVeXe.danhSachTheoMaDonPayOs(maDon);
+        if (ds.isEmpty()) {
+            VeXe don = anhXaVeXe.timTheoMaDonPayOs(maDon);
+            if (don != null) {
+                ds = List.of(don);
+            }
         }
         HinhThucThanhToan ht = layHinhThuc("CHUYEN_KHOAN");
-        KetQuaGia gia = giaTuVeTam(ve);
-        hoanTatThanhToan(ve, ht, gia, maDon);
-        if (tenDangNhap != null) {
-            guiMailVaThongBao(tenDangNhap, ve.getMa(), "PayOS / Chuyển khoản");
-            return;
+        int dem = 0;
+        for (VeXe ve : ds) {
+            if ("PAID".equals(ve.getTrangThai())) {
+                continue;
+            }
+            KetQuaGia gia = giaTuVeTam(ve);
+            hoanTatThanhToan(ve, ht, gia, maDon);
+            dem++;
+            if (tenDangNhap != null) {
+                guiMailVaThongBao(tenDangNhap, ve.getMa(), "PayOS / Chuyển khoản");
+                continue;
+            }
+            KhachHang kh = anhXaKhachHang.timTheoMa(ve.getMaKhach());
+            if (kh != null) {
+                TaiKhoan tk = anhXaTaiKhoan.timTheoMa(kh.getMaTaiKhoan());
+                if (tk != null) {
+                    guiMailVaThongBao(tk.getTenDangNhap(), ve.getMa(), "PayOS / Chuyển khoản");
+                }
+            }
         }
-        KhachHang kh = anhXaKhachHang.timTheoMa(ve.getMaKhach());
-        if (kh != null) {
-            TaiKhoan tk = anhXaTaiKhoan.timTheoMa(kh.getMaTaiKhoan());
+        if (dem > 1 && tenDangNhap != null) {
+            TaiKhoan tk = anhXaTaiKhoan.timTheoTenDangNhap(tenDangNhap);
             if (tk != null) {
-                guiMailVaThongBao(tk.getTenDangNhap(), ve.getMa(), "PayOS / Chuyển khoản");
+                dichVuThongBao.guiNhanh(
+                        tk.getMa(),
+                        "Thanh toán gộp thành công",
+                        dem + " vé đã thanh toán qua PayOS.");
             }
         }
     }
@@ -255,19 +340,6 @@ public class DichVuThanhToan {
         return kh;
     }
 
-    private VeXe kiemTraVeChoThanhToan(Long maVe, Long maKhach) {
-        dichVuHetHanVe.xuLyHetHanChoKhach(maKhach);
-        VeXe ve = anhXaVeXe.timTheoMa(maVe);
-        if (ve == null || !ve.getMaKhach().equals(maKhach)) {
-            throw new IllegalArgumentException("Vé không hợp lệ");
-        }
-        if ("PAID".equals(ve.getTrangThai())) {
-            throw new IllegalStateException("Đã thanh toán");
-        }
-        dichVuHetHanVe.damBaoChuaHetHan(ve);
-        return anhXaVeXe.timTheoMa(maVe);
-    }
-
     private HinhThucThanhToan layHinhThuc(String maLoai) {
         HinhThucThanhToan ht = anhXaHinhThucThanhToan.timTheoMaLoai(maLoai);
         if (ht == null) {
@@ -315,8 +387,44 @@ public class DichVuThanhToan {
         return tinhGia(ve, null);
     }
 
-    private long taoMaDonPayOs(Long maVe) {
-        return maVe * 1_000_000L + (System.currentTimeMillis() % 1_000_000L);
+    private List<VeXe> kiemTraDsVeChoThanhToan(List<Long> dsMaVe, Long maKhach) {
+        if (dsMaVe == null || dsMaVe.isEmpty()) {
+            throw new IllegalArgumentException("Chọn ít nhất một vé");
+        }
+        LinkedHashSet<Long> unique = new LinkedHashSet<>(dsMaVe);
+        if (unique.size() > TOI_DA_VE_GOP) {
+            throw new IllegalArgumentException("Tối đa " + TOI_DA_VE_GOP + " vé mỗi lần thanh toán gộp");
+        }
+        dichVuHetHanVe.xuLyHetHanChoKhach(maKhach);
+        List<VeXe> ketQua = new ArrayList<>();
+        for (Long maVe : unique) {
+            VeXe ve = anhXaVeXe.timTheoMa(maVe);
+            if (ve == null || !ve.getMaKhach().equals(maKhach)) {
+                throw new IllegalArgumentException("Vé #" + maVe + " không hợp lệ");
+            }
+            if ("PAID".equals(ve.getTrangThai())) {
+                throw new IllegalStateException("Vé #" + maVe + " đã thanh toán");
+            }
+            dichVuHetHanVe.damBaoChuaHetHan(ve);
+            ketQua.add(anhXaVeXe.timTheoMa(maVe));
+        }
+        return ketQua;
+    }
+
+    private static YeuCauThanhToanGop yeuCauGop(List<Long> dsMaVe, String maKhuyenMai) {
+        YeuCauThanhToanGop yc = new YeuCauThanhToanGop();
+        yc.setDsMaVe(dsMaVe);
+        yc.setMaKhuyenMai(maKhuyenMai);
+        return yc;
+    }
+
+    private static String moTaDonPayOs(int soVe) {
+        String moTa = soVe > 1 ? "Gop " + soVe + " ve RedBus" : "Ve RedBus";
+        return moTa.length() > 25 ? moTa.substring(0, 25) : moTa;
+    }
+
+    private long taoMaDonPayOsGop() {
+        return System.currentTimeMillis() % 900_000_000_000L + 1_000_000L;
     }
 
     private record KetQuaGia(BigDecimal gia, Long maKhuyenMai) {}
