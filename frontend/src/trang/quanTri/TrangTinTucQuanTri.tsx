@@ -11,13 +11,7 @@ import { TruongTaiAnhTin } from '../../thanhPhan/TruongTaiAnhTin'
 import { CuaSo } from '../../thanhPhan/cuaSo'
 import { CuaSoXacNhanXoa } from '../../thanhPhan/cuaSoXacNhanXoa'
 import { chuanHoaChuoi } from '../../tienIch/kiemTraQuanTri'
-
-function raLocal(iso: string | undefined): string {
-  if (!iso) return ''
-  const d = new Date(iso)
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
-}
+import { apiSangDatetimeLocal, datetimeLocalSangApi, gioHienTaiDatetimeLocal } from '../../tienIch/dinhDang'
 
 export function TrangTinTucQuanTri() {
   const { nguoiDung } = dungNguoiDung()
@@ -59,7 +53,7 @@ export function TrangTinTucQuanTri() {
       tomTat: '',
       noiDung: '',
       duongAnh: '',
-      ngayXuatBan: raLocal(new Date().toISOString()),
+      ngayXuatBan: gioHienTaiDatetimeLocal(),
       hoatDong: true,
     })
     datMo(true)
@@ -73,7 +67,7 @@ export function TrangTinTucQuanTri() {
       tomTat: t.tomTat ?? '',
       noiDung: t.noiDung,
       duongAnh: t.duongAnh ?? '',
-      ngayXuatBan: raLocal(t.ngayXuatBan),
+      ngayXuatBan: apiSangDatetimeLocal(t.ngayXuatBan),
       hoatDong: t.hoatDong !== false,
     })
     datMo(true)
@@ -94,7 +88,7 @@ export function TrangTinTucQuanTri() {
         tomTat: bieu.tomTat.trim(),
         noiDung,
         duongAnh: bieu.duongAnh.trim(),
-        ngayXuatBan: bieu.ngayXuatBan ? new Date(bieu.ngayXuatBan).toISOString() : undefined,
+        ngayXuatBan: bieu.ngayXuatBan ? datetimeLocalSangApi(bieu.ngayXuatBan) : undefined,
         hoatDong: bieu.hoatDong,
       }
       if (sua) {

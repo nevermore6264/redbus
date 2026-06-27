@@ -40,17 +40,12 @@ import { TruongChon, TruongNhap } from '../thanhPhan/truongNhap'
 import { NhanHieu } from '../thanhPhan/nhanHieu'
 import { LoTrinhTuyen } from '../thanhPhan/LoTrinhTuyen'
 import { BanDoLoTrinh } from '../thanhPhan/BanDoLoTrinh'
-import { dinhDangNgayGio, dinhDangVnd } from '../tienIch/dinhDang'
+import { dinhDangNgayGio, dinhDangVnd, datetimeLocalSangApi, gioHienTaiDatetimeLocal } from '../tienIch/dinhDang'
 import { chuoiLoTrinh, taiDiemDungTheoTuyen } from '../tienIch/loTrinhTuyen'
 import { trangThaiSangTiengViet } from '../tienIch/trangThai'
 
-function sangLocalDatetime(d: Date) {
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
-}
-
 function minDatetimeLocal() {
-  return sangLocalDatetime(new Date())
+  return gioHienTaiDatetimeLocal()
 }
 
 export function TrangDatVe() {
@@ -61,7 +56,7 @@ export function TrangDatVe() {
   const { hienThi } = dungThongBao()
   const [dsTuyen, datTuyen] = useState<TuyenDuong[]>([])
   const [maTuyen, datMaTuyen] = useState<number | ''>('')
-  const [tuNgay, datTuNgay] = useState(() => new Date().toISOString().slice(0, 16))
+  const [tuNgay, datTuNgay] = useState(() => gioHienTaiDatetimeLocal())
   const [dsChuyen, datChuyen] = useState<ChuyenXe[]>([])
   const [dsChuyenLoc, datDsChuyenLoc] = useState<ChuyenXeLoc[]>([])
   const [giaMin, datGiaMin] = useState('')
@@ -209,7 +204,7 @@ export function TrangDatVe() {
     datDsMaGheChon(new Set())
     try {
       const q: Record<string, string> = { maTuyen: String(maTuyen) }
-      if (tuNgay) q.tuLuc = new Date(tuNgay).toISOString()
+      if (tuNgay) q.tuLuc = datetimeLocalSangApi(tuNgay)
       if (giaMin) q.giaMin = giaMin
       if (giaMax) q.giaMax = giaMax
       if (maLoaiXeLoc !== '') q.maLoaiXe = String(maLoaiXeLoc)

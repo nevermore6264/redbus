@@ -45,7 +45,7 @@ import {
   anhChoTuyen,
   anhTinFallback,
 } from "../tienIch/anhTrang";
-import { dinhDangNgayGio } from "../tienIch/dinhDang";
+import { dinhDangNgayGio, datetimeLocalSangApi } from "../tienIch/dinhDang";
 import { useKhoiHienKhiCuon } from "../tienIch/useKhoiHienKhiCuon";
 import { useDemSoKhiHien } from "../tienIch/useDemSoKhiHien";
 import { chuoiLoTrinh, taiDiemDungTheoTuyen } from "../tienIch/loTrinhTuyen";
@@ -164,7 +164,8 @@ function chuyenDanhGiaApi(ds: DanhGiaCongKhai[]): DanhGiaHienThi[] {
 function macDinhTuLuc() {
   const d = new Date();
   d.setHours(d.getHours() + 2, 0, 0, 0);
-  return d.toISOString().slice(0, 16);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 
 export function TrangChu() {
@@ -227,7 +228,7 @@ export function TrangChu() {
     const ma = maTuyenGoiY ?? maTuyenTim;
     if (ma === "") return;
     const q = new URLSearchParams({ tuyen: String(ma) });
-    if (tuLucTim) q.set("tuLuc", new Date(tuLucTim).toISOString());
+    if (tuLucTim) q.set("tuLuc", datetimeLocalSangApi(tuLucTim));
     navigate(`/dat-ve?${q.toString()}`);
   }
 

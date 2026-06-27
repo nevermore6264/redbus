@@ -9,14 +9,7 @@ import { NutBam, NutSuaQt, NutXoaQt } from '../../thanhPhan/nutBam'
 import { TruongNhap, TruongChon } from '../../thanhPhan/truongNhap'
 import { CuaSo } from '../../thanhPhan/cuaSo'
 import { CuaSoXacNhanXoa } from '../../thanhPhan/cuaSoXacNhanXoa'
-import { dinhDangNgayGio, dinhDangVnd } from '../../tienIch/dinhDang'
-
-function chuyenDatetimeLocal(iso: string | undefined): string {
-  if (!iso) return ''
-  const d = new Date(iso)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
-}
+import { dinhDangNgayGio, dinhDangVnd, apiSangDatetimeLocal, datetimeLocalSangApi, gioHienTaiDatetimeLocal, ngayHienTai } from '../../tienIch/dinhDang'
 
 function BadgeTrangThai({ trangThai }: { trangThai: string }) {
   if (trangThai === 'CANCELLED') {
@@ -40,8 +33,8 @@ export function TrangChuyenXe() {
   const [loiBieu, datLoiBieu] = useState<
     Partial<Record<'maTuyen' | 'maXe' | 'thoiDiemKhoiHanh' | 'thoiDiemDen' | 'giaVe' | 'chung', string>>
   >({})
-  const [tuNgayGen, datTuNgayGen] = useState(() => new Date().toISOString().slice(0, 10))
-  const minNgayGen = new Date().toISOString().slice(0, 10)
+  const [tuNgayGen, datTuNgayGen] = useState(() => ngayHienTai())
+  const minNgayGen = ngayHienTai()
   const [soNgayGen, datSoNgayGen] = useState(7)
   const [maTuyenGen, datMaTuyenGen] = useState<number | ''>('')
   const [dangGen, datDangGen] = useState(false)
@@ -134,12 +127,10 @@ export function TrangChuyenXe() {
   function moThe() {
     datSua(null)
     datLoiBieu({})
-    const macDinh = new Date()
-    macDinh.setMinutes(0, 0, 0)
     datBieu({
       maTuyen: dsTuyen[0]?.ma ?? '',
       maXe: dsXe[0]?.ma ?? '',
-      thoiDiemKhoiHanh: chuyenDatetimeLocal(macDinh.toISOString()),
+      thoiDiemKhoiHanh: gioHienTaiDatetimeLocal(),
       thoiDiemDen: '',
       giaVe: 150000,
       trangThai: 'SCHEDULED',
@@ -153,8 +144,8 @@ export function TrangChuyenXe() {
     datBieu({
       maTuyen: c.maTuyen,
       maXe: c.maXe,
-      thoiDiemKhoiHanh: chuyenDatetimeLocal(c.thoiDiemKhoiHanh),
-      thoiDiemDen: c.thoiDiemDen ? chuyenDatetimeLocal(c.thoiDiemDen) : '',
+      thoiDiemKhoiHanh: apiSangDatetimeLocal(c.thoiDiemKhoiHanh),
+      thoiDiemDen: c.thoiDiemDen ? apiSangDatetimeLocal(c.thoiDiemDen) : '',
       giaVe: Number(c.giaVe),
       trangThai: c.trangThai || 'SCHEDULED',
     })
@@ -190,8 +181,8 @@ export function TrangChuyenXe() {
     const than = {
       maTuyen: Number(bieu.maTuyen),
       maXe: Number(bieu.maXe),
-      thoiDiemKhoiHanh: new Date(bieu.thoiDiemKhoiHanh).toISOString(),
-      thoiDiemDen: bieu.thoiDiemDen ? new Date(bieu.thoiDiemDen).toISOString() : undefined,
+      thoiDiemKhoiHanh: datetimeLocalSangApi(bieu.thoiDiemKhoiHanh),
+      thoiDiemDen: bieu.thoiDiemDen ? datetimeLocalSangApi(bieu.thoiDiemDen) : undefined,
       giaVe: bieu.giaVe,
       trangThai: bieu.trangThai,
     }

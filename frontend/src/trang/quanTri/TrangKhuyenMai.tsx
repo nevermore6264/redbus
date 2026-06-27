@@ -9,11 +9,12 @@ import { TruongNhap } from '../../thanhPhan/truongNhap'
 import { CuaSo } from '../../thanhPhan/cuaSo'
 import { CuaSoXacNhanXoa } from '../../thanhPhan/cuaSoXacNhanXoa'
 import { chuanHoaMaCode } from '../../tienIch/kiemTraQuanTri'
+import { apiSangDatetimeLocal, datetimeLocalSangApi, gioHienTaiDatetimeLocal } from '../../tienIch/dinhDang'
 
-function raLocal(iso: string | undefined): string {
-  if (!iso) return ''
-  const d = new Date(iso)
-  const p = (n: number) => String(n).padStart(2, '0')
+function conThemThang(n: number): string {
+  const d = new Date()
+  d.setMonth(d.getMonth() + n)
+  const p = (x: number) => String(x).padStart(2, '0')
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
 }
 
@@ -93,16 +94,13 @@ export function TrangKhuyenMai() {
   function moThe() {
     datSua(null)
     datLoiBieu({})
-    const a = new Date()
-    const b = new Date()
-    b.setMonth(b.getMonth() + 6)
     datBieu({
       maCode: '',
       tieuDe: '',
       phanTramGiam: 10,
       soTienGiamToiDa: 50000,
-      ngayBatDau: raLocal(a.toISOString()),
-      ngayKetThuc: raLocal(b.toISOString()),
+      ngayBatDau: gioHienTaiDatetimeLocal(),
+      ngayKetThuc: conThemThang(6),
       soLanToiDa: 1000,
       hoatDong: true,
     })
@@ -117,8 +115,8 @@ export function TrangKhuyenMai() {
       tieuDe: k.tieuDe ?? '',
       phanTramGiam: Number(k.phanTramGiam),
       soTienGiamToiDa: k.soTienGiamToiDa != null ? Number(k.soTienGiamToiDa) : 0,
-      ngayBatDau: raLocal(k.ngayBatDau),
-      ngayKetThuc: raLocal(k.ngayKetThuc),
+      ngayBatDau: apiSangDatetimeLocal(k.ngayBatDau),
+      ngayKetThuc: apiSangDatetimeLocal(k.ngayKetThuc),
       soLanToiDa: k.soLanToiDa ?? '',
       hoatDong: k.hoatDong !== false,
     })
@@ -135,8 +133,8 @@ export function TrangKhuyenMai() {
       tieuDe: bieu.tieuDe.trim(),
       phanTramGiam: bieu.phanTramGiam,
       soTienGiamToiDa: bieu.soTienGiamToiDa,
-      ngayBatDau: new Date(bieu.ngayBatDau).toISOString(),
-      ngayKetThuc: new Date(bieu.ngayKetThuc).toISOString(),
+      ngayBatDau: datetimeLocalSangApi(bieu.ngayBatDau),
+      ngayKetThuc: datetimeLocalSangApi(bieu.ngayKetThuc),
       soLanToiDa: bieu.soLanToiDa === '' ? undefined : bieu.soLanToiDa,
       soLanDaDung: sua?.soLanDaDung ?? 0,
       hoatDong: bieu.hoatDong,

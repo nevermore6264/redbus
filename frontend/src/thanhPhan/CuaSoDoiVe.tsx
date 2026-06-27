@@ -7,7 +7,7 @@ import { CuaSo } from './cuaSo'
 import { NutBam } from './nutBam'
 import { TruongNhap } from './truongNhap'
 import { SoDoGheXe } from './SoDoGheXe'
-import { dinhDangNgayGio, dinhDangVnd } from '../tienIch/dinhDang'
+import { dinhDangNgayGio, dinhDangVnd, datetimeLocalSangApi } from '../tienIch/dinhDang'
 
 export type ThongTinVeDoi = {
   diemDi: string
@@ -182,7 +182,7 @@ export function CuaSoDoiVe({ open, ve, phu, cheDo = 'chuyen', onClose, onThanhCo
         khachHttp.get<PhanHoi<ChuyenXeLoc[]>>('/chuyen-xe/tim-kiem', {
           params: {
             maTuyen: String(phu.maTuyen),
-            tuLuc: new Date(tuNgay).toISOString(),
+            tuLuc: datetimeLocalSangApi(tuNgay),
           },
         }),
       )
