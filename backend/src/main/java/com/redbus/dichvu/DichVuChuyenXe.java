@@ -141,10 +141,23 @@ public class DichVuChuyenXe {
         if (cx.getMa() == null) {
             throw new IllegalArgumentException("Thiếu mã chuyến");
         }
-        layTheoMa(cx.getMa());
+        ChuyenXe cu = layTheoMa(cx.getMa());
         chuanHoaVaKiemTra(cx, cx.getMa());
+        kiemTraHuyChuyenCoVeDat(cu, cx);
         anhXaChuyenXe.capNhat(cx);
         return anhXaChuyenXe.timTheoMa(cx.getMa());
+    }
+
+    private void kiemTraHuyChuyenCoVeDat(ChuyenXe cu, ChuyenXe moi) {
+        if (!"CANCELLED".equalsIgnoreCase(moi.getTrangThai())) {
+            return;
+        }
+        if ("CANCELLED".equalsIgnoreCase(cu.getTrangThai())) {
+            return;
+        }
+        if (!anhXaChuyenXe.danhSachMaGheDaGiu(cu.getMa()).isEmpty()) {
+            throw new IllegalStateException("Chuyến đã có vé đặt, không thể hủy");
+        }
     }
 
     private void chuanHoaVaKiemTra(ChuyenXe cx, Long maLoaiTru) {

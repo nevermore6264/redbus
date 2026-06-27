@@ -145,4 +145,44 @@ class DichVuChuyenXeTest {
         dichVu.xoa(1L);
         verify(anhXaChuyenXe).xoa(1L);
     }
+
+    @Test
+    @DisplayName("capNhat từ chối hủy chuyến đã có vé đặt")
+    void capNhat_huyChuyenCoVeDat_nemLoi() {
+        LocalDateTime kh = LocalDateTime.now().plusDays(1);
+        ChuyenXe cu = ChuyenXe.builder()
+                .ma(1L).maTuyen(1L).maXe(1L)
+                .thoiDiemKhoiHanh(kh).giaVe(BigDecimal.valueOf(100_000))
+                .trangThai("SCHEDULED")
+                .build();
+        ChuyenXe moi = ChuyenXe.builder()
+                .ma(1L).maTuyen(1L).maXe(1L)
+                .thoiDiemKhoiHanh(kh).giaVe(BigDecimal.valueOf(100_000))
+                .trangThai("CANCELLED")
+                .build();
+        when(anhXaChuyenXe.timTheoMa(1L)).thenReturn(cu);
+        when(anhXaChuyenXe.danhSachMaGheDaGiu(1L)).thenReturn(List.of(10L));
+        assertThrows(IllegalStateException.class, () -> dichVu.capNhat(moi));
+        verify(anhXaChuyenXe, never()).capNhat(any());
+    }
+
+    @Test
+    @DisplayName("capNhat cho phép hủy chuyến chưa có vé đặt")
+    void capNhat_huyChuyenKhongCoVeDat_thanhCong() {
+        LocalDateTime kh = LocalDateTime.now().plusDays(1);
+        ChuyenXe cu = ChuyenXe.builder()
+                .ma(1L).maTuyen(1L).maXe(1L)
+                .thoiDiemKhoiHanh(kh).giaVe(BigDecimal.valueOf(100_000))
+                .trangThai("SCHEDULED")
+                .build();
+        ChuyenXe moi = ChuyenXe.builder()
+                .ma(1L).maTuyen(1L).maXe(1L)
+                .thoiDiemKhoiHanh(kh).giaVe(BigDecimal.valueOf(100_000))
+                .trangThai("CANCELLED")
+                .build();
+        when(anhXaChuyenXe.timTheoMa(1L)).thenReturn(cu).thenReturn(moi);
+        when(anhXaChuyenXe.danhSachMaGheDaGiu(1L)).thenReturn(List.of());
+        dichVu.capNhat(moi);
+        verify(anhXaChuyenXe).capNhat(moi);
+    }
 }

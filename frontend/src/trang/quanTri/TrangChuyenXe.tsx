@@ -178,6 +178,14 @@ export function TrangChuyenXe() {
     ) {
       loi.chung = 'Chuyến trùng tuyến, xe và giờ khởi hành đã tồn tại'
     }
+    if (
+      sua &&
+      bieu.trangThai === 'CANCELLED' &&
+      sua.trangThai !== 'CANCELLED' &&
+      (soVeDat[sua.ma] ?? 0) > 0
+    ) {
+      loi.chung = 'Chuyến đã có vé đặt, không thể hủy'
+    }
     datLoiBieu(loi)
     if (Object.keys(loi).length > 0) return
 
@@ -531,8 +539,18 @@ export function TrangChuyenXe() {
               onChange={(e) => datBieu({ ...bieu, trangThai: e.target.value })}
             >
               <option value="SCHEDULED">Đã lên lịch</option>
-              <option value="CANCELLED">Đã hủy</option>
+              <option
+                value="CANCELLED"
+                disabled={sua != null && (soVeDat[sua.ma] ?? 0) > 0}
+              >
+                Đã hủy
+              </option>
             </TruongChon>
+            {sua != null && (soVeDat[sua.ma] ?? 0) > 0 ? (
+              <p className="form-alert">
+                Chuyến đã có {soVeDat[sua.ma]} vé đặt — không thể chuyển sang Đã hủy.
+              </p>
+            ) : null}
           </div>
         </div>
       </CuaSo>
