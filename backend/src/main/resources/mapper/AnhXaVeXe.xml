@@ -81,6 +81,10 @@
         SELECT * FROM ve_xe WHERE ma_don_payos = #{maDonPayOs} LIMIT 1
     </select>
 
+    <select id="danhSachTheoMaDonPayOs" resultMap="banDo">
+        SELECT * FROM ve_xe WHERE ma_don_payos = #{maDonPayOs} ORDER BY ma
+    </select>
+
     <update id="huyPendingQuaHanTheoKhach">
         UPDATE ve_xe
         SET trang_thai = 'EXPIRED'

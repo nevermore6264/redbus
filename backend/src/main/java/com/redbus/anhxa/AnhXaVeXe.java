@@ -31,6 +31,8 @@ public interface AnhXaVeXe {
 
     VeXe timTheoMaDonPayOs(@Param("maDonPayOs") String maDonPayOs);
 
+    List<VeXe> danhSachTheoMaDonPayOs(@Param("maDonPayOs") String maDonPayOs);
+
     int demTheoTrangThai(@Param("trangThai") String trangThai);
 
     int huyPendingQuaHanTheoKhach(@Param("maKhach") Long maKhach, @Param("phut") int phut);
