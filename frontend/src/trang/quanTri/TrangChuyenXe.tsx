@@ -23,6 +23,7 @@ export function TrangChuyenXe() {
   const { hienThi } = dungThongBao()
   const laAdmin = nguoiDung?.vaiTro === 'ADMIN'
   const [ds, datDs] = useState<ChuyenXe[]>([])
+  const [soVeDat, datSoVeDat] = useState<Record<number, number>>({})
   const [dsTuyen, datTuyen] = useState<TuyenDuong[]>([])
   const [dsXe, datXe] = useState<XeKhach[]>([])
   const [tai, datTai] = useState(true)
@@ -64,14 +65,16 @@ export function TrangChuyenXe() {
   async function taiDS() {
     datTai(true)
     try {
-      const [cx, tuyen, xe] = await Promise.all([
+      const [cx, tuyen, xe, veDat] = await Promise.all([
         moKhoiDuLieu(khachHttp.get<PhanHoi<ChuyenXe[]>>('/chuyen-xe/toan-bo')),
         moKhoiDuLieu(khachHttp.get<PhanHoi<TuyenDuong[]>>('/tuyen-duong')),
         moKhoiDuLieu(khachHttp.get<PhanHoi<XeKhach[]>>('/xe-khach')),
+        moKhoiDuLieu(khachHttp.get<PhanHoi<Record<number, number>>>('/chuyen-xe/so-ve-dat')),
       ])
       datDs(cx)
       datTuyen(tuyen)
       datXe(xe)
+      datSoVeDat(veDat ?? {})
     } catch (e: unknown) {
       hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Lỗi tải dữ liệu' })
     } finally {
@@ -432,7 +435,17 @@ export function TrangChuyenXe() {
                   </td>
                   <td className="row-actions">
                     <NutSuaQt onClick={() => moSua(r)} />
-                    {laAdmin ? <NutXoaQt onClick={() => datXoaChon(r)} /> : null}
+                    {laAdmin ? (
+                      <NutXoaQt
+                        disabled={(soVeDat[r.ma] ?? 0) > 0}
+                        title={
+                          (soVeDat[r.ma] ?? 0) > 0
+                            ? `Chuyến đã có ${soVeDat[r.ma]} vé đặt, không thể xóa`
+                            : 'Xóa chuyến'
+                        }
+                        onClick={() => datXoaChon(r)}
+                      />
+                    ) : null}
                   </td>
                 </tr>
               ))}

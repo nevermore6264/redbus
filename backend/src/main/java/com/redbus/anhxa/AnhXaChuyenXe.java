@@ -1,6 +1,7 @@
 package com.redbus.anhxa;
 
 import com.redbus.mohinh.ChuyenXe;
+import com.redbus.truyen.ThongKeVeChuyen;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -30,6 +31,8 @@ public interface AnhXaChuyenXe {
     int xoa(@Param("ma") Long ma);
 
     List<Long> danhSachMaGheDaGiu(@Param("maChuyen") Long maChuyen);
+
+    List<ThongKeVeChuyen> thongKeSoVeDat();
 
     int demTheoTrangThai(@Param("trangThai") String trangThai);
 

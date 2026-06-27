@@ -23,7 +23,9 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -169,7 +171,21 @@ public class DichVuChuyenXe {
     }
 
     public void xoa(Long ma) {
+        layTheoMa(ma);
+        if (!anhXaChuyenXe.danhSachMaGheDaGiu(ma).isEmpty()) {
+            throw new IllegalStateException("Chuyến đã có vé đặt, không thể xóa");
+        }
         anhXaChuyenXe.xoa(ma);
+    }
+
+    public Map<Long, Integer> banDoSoVeDat() {
+        Map<Long, Integer> ketQua = new HashMap<>();
+        for (var row : anhXaChuyenXe.thongKeSoVeDat()) {
+            if (row.getMaChuyen() != null && row.getSoVe() != null) {
+                ketQua.put(row.getMaChuyen(), row.getSoVe());
+            }
+        }
+        return ketQua;
     }
 
     @Transactional

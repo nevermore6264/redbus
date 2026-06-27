@@ -33,6 +33,13 @@
           AND UPPER(trang_thai) NOT IN ('CANCELLED', 'EXPIRED')
     </select>
 
+    <select id="thongKeSoVeDat" resultType="com.redbus.truyen.ThongKeVeChuyen">
+        SELECT ma_chuyen AS maChuyen, COUNT(*) AS soVe
+        FROM ve_xe
+        WHERE UPPER(trang_thai) NOT IN ('CANCELLED', 'EXPIRED')
+        GROUP BY ma_chuyen
+    </select>
+
     <select id="demTheoTrangThai" resultType="int">
         SELECT COUNT(*) FROM chuyen_xe WHERE UPPER(trang_thai) = UPPER(#{trangThai})
     </select>

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/chuyen-xe")
@@ -48,6 +49,12 @@ public class DieuKhienChuyenXe {
     @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     public PhanHoiChung<List<ChuyenXe>> tatCa() {
         return PhanHoiChung.ok(dichVuChuyenXe.tatCa());
+    }
+
+    @GetMapping("/so-ve-dat")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    public PhanHoiChung<Map<Long, Integer>> soVeDat() {
+        return PhanHoiChung.ok(dichVuChuyenXe.banDoSoVeDat());
     }
 
     @GetMapping("/{ma:\\d+}")

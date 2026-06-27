@@ -125,4 +125,24 @@ class DichVuChuyenXeTest {
         y.setSoNgay(1);
         assertThrows(IllegalArgumentException.class, () -> dichVu.genLich(y));
     }
+
+    @Test
+    @DisplayName("xoa từ chối khi chuyến đã có vé đặt")
+    void xoa_coVeDat_nemLoi() {
+        ChuyenXe cx = ChuyenXe.builder().ma(1L).maTuyen(1L).maXe(1L).build();
+        when(anhXaChuyenXe.timTheoMa(1L)).thenReturn(cx);
+        when(anhXaChuyenXe.danhSachMaGheDaGiu(1L)).thenReturn(List.of(10L));
+        assertThrows(IllegalStateException.class, () -> dichVu.xoa(1L));
+        verify(anhXaChuyenXe, never()).xoa(anyLong());
+    }
+
+    @Test
+    @DisplayName("xoa thành công khi chuyến chưa có vé đặt")
+    void xoa_khongCoVeDat_thanhCong() {
+        ChuyenXe cx = ChuyenXe.builder().ma(1L).maTuyen(1L).maXe(1L).build();
+        when(anhXaChuyenXe.timTheoMa(1L)).thenReturn(cx);
+        when(anhXaChuyenXe.danhSachMaGheDaGiu(1L)).thenReturn(List.of());
+        dichVu.xoa(1L);
+        verify(anhXaChuyenXe).xoa(1L);
+    }
 }
