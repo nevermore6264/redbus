@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="RedBus" pages="7">
+  <diagram id="rb_uc02" name="UC02. Dang ky">
+    <mxGraphModel dx="1200" dy="800" grid="1" page="1" pageWidth="980" pageHeight="640" pageScale="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="uc02_t" parent="1" value="ROBUSTNESS: UC02 – ĐĂNG KÝ TÀI KHOẢN" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=11;" vertex="1">
+          <mxGeometry as="geometry" x="80" y="8" width="820" height="24" />
+        </mxCell>
+        <mxCell id="uc02_kh" parent="1" value="Khách vãng lai" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="35" y="260" width="34" height="68" />
+        </mxCell>
+        <mxCell id="uc02_b_dk_ico" parent="1" style="shape=umlBoundary;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="188" y="110" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc02_b_dk_lbl" parent="1" value="CuaSoXacThuc" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="146" y="158" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc02_c_dk_ico" parent="1" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="408" y="110" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc02_c_dk_lbl" parent="1" value="DieuKhienXacThuc" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="366" y="158" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc02_c_xl_ico" parent="1" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="408" y="240" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc02_c_xl_lbl" parent="1" value="DichVuXacThuc" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="366" y="288" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc02_e_tk_ico" parent="1" style="ellipse;shape=umlEntity;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="718" y="110" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc02_e_tk_lbl" parent="1" value="TaiKhoan" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="676" y="158" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc02_e_kh_ico" parent="1" style="ellipse;shape=umlEntity;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="718" y="250" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc02_e_kh_lbl" parent="1" value="KhachHang" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="676" y="298" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc02_b_kq_ico" parent="1" style="shape=umlBoundary;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="238" y="430" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc02_b_kq_lbl" parent="1" value="KhungChinh" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="196" y="478" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc02_e0" parent="1" value="+1 Mở modal /dang-ky" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc02_kh" target="uc02_b_dk_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc02_e1" parent="1" value="+2 POST /xac-thuc/dang-ky" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc02_b_dk_ico" target="uc02_c_dk_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc02_e2" parent="1" value="+3 dangKy(yeuCau)" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc02_c_dk_ico" target="uc02_c_xl_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc02_e3" parent="1" value="+4 Kiểm tra trùng + INSERT" style="endArrow=none;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc02_c_xl_ico" target="uc02_e_tk_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc02_e4" parent="1" value="+5 them KhachHang" style="endArrow=none;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc02_c_xl_ico" target="uc02_e_kh_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc02_e5" parent="1" value="+6 PhanHoiDangNhap + JWT" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc02_c_xl_ico" target="uc02_b_kq_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc02_e6" parent="1" value="+7 Lưu token, đóng modal" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc02_b_kq_ico" target="uc02_kh">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc02_cap" parent="1" value="Hình 2.44 – Sơ đồ Robustness 'Đăng ký tài khoản'" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=2;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="200" y="604" width="580" height="22" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="rb_uc15" name="UC15. Tim chuyen">
+    <mxGraphModel dx="1200" dy="800" grid="1" page="1" pageWidth="980" pageHeight="640" pageScale="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="uc15_t" parent="1" value="ROBUSTNESS: UC15 – TÌM KIẾM CHUYẾN XE" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=11;" vertex="1">
+          <mxGeometry as="geometry" x="80" y="8" width="820" height="24" />
+        </mxCell>
+        <mxCell id="uc15_kh" parent="1" value="Khách / vãng lai" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="35" y="280" width="34" height="68" />
+        </mxCell>
+        <mxCell id="uc15_b_tim_ico" parent="1" style="shape=umlBoundary;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="188" y="100" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc15_b_tim_lbl" parent="1" value="TrangDatVe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="146" y="148" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc15_c_dk_ico" parent="1" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="398" y="100" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc15_c_dk_lbl" parent="1" value="DieuKhienChuyenXe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="356" y="148" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc15_c_dv_ico" parent="1" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="398" y="230" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc15_c_dv_lbl" parent="1" value="DichVuChuyenXe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="356" y="278" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc15_e_cx_ico" parent="1" style="ellipse;shape=umlEntity;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="708" y="100" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc15_e_cx_lbl" parent="1" value="ChuyenXe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="666" y="148" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc15_e_ghe_ico" parent="1" style="ellipse;shape=umlEntity;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="708" y="240" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc15_e_ghe_lbl" parent="1" value="GheNgoi" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="666" y="288" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc15_b_sd_ico" parent="1" style="shape=umlBoundary;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="208" y="430" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc15_b_sd_lbl" parent="1" value="SoDoGheXe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="166" y="478" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc15_e0" parent="1" value="+1 Chọn tuyến, ngày, bộ lọc" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc15_kh" target="uc15_b_tim_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc15_e1" parent="1" value="+2 GET /chuyen-xe/tim-kiem" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc15_b_tim_ico" target="uc15_c_dk_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc15_e2" parent="1" value="+3 timKiemNangCao()" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc15_c_dk_ico" target="uc15_c_dv_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc15_e3" parent="1" value="+4 Truy vấn + đếm ghế trống" style="endArrow=none;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc15_c_dv_ico" target="uc15_e_cx_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc15_e4" parent="1" value="+5 List&lt;ChuyenXeLocPhanHoi&gt;" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc15_c_dv_ico" target="uc15_b_tim_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc15_e5" parent="1" value="+6 Chọn chuyến" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc15_kh" target="uc15_b_tim_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc15_e6" parent="1" value="+7 GET /ghe-ngoi + /ghe-da-giu" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc15_b_tim_ico" target="uc15_c_dk_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc15_e7" parent="1" value="+8 Tải ghế &amp; ghế đã giữ" style="endArrow=none;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc15_c_dk_ico" target="uc15_e_ghe_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc15_e8" parent="1" value="+9 Hiển thị sơ đồ ghế" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc15_c_dk_ico" target="uc15_b_sd_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc15_cap" parent="1" value="Hình 2.45 – Sơ đồ Robustness 'Tìm kiếm chuyến xe'" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=2;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="200" y="604" width="580" height="22" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="rb_uc16" name="UC16. Dat ve">
+    <mxGraphModel dx="1200" dy="800" grid="1" page="1" pageWidth="980" pageHeight="640" pageScale="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="uc16_t" parent="1" value="ROBUSTNESS: UC16 – ĐẶT VÉ, CHỌN GHẾ" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=11;" vertex="1">
+          <mxGeometry as="geometry" x="80" y="8" width="820" height="24" />
+        </mxCell>
+        <mxCell id="uc16_kh" parent="1" value="Khách hàng" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="35" y="270" width="34" height="68" />
+        </mxCell>
+        <mxCell id="uc16_b_dat_ico" parent="1" style="shape=umlBoundary;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="188" y="100" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc16_b_dat_lbl" parent="1" value="TrangDatVe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="146" y="148" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc16_c_dk_ico" parent="1" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="398" y="100" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc16_c_dk_lbl" parent="1" value="DieuKhienVeXe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="356" y="148" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc16_c_dv_ico" parent="1" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="398" y="240" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc16_c_dv_lbl" parent="1" value="DichVuDatVe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="356" y="288" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc16_e_vx_ico" parent="1" style="ellipse;shape=umlEntity;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="708" y="100" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc16_e_vx_lbl" parent="1" value="VeXe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="666" y="148" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc16_e_ghe_ico" parent="1" style="ellipse;shape=umlEntity;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="708" y="240" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc16_e_ghe_lbl" parent="1" value="GheNgoi" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="666" y="288" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc16_c_tb_ico" parent="1" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="538" y="360" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc16_c_tb_lbl" parent="1" value="ThongBaoGuiMail" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="496" y="408" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc16_b_kq_ico" parent="1" style="shape=umlBoundary;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="208" y="450" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc16_b_kq_lbl" parent="1" value="TrangVeCuaToi" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="166" y="498" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc16_e0" parent="1" value="+1 Chọn 1–10 ghế" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc16_kh" target="uc16_b_dat_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc16_e1" parent="1" value="+2 POST /ve-xe/dat" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc16_b_dat_ico" target="uc16_c_dk_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc16_e2" parent="1" value="+3 datVe(tenDN, yeuCau)" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc16_c_dk_ico" target="uc16_c_dv_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc16_e3" parent="1" value="+4 Kiểm tra ghế trống" style="endArrow=none;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc16_c_dv_ico" target="uc16_e_ghe_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc16_e4" parent="1" value="+5 INSERT PENDING + mã vé" style="endArrow=none;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc16_c_dv_ico" target="uc16_e_vx_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc16_e5" parent="1" value="+6 guiNhanh() + guiMail()" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc16_c_dv_ico" target="uc16_c_tb_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc16_e6" parent="1" value="+7 PhanHoiChung.ok" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc16_c_dv_ico" target="uc16_b_kq_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc16_e7" parent="1" value="+8 Thông báo giữ 15 phút" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc16_b_kq_ico" target="uc16_kh">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc16_cap" parent="1" value="Hình 2.46 – Sơ đồ Robustness 'Đặt vé'" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=2;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="200" y="604" width="580" height="22" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="rb_uc17" name="UC17. Thanh toan">
+    <mxGraphModel dx="1200" dy="800" grid="1" page="1" pageWidth="980" pageHeight="640" pageScale="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="uc17_t" parent="1" value="ROBUSTNESS: UC17 – THANH TOÁN VÉ" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=11;" vertex="1">
+          <mxGeometry as="geometry" x="80" y="8" width="820" height="24" />
+        </mxCell>
+        <mxCell id="uc17_kh" parent="1" value="Khách hàng" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="35" y="280" width="34" height="68" />
+        </mxCell>
+        <mxCell id="uc17_b_ve_ico" parent="1" style="shape=umlBoundary;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="178" y="90" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc17_b_ve_lbl" parent="1" value="TrangVeCuaToi" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="136" y="138" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc17_c_dk_ico" parent="1" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="388" y="90" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc17_c_dk_lbl" parent="1" value="DieuKhienThanhToan" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="346" y="138" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc17_c_dv_ico" parent="1" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="388" y="220" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc17_c_dv_lbl" parent="1" value="DichVuThanhToan" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="346" y="268" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc17_e_vx_ico" parent="1" style="ellipse;shape=umlEntity;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="698" y="90" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc17_e_vx_lbl" parent="1" value="VeXe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="656" y="138" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc17_e_gd_ico" parent="1" style="ellipse;shape=umlEntity;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="698" y="220" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc17_e_gd_lbl" parent="1" value="GiaoDichThanhToan" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="656" y="268" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc17_b_pay_ico" parent="1" style="shape=umlBoundary;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="178" y="300" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc17_b_pay_lbl" parent="1" value="PayOS Checkout" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="136" y="348" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc17_c_wh_ico" parent="1" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="388" y="380" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc17_c_wh_lbl" parent="1" value="XuLyWebhookPayOs" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="346" y="428" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc17_b_kq_ico" parent="1" style="shape=umlBoundary;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="208" y="470" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc17_b_kq_lbl" parent="1" value="TrangKetQuaThanhToan" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="166" y="518" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc17_e0" parent="1" value="+1 Chọn vé PENDING + mã KM" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc17_kh" target="uc17_b_ve_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc17_e1" parent="1" value="+2 POST /thanh-toan/ve/{ma}/…" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc17_b_ve_ico" target="uc17_c_dk_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc17_e2" parent="1" value="+3 tinhGia + kiemTraVe" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc17_c_dk_ico" target="uc17_c_dv_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc17_e3" parent="1" value="+4 Cập nhật trạng thái vé" style="endArrow=none;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc17_c_dv_ico" target="uc17_e_vx_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc17_e4" parent="1" value="+5 Ghi giao dịch thanh toán" style="endArrow=none;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc17_c_dv_ico" target="uc17_e_gd_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc17_e5" parent="1" value="+6 Redirect checkoutUrl" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc17_c_dv_ico" target="uc17_b_pay_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc17_e6" parent="1" value="+7 Webhook /payos/webhook" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc17_b_pay_ico" target="uc17_c_wh_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc17_e7" parent="1" value="+8 hoanTatThanhToan → PAID" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc17_c_wh_ico" target="uc17_c_dv_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc17_e8" parent="1" value="+9 guiMailVaThongBao()" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc17_c_dv_ico" target="uc17_b_kq_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc17_e9" parent="1" value="+10 Hiển thị vé PAID" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc17_b_kq_ico" target="uc17_kh">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc17_cap" parent="1" value="Hình 2.47 – Sơ đồ Robustness 'Thanh toán vé'" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=2;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="200" y="604" width="580" height="22" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="rb_uc19" name="UC19. Doi huy ve">
+    <mxGraphModel dx="1200" dy="800" grid="1" page="1" pageWidth="980" pageHeight="640" pageScale="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="uc19_t" parent="1" value="ROBUSTNESS: UC19 – ĐỔI GHẾ / ĐỔI CHUYẾN / HỦY VÉ" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=11;" vertex="1">
+          <mxGeometry as="geometry" x="80" y="8" width="820" height="24" />
+        </mxCell>
+        <mxCell id="uc19_kh" parent="1" value="Khách hàng" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="35" y="270" width="34" height="68" />
+        </mxCell>
+        <mxCell id="uc19_b_ve_ico" parent="1" style="shape=umlBoundary;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="178" y="90" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc19_b_ve_lbl" parent="1" value="TrangVeCuaToi" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="136" y="138" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc19_b_modal_ico" parent="1" style="shape=umlBoundary;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="178" y="280" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc19_b_modal_lbl" parent="1" value="CuaSoDoiVe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="136" y="328" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc19_c_dk_ico" parent="1" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="398" y="90" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc19_c_dk_lbl" parent="1" value="DieuKhienVeXe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="356" y="138" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc19_c_dv_ico" parent="1" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="398" y="280" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc19_c_dv_lbl" parent="1" value="DichVuDoiVe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="356" y="328" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc19_e_vx_ico" parent="1" style="ellipse;shape=umlEntity;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="708" y="90" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc19_e_vx_lbl" parent="1" value="VeXe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="666" y="138" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc19_e_cx_ico" parent="1" style="ellipse;shape=umlEntity;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="708" y="280" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc19_e_cx_lbl" parent="1" value="ChuyenXe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="666" y="328" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc19_b_kq_ico" parent="1" style="shape=umlBoundary;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="238" y="460" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc19_b_kq_lbl" parent="1" value="TrangVeCuaToi" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="196" y="508" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc19_e0" parent="1" value="+1 Mở vé PAID / PENDING" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc19_kh" target="uc19_b_ve_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc19_e1" parent="1" value="+2 «Đổi ghế / chuyến»" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc19_kh" target="uc19_b_modal_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc19_e2" parent="1" value="+3 POST /ve-xe/{ma}/huy" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc19_b_ve_ico" target="uc19_c_dk_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc19_e3" parent="1" value="+4 POST /doi-ghe | /doi-chuyen" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc19_b_modal_ico" target="uc19_c_dk_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc19_e4" parent="1" value="+5 doiGhe() | doiChuyen()" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc19_c_dk_ico" target="uc19_c_dv_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc19_e5" parent="1" value="+6 kiemTraVeDoiDuoc (≥2h)" style="endArrow=none;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc19_c_dv_ico" target="uc19_e_vx_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc19_e6" parent="1" value="+7 Cùng tuyến + ghế trống" style="endArrow=none;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc19_c_dv_ico" target="uc19_e_cx_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc19_e7" parent="1" value="+8 Cập nhật / hủy vé" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc19_c_dv_ico" target="uc19_b_kq_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc19_e8" parent="1" value="+9 Thông báo kết quả" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc19_b_kq_ico" target="uc19_kh">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc19_cap" parent="1" value="Hình 2.48 – Sơ đồ Robustness 'Đổi / hủy vé'" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=2;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="200" y="604" width="580" height="22" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="rb_uc04" name="UC04. Tra cuu ve">
+    <mxGraphModel dx="1200" dy="800" grid="1" page="1" pageWidth="980" pageHeight="640" pageScale="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="uc04_t" parent="1" value="ROBUSTNESS: UC04 – TRA CỨU VÉ" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=11;" vertex="1">
+          <mxGeometry as="geometry" x="80" y="8" width="820" height="24" />
+        </mxCell>
+        <mxCell id="uc04_kv" parent="1" value="Khách / vãng lai" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="35" y="270" width="34" height="68" />
+        </mxCell>
+        <mxCell id="uc04_b_tc_ico" parent="1" style="shape=umlBoundary;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="188" y="100" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc04_b_tc_lbl" parent="1" value="TrangTraCuuVe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="146" y="148" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc04_c_dk_ico" parent="1" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="398" y="100" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc04_c_dk_lbl" parent="1" value="DieuKhienVeXe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="356" y="148" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc04_c_dv_ico" parent="1" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="398" y="240" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc04_c_dv_lbl" parent="1" value="DichVuTraCuuVe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="356" y="288" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc04_e_vx_ico" parent="1" style="ellipse;shape=umlEntity;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="708" y="100" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc04_e_vx_lbl" parent="1" value="VeXe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="666" y="148" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc04_e_kh_ico" parent="1" style="ellipse;shape=umlEntity;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="708" y="240" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc04_e_kh_lbl" parent="1" value="KhachHang" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="666" y="288" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc04_b_vd_ico" parent="1" style="shape=umlBoundary;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="208" y="430" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc04_b_vd_lbl" parent="1" value="VeDienTuPanel" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="166" y="478" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc04_e0" parent="1" value="+1 Nhập mã vé + SĐT (hoặc QR)" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc04_kv" target="uc04_b_tc_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc04_e1" parent="1" value="+2 GET /ve-xe/tra-cuu" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc04_b_tc_ico" target="uc04_c_dk_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc04_e2" parent="1" value="+3 traCuuCongKhai()" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc04_c_dk_ico" target="uc04_c_dv_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc04_e3" parent="1" value="+4 timTheoMaVeHienThi()" style="endArrow=none;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc04_c_dv_ico" target="uc04_e_vx_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc04_e4" parent="1" value="+5 Xác thực SĐT khách" style="endArrow=none;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc04_c_dv_ico" target="uc04_e_kh_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc04_e5" parent="1" value="+6 VeDienTuPhanHoi + QR" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc04_c_dv_ico" target="uc04_b_vd_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc04_e6" parent="1" value="+7 Hiển thị vé điện tử" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc04_b_vd_ico" target="uc04_kv">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc04_cap" parent="1" value="Hình 2.49 – Sơ đồ Robustness 'Tra cứu vé'" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=2;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="200" y="604" width="580" height="22" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="rb_uc20" name="UC20. Danh gia">
+    <mxGraphModel dx="1200" dy="800" grid="1" page="1" pageWidth="980" pageHeight="640" pageScale="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="uc20_t" parent="1" value="ROBUSTNESS: UC20 – ĐÁNH GIÁ CHUYẾN XE" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=11;" vertex="1">
+          <mxGeometry as="geometry" x="80" y="8" width="820" height="24" />
+        </mxCell>
+        <mxCell id="uc20_kh" parent="1" value="Khách hàng" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="35" y="280" width="34" height="68" />
+        </mxCell>
+        <mxCell id="uc20_b_dg_ico" parent="1" style="shape=umlBoundary;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="188" y="90" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc20_b_dg_lbl" parent="1" value="TrangDanhGia" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="146" y="138" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc20_c_dk_ico" parent="1" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="398" y="90" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc20_c_dk_lbl" parent="1" value="DieuKhienDanhGiaChuyen" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="346" y="138" width="148" height="36" />
+        </mxCell>
+        <mxCell id="uc20_c_dv_ico" parent="1" style="ellipse;shape=umlControl;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="398" y="230" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc20_c_dv_lbl" parent="1" value="DichVuDanhGiaChuyen" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="356" y="278" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc20_e_vx_ico" parent="1" style="ellipse;shape=umlEntity;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="708" y="90" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc20_e_vx_lbl" parent="1" value="VeXe" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="666" y="138" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc20_e_dg_ico" parent="1" style="ellipse;shape=umlEntity;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="708" y="240" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc20_e_dg_lbl" parent="1" value="DanhGiaChuyen" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="666" y="288" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc20_b_kq_ico" parent="1" style="shape=umlBoundary;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;" vertex="1">
+          <mxGeometry as="geometry" x="208" y="430" width="44" height="44" />
+        </mxCell>
+        <mxCell id="uc20_b_kq_lbl" parent="1" value="TrangDanhGia" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="166" y="478" width="128" height="36" />
+        </mxCell>
+        <mxCell id="uc20_e0" parent="1" value="+1 GET /ve-cho-danh-gia" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc20_kh" target="uc20_b_dg_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc20_e1" parent="1" value="+2 veChoDanhGia()" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc20_b_dg_ico" target="uc20_c_dk_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc20_e2" parent="1" value="+3 Lọc vé PAID + đã đi" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc20_c_dk_ico" target="uc20_c_dv_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc20_e3" parent="1" value="+4 Truy vấn VeXe" style="endArrow=none;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc20_c_dv_ico" target="uc20_e_vx_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc20_e4" parent="1" value="+5 Chọn chuyến, điểm, nhận xét" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc20_kh" target="uc20_b_dg_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc20_e5" parent="1" value="+6 POST /danh-gia" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc20_b_dg_ico" target="uc20_c_dk_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc20_e6" parent="1" value="+7 vietDanhGia() + INSERT" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc20_c_dk_ico" target="uc20_c_dv_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc20_e7" parent="1" value="+8 Ghi DanhGiaChuyen" style="endArrow=none;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc20_c_dv_ico" target="uc20_e_dg_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc20_e8" parent="1" value="+9 Thông báo thành công" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc20_c_dv_ico" target="uc20_b_kq_ico">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc20_e9" parent="1" value="+10 Làm mới danh sách" style="endArrow=block;html=1;strokeColor=#000000;fontSize=8;fontColor=#000000;" edge="1" source="uc20_b_kq_ico" target="uc20_kh">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="uc20_cap" parent="1" value="Hình 2.50 – Sơ đồ Robustness 'Đánh giá chuyến xe'" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=2;fontSize=9;" vertex="1">
+          <mxGeometry as="geometry" x="200" y="604" width="580" height="22" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

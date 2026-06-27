@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="RedBus" pages="1">
+  <diagram id="class-hoan-chinh" name="Class hoàn chỉnh">
+    <mxGraphModel dx="1600" dy="1000" grid="1" page="1" pageWidth="1600" pageHeight="1100" pageScale="1">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="t" parent="1" value="Hình 2.3 – Sơ đồ Class hoàn chỉnh — Hệ thống RedBus" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=12;" vertex="1">
+          <mxGeometry x="400" y="8" width="800" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- Package: Giao diện (Boundary) -->
+        <mxCell id="pkg_ui" parent="1" value="«boundary» Giao diện React" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=30;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1">
+          <mxGeometry x="30" y="50" width="300" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="ui1" parent="pkg_ui" value="CuaSoXacThuc" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry y="30" width="300" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="ui2" parent="pkg_ui" value="TrangDatVe" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry y="48" width="300" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="ui3" parent="pkg_ui" value="TrangTraCuuVe" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry y="66" width="300" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="ui4" parent="pkg_ui" value="TrangVeCuaToi" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry y="84" width="300" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="ui5" parent="pkg_ui" value="TrangDanhGia" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry y="102" width="300" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="ui6" parent="pkg_ui" value="VeDienTuPanel / SoDoGheXe" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry y="120" width="300" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="ui7" parent="pkg_ui" value="KhungQuanTri + TrangQuanTri*" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry y="138" width="300" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="ui8" parent="pkg_ui" value="apiClient (khachHttp, moKhoiDuLieu)" style="text;align=left;fontSize=9;fontStyle=2;" vertex="1">
+          <mxGeometry y="156" width="300" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="ui9" parent="pkg_ui" value="boiCanhNguoiDung / boiCanhThongBao" style="text;align=left;fontSize=9;fontStyle=2;" vertex="1">
+          <mxGeometry y="174" width="300" height="18" as="geometry"/>
+        </mxCell>
+
+        <!-- Package: Controller -->
+        <mxCell id="pkg_ct" parent="1" value="«control» dieukhien (REST Controller)" style="swimlane;fontStyle=1;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1">
+          <mxGeometry x="380" y="50" width="280" height="320" as="geometry"/>
+        </mxCell>
+        <mxCell id="ct_xt" parent="pkg_ct" value="DieuKhienXacThuc" style="swimlane;fontStyle=0;childLayout=stackLayout;startSize=22;fillColor=#ffffff;" vertex="1">
+          <mxGeometry x="10" y="40" width="260" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="ct_xt1" parent="ct_xt" value="+ dangNhap(yeuCau): PhanHoiDangNhap" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="22" width="260" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="ct_xt2" parent="ct_xt" value="+ dangKy(yeuCau): PhanHoiDangNhap" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="38" width="260" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="ct_xt3" parent="ct_xt" value="+ guiOtp() / datLaiMatKhau()" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="54" width="260" height="10" as="geometry"/>
+        </mxCell>
+        <mxCell id="ct_vx" parent="pkg_ct" value="DieuKhienVeXe" style="swimlane;fontStyle=0;childLayout=stackLayout;startSize=22;fillColor=#ffffff;" vertex="1">
+          <mxGeometry x="10" y="112" width="260" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="ct_vx1" parent="ct_vx" value="+ datVe() / huy() / traCuu()" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="22" width="260" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="ct_vx2" parent="ct_vx" value="+ dienTu() / doiGhe() / doiChuyen()" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="38" width="260" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="ct_vx3" parent="ct_vx" value="+ veCuaToi(): List&lt;VeXe&gt;" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="54" width="260" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="ct_tt" parent="pkg_ct" value="DieuKhienThanhToan" style="swimlane;fontStyle=0;childLayout=stackLayout;startSize=22;fillColor=#ffffff;" vertex="1">
+          <mxGeometry x="10" y="200" width="260" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="ct_tt1" parent="ct_tt" value="+ tienMatTaiQuay() / taoLinkPayOs()" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="22" width="260" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="ct_tt2" parent="ct_tt" value="+ xuLyWebhookPayOs() / ketQuaPayOs()" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="38" width="260" height="10" as="geometry"/>
+        </mxCell>
+        <mxCell id="ct_dg" parent="pkg_ct" value="DieuKhienDanhGiaChuyen" style="swimlane;fontStyle=0;childLayout=stackLayout;startSize=22;fillColor=#ffffff;" vertex="1">
+          <mxGeometry x="10" y="256" width="260" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="ct_dg1" parent="ct_dg" value="+ veChoDanhGia() / viet()" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="22" width="260" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="ct_dg2" parent="ct_dg" value="+ congKhai() / tomTat()" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="38" width="260" height="16" as="geometry"/>
+        </mxCell>
+
+        <!-- Package: Service -->
+        <mxCell id="pkg_sv" parent="1" value="«control» dichvu (Service)" style="swimlane;fontStyle=1;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1">
+          <mxGeometry x="710" y="50" width="300" height="360" as="geometry"/>
+        </mxCell>
+        <mxCell id="sv_xt" parent="pkg_sv" value="DichVuXacThuc" style="swimlane;fontStyle=0;childLayout=stackLayout;startSize=22;fillColor=#ffffff;" vertex="1">
+          <mxGeometry x="10" y="40" width="280" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="sv_xt1" parent="sv_xt" value="- anhXaTaiKhoan, anhXaKhachHang" style="text;align=left;fontSize=8;fontStyle=2;" vertex="1">
+          <mxGeometry y="22" width="280" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="sv_xt2" parent="sv_xt" value="+ dangNhap(yeuCau): PhanHoiDangNhap" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="38" width="280" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="sv_xt3" parent="sv_xt" value="+ dangKy(yeuCau): PhanHoiDangNhap" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="54" width="280" height="10" as="geometry"/>
+        </mxCell>
+        <mxCell id="sv_dv" parent="pkg_sv" value="DichVuDatVe" style="swimlane;fontStyle=0;childLayout=stackLayout;startSize=22;fillColor=#ffffff;" vertex="1">
+          <mxGeometry x="10" y="112" width="280" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="sv_dv1" parent="sv_dv" value="+ datVe(tenDN, yeuCau): List&lt;VeXe&gt;" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="22" width="280" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="sv_dv2" parent="sv_dv" value="+ huyVe() / veCuaTaiKhoan()" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="38" width="280" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="sv_tc" parent="pkg_sv" value="DichVuTraCuuVe" style="swimlane;fontStyle=0;childLayout=stackLayout;startSize=22;fillColor=#ffffff;" vertex="1">
+          <mxGeometry x="10" y="184" width="280" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="sv_tc1" parent="sv_tc" value="+ traCuuCongKhai(maVe, sdt)" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="22" width="280" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="sv_tc2" parent="sv_tc" value="+ veDienTuCuaToi() / xayVeDienTu()" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="38" width="280" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="sv_tt" parent="pkg_sv" value="DichVuThanhToan" style="swimlane;fontStyle=0;childLayout=stackLayout;startSize=22;fillColor=#ffffff;" vertex="1">
+          <mxGeometry x="10" y="256" width="280" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="sv_tt1" parent="sv_tt" value="+ tienMatTaiQuay() / taoLinkPayOs()" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="22" width="280" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="sv_tt2" parent="sv_tt" value="+ hoanTatThanhToan() / xuLyWebhook()" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="38" width="280" height="10" as="geometry"/>
+        </mxCell>
+        <mxCell id="sv_dg" parent="pkg_sv" value="DichVuDanhGiaChuyen" style="swimlane;fontStyle=0;childLayout=stackLayout;startSize=22;fillColor=#ffffff;" vertex="1">
+          <mxGeometry x="10" y="312" width="280" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="sv_dg1" parent="sv_dg" value="+ veChoDanhGia() / vietDanhGia()" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="22" width="280" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="sv_dg2" parent="sv_dg" value="+ congKhai() / theoMaChuyen()" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="38" width="280" height="10" as="geometry"/>
+        </mxCell>
+
+        <!-- Package: Mapper -->
+        <mxCell id="pkg_mx" parent="1" value="«entity» anhxa (MyBatis Mapper)" style="swimlane;fontStyle=1;startSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1">
+          <mxGeometry x="1060" y="50" width="240" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="mx1" parent="pkg_mx" value="AnhXaTaiKhoan" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry x="10" y="40" width="220" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="mx2" parent="pkg_mx" value="AnhXaKhachHang" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry x="10" y="62" width="220" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="mx3" parent="pkg_mx" value="AnhXaVeXe / AnhXaChuyenXe" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry x="10" y="84" width="220" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="mx4" parent="pkg_mx" value="AnhXaGheNgoi / AnhXaTuyenDuong" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry x="10" y="106" width="220" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="mx5" parent="pkg_mx" value="AnhXaThanhToan / AnhXaKhuyenMai" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry x="10" y="128" width="220" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="mx6" parent="pkg_mx" value="AnhXaDanhGiaChuyen / AnhXaThongBao" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry x="10" y="150" width="220" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="mx7" parent="pkg_mx" value="… (AnhXaXeKhach, AnhXaTinTuc, …)" style="text;align=left;fontSize=9;fontStyle=2;" vertex="1">
+          <mxGeometry x="10" y="172" width="220" height="18" as="geometry"/>
+        </mxCell>
+
+        <!-- Package: Model -->
+        <mxCell id="pkg_mh" parent="1" value="«entity» mohinh (Domain Model)" style="swimlane;fontStyle=1;startSize=30;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1">
+          <mxGeometry x="30" y="300" width="500" height="280" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_tk" parent="pkg_mh" value="TaiKhoan" style="swimlane;fontStyle=0;childLayout=stackLayout;startSize=22;fillColor=#ffffff;" vertex="1">
+          <mxGeometry x="10" y="40" width="150" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_tk1" parent="mh_tk" value="- ma: Long" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="22" width="150" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_tk2" parent="mh_tk" value="- tenDangNhap, email" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="36" width="150" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_tk3" parent="mh_tk" value="- matKhauMaHoa, vaiTro" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="50" width="150" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_tk4" parent="mh_tk" value="- hoatDong: Boolean" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="64" width="150" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_kh" parent="pkg_mh" value="KhachHang" style="swimlane;fontStyle=0;childLayout=stackLayout;startSize=22;fillColor=#ffffff;" vertex="1">
+          <mxGeometry x="170" y="40" width="150" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_kh1" parent="mh_kh" value="- ma, maTaiKhoan" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="22" width="150" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_kh2" parent="mh_kh" value="- hoTen, soDienThoai" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="36" width="150" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_kh3" parent="mh_kh" value="- diaChi" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="50" width="150" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_vx" parent="pkg_mh" value="VeXe" style="swimlane;fontStyle=0;childLayout=stackLayout;startSize=22;fillColor=#ffffff;" vertex="1">
+          <mxGeometry x="330" y="40" width="160" height="96" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_vx1" parent="mh_vx" value="- ma, maChuyen, maKhach" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="22" width="160" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_vx2" parent="mh_vx" value="- maGhe, trangThai" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="36" width="160" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_vx3" parent="mh_vx" value="- maVeHienThi" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="50" width="160" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_vx4" parent="mh_vx" value="- soTienThanhToan" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="64" width="160" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_vx5" parent="mh_vx" value="- maDiemLen, maDiemXuong" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="78" width="160" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_cx" parent="pkg_mh" value="ChuyenXe" style="swimlane;fontStyle=0;childLayout=stackLayout;startSize=22;fillColor=#ffffff;" vertex="1">
+          <mxGeometry x="10" y="140" width="150" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_cx1" parent="mh_cx" value="- ma, maTuyen, maXe" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="22" width="150" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_cx2" parent="mh_cx" value="- thoiDiemKhoiHanh" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="36" width="150" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_cx3" parent="mh_cx" value="- giaVe, trangThai" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="50" width="150" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_gn" parent="pkg_mh" value="GheNgoi" style="swimlane;fontStyle=0;childLayout=stackLayout;startSize=22;fillColor=#ffffff;" vertex="1">
+          <mxGeometry x="170" y="140" width="150" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_gn1" parent="mh_gn" value="- ma, maXe, maGhe" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="22" width="150" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_gn2" parent="mh_gn" value="- hang, cot, tang" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="36" width="150" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_gn3" parent="mh_gn" value="- trangThai" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="50" width="150" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_dg" parent="pkg_mh" value="DanhGiaChuyen" style="swimlane;fontStyle=0;childLayout=stackLayout;startSize=22;fillColor=#ffffff;" vertex="1">
+          <mxGeometry x="330" y="150" width="160" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_dg1" parent="mh_dg" value="- ma, maChuyen, maKhach" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="22" width="160" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_dg2" parent="mh_dg" value="- diemSo: Integer" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="36" width="160" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_dg3" parent="mh_dg" value="- nhanXet, thoiGianTao" style="text;align=left;fontSize=8;" vertex="1">
+          <mxGeometry y="50" width="160" height="14" as="geometry"/>
+        </mxCell>
+        <mxCell id="mh_more" parent="pkg_mh" value="TuyenDuong · XeKhach · LoaiXe · KhuyenMai · GiaoDichThanhToan · ThongBao · TinTuc · TinNhanChat · HoiDap · DiemDungChan · MaOtp" style="text;align=left;fontSize=8;fontStyle=2;" vertex="1">
+          <mxGeometry x="10" y="240" width="480" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Package: DTO -->
+        <mxCell id="pkg_dto" parent="1" value="«boundary» truyen (DTO / Phản hồi)" style="swimlane;fontStyle=1;startSize=30;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1">
+          <mxGeometry x="580" y="450" width="360" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="dto1" parent="pkg_dto" value="YeuCauDangKy / YeuCauDangNhap / PhanHoiDangNhap" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry x="10" y="40" width="340" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="dto2" parent="pkg_dto" value="YeuCauDatVe / YeuCauDoiGhe / YeuCauDoiChuyen" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry x="10" y="62" width="340" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="dto3" parent="pkg_dto" value="VeDienTuPhanHoi / PhanHoiLinkPayOs" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry x="10" y="84" width="340" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="dto4" parent="pkg_dto" value="YeuCauDanhGiaChuyen / VeChoDanhGiaPhanHoi / PhanHoiChung&lt;T&gt;" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry x="10" y="106" width="340" height="18" as="geometry"/>
+        </mxCell>
+
+        <!-- Package: Security -->
+        <mxCell id="pkg_sec" parent="1" value="«control» baomat" style="swimlane;fontStyle=1;startSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1">
+          <mxGeometry x="980" y="300" width="200" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="sec1" parent="pkg_sec" value="TienIchJwt" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry x="10" y="40" width="180" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="sec2" parent="pkg_sec" value="CauHinhBaoMat / JwtFilter" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry x="10" y="62" width="180" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="sec3" parent="pkg_sec" value="DichVuNguoiDungHeThong" style="text;align=left;fontSize=9;" vertex="1">
+          <mxGeometry x="10" y="84" width="180" height="16" as="geometry"/>
+        </mxCell>
+
+        <!-- Dependencies -->
+        <mxCell id="dep1" parent="1" value="«uses»" style="endArrow=open;endFill=0;dashed=1;html=1;strokeColor=#666666;fontSize=8;" edge="1" source="pkg_ui" target="pkg_ct">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep2" parent="1" value="«uses»" style="endArrow=open;endFill=0;dashed=1;html=1;strokeColor=#666666;fontSize=8;" edge="1" source="pkg_ct" target="pkg_sv">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep3" parent="1" value="«uses»" style="endArrow=open;endFill=0;dashed=1;html=1;strokeColor=#666666;fontSize=8;" edge="1" source="pkg_sv" target="pkg_mx">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep4" parent="1" value="«maps»" style="endArrow=open;endFill=0;dashed=1;html=1;strokeColor=#666666;fontSize=8;" edge="1" source="pkg_mx" target="pkg_mh">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1180" y="280"/><mxPoint x="280" y="280"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dep5" parent="1" value="«returns»" style="endArrow=open;endFill=0;dashed=1;html=1;strokeColor=#666666;fontSize=8;" edge="1" source="pkg_ct" target="pkg_dto">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="dep6" parent="1" value="«uses»" style="endArrow=open;endFill=0;dashed=1;html=1;strokeColor=#666666;fontSize=8;" edge="1" source="sv_xt" target="pkg_sec">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cap" parent="1" value="Ghi chú: Mũi tên «uses» = phụ thuộc gọi hàm; «maps» = Mapper ánh xạ bản ghi DB ↔ Model; lớp mohinh không phụ thuộc ngược lên tầng trên." style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=2;fontSize=9;" vertex="1">
+          <mxGeometry x="100" y="620" width="1400" height="30" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
