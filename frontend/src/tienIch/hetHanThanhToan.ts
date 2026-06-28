@@ -1,4 +1,4 @@
-export const PHUT_CHO_THANH_TOAN = 15
+export const PHUT_CHO_THANH_TOAN = 5
 
 export function lucHetHanThanhToan(thoiGianDat: string | undefined): number | null {
   if (!thoiGianDat) return null

@@ -43,6 +43,8 @@ import { BanDoLoTrinh } from '../thanhPhan/BanDoLoTrinh'
 import { dinhDangNgayGio, dinhDangVnd, datetimeLocalSangApi, gioHienTaiDatetimeLocal } from '../tienIch/dinhDang'
 import { chuoiLoTrinh, taiDiemDungTheoTuyen } from '../tienIch/loTrinhTuyen'
 import { trangThaiSangTiengViet } from '../tienIch/trangThai'
+import { docMaKmSession, luuMaKmSession, tinhTongKhuyenMai } from '../tienIch/khuyenMai'
+import type { KetQuaTinhTongKm } from '../nguon/kieu'
 
 function minDatetimeLocal() {
   return gioHienTaiDatetimeLocal()
@@ -77,6 +79,10 @@ export function TrangDatVe() {
   const [diemDungTheoTuyen, datDiemDungTheoTuyen] = useState<Record<number, DiemDungChan[]>>({})
   const [daTimChuyen, datDaTimChuyen] = useState(false)
   const [kmGoiY, datKmGoiY] = useState<KhuyenMai[]>([])
+  const [maKhuyenMai, datMaKhuyenMai] = useState('')
+  const [previewKm, datPreviewKm] = useState<KetQuaTinhTongKm | null>(null)
+  const [loiKm, datLoiKm] = useState('')
+  const [dangTinhKm, datDangTinhKm] = useState(false)
   const [dsLoaiXe, datDsLoaiXe] = useState<LoaiXe[]>([])
   const [dsXeKhach, datDsXeKhach] = useState<XeKhach[]>([])
   const daTuDongTimTuUrl = useRef(false)
@@ -98,6 +104,45 @@ export function TrangDatVe() {
   }, [dsMaGheChon, dsGhe, chon, soGheChon])
 
   const tongTien = chon && soGheChon > 0 ? Number(chon.giaVe) * soGheChon : 0
+
+  useEffect(() => {
+    const saved = docMaKmSession()
+    if (saved) datMaKhuyenMai(saved)
+  }, [])
+
+  useEffect(() => {
+    luuMaKmSession(maKhuyenMai)
+  }, [maKhuyenMai])
+
+  useEffect(() => {
+    if (!chon || soGheChon === 0) {
+      datPreviewKm(null)
+      datLoiKm('')
+      return
+    }
+    const gia = Number(chon.giaVe)
+    if (!Number.isFinite(gia) || gia <= 0) return
+    const ma = maKhuyenMai.trim()
+    if (!ma) {
+      datPreviewKm(null)
+      datLoiKm('')
+      return
+    }
+    const timer = window.setTimeout(() => {
+      datDangTinhKm(true)
+      void tinhTongKhuyenMai(ma, Array.from({ length: soGheChon }, () => gia))
+        .then((kq) => {
+          datPreviewKm(kq)
+          datLoiKm('')
+        })
+        .catch((e: unknown) => {
+          datPreviewKm(null)
+          datLoiKm(e instanceof Error ? e.message : 'Mã khuyến mãi không hợp lệ')
+        })
+        .finally(() => datDangTinhKm(false))
+    }, 400)
+    return () => window.clearTimeout(timer)
+  }, [maKhuyenMai, chon, soGheChon])
 
   const loaiTheoChuyen = useMemo(() => {
     if (!chon) return null
@@ -276,6 +321,7 @@ export function TrangDatVe() {
         loai: 'thanhCong',
         noiDung: soVe > 1 ? `Đã đặt ${soVe} vé thành công!` : 'Đặt vé thành công!',
       })
+      luuMaKmSession(maKhuyenMai)
       datGheDaGiu((s) => {
         const moi = new Set(s)
         dsMaGheChon.forEach((ma) => moi.add(ma))
@@ -576,9 +622,37 @@ export function TrangDatVe() {
                     <Armchair size={16} aria-hidden />
                     Đã chọn <strong>{soGheChon}</strong> ghế: {nhanGheDaChon}
                   </p>
+                  <TruongNhap
+                    nhan="Mã khuyến mãi"
+                    placeholder="VD: REDBUS10"
+                    value={maKhuyenMai}
+                    onChange={(e) => datMaKhuyenMai(e.target.value.toUpperCase())}
+                    goiY="Áp dụng khi thanh toán — xem trước giá ngay bên dưới"
+                    loi={loiKm}
+                  />
                   <p className="booking-seat-summary__total">
-                    Tạm tính: <strong>{dinhDangVnd(tongTien)}</strong>
-                    <span className="muted small"> ({dinhDangVnd(chon.giaVe)} × {soGheChon})</span>
+                    Tạm tính:{' '}
+                    {dangTinhKm ? (
+                      <span className="muted">Đang kiểm tra mã…</span>
+                    ) : previewKm ? (
+                      <>
+                        <s className="muted">{dinhDangVnd(previewKm.tongGiaGoc)}</s>{' '}
+                        <strong>{dinhDangVnd(previewKm.tongSauGiam)}</strong>
+                        <span className="muted small">
+                          {' '}
+                          (−{dinhDangVnd(previewKm.tongGiam)}
+                          {previewKm.tieuDe ? ` · ${previewKm.tieuDe}` : ''})
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <strong>{dinhDangVnd(tongTien)}</strong>
+                        <span className="muted small">
+                          {' '}
+                          ({dinhDangVnd(chon.giaVe)} × {soGheChon})
+                        </span>
+                      </>
+                    )}
                   </p>
                   <NutBam
                     bien="mo"
@@ -666,7 +740,7 @@ export function TrangDatVe() {
                 </li>
                 <li>
                   <Tag size={16} aria-hidden />
-                  Có mã khuyến mãi? Nhập khi thanh toán vé trong « Vé của tôi ».
+                  Nhập mã khuyến mãi khi chọn ghế — giá sau giảm hiển thị trước khi đặt.
                 </li>
                 <li>
                   <ShieldCheck size={16} aria-hidden />
@@ -683,7 +757,14 @@ export function TrangDatVe() {
                 <ul className="booking-aside__promos">
                   {kmGoiY.map((k) => (
                     <li key={k.ma}>
-                      <code className="booking-aside__code">{k.maCode}</code>
+                      <button
+                        type="button"
+                        className="booking-aside__code-btn"
+                        onClick={() => datMaKhuyenMai(k.maCode)}
+                        title="Chọn mã này"
+                      >
+                        <code className="booking-aside__code">{k.maCode}</code>
+                      </button>
                       <span className="muted">
                         −{k.phanTramGiam}% {k.tieuDe ? `· ${k.tieuDe}` : ''}
                       </span>

@@ -27,7 +27,7 @@ class DichVuHetHanVeTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(dichVu, "phutChoThanhToan", 15);
+        ReflectionTestUtils.setField(dichVu, "phutChoThanhToan", 5);
     }
 
     @Test
@@ -38,7 +38,7 @@ class DichVuHetHanVeTest {
     }
 
     @Test
-    @DisplayName("daHetHan trả true khi PENDING quá 15 phút")
+    @DisplayName("daHetHan trả true khi PENDING quá 5 phút")
     void daHetHan_pendingQuaHan_traTrue() {
         VeXe ve = VeXe.builder()
                 .trangThai("PENDING")
@@ -76,7 +76,7 @@ class DichVuHetHanVeTest {
     @Test
     @DisplayName("daHetHan trả false khi PENDING còn trong thời hạn")
     void daHetHan_pendingConHan_traFalse() {
-        VeXe ve = VeXe.builder().trangThai("PENDING").thoiGianDat(LocalDateTime.now().minusMinutes(5)).build();
+        VeXe ve = VeXe.builder().trangThai("PENDING").thoiGianDat(LocalDateTime.now().minusMinutes(3)).build();
         assertFalse(dichVu.daHetHan(ve));
     }
 
@@ -98,20 +98,20 @@ class DichVuHetHanVeTest {
     void lucHetHan_tinhDung() {
         LocalDateTime dat = LocalDateTime.of(2026, 5, 18, 10, 0);
         LocalDateTime het = dichVu.lucHetHan(VeXe.builder().thoiGianDat(dat).build());
-        assertEquals(dat.plusMinutes(15), het);
+        assertEquals(dat.plusMinutes(5), het);
     }
 
     @Test
     @DisplayName("xuLyHetHanChoKhach gọi mapper với mã khách")
     void xuLyHetHanChoKhach_goMapper() {
-        when(anhXaVeXe.huyPendingQuaHanTheoKhach(7L, 15)).thenReturn(2);
+        when(anhXaVeXe.huyPendingQuaHanTheoKhach(7L, 5)).thenReturn(2);
         assertEquals(2, dichVu.xuLyHetHanChoKhach(7L));
     }
 
     @Test
     @DisplayName("xuLyHetHanTatCa trả số vé hủy")
     void xuLyHetHanTatCa_traSoLuong() {
-        when(anhXaVeXe.huyPendingQuaHanTatCa(15)).thenReturn(5);
+        when(anhXaVeXe.huyPendingQuaHanTatCa(5)).thenReturn(5);
         assertEquals(5, dichVu.xuLyHetHanTatCa());
     }
 }

@@ -124,6 +124,35 @@ class DichVuDatVeTest {
     }
 
     @Test
+    @DisplayName("datVe đặt lại ghế đã CANCELLED xóa vé cũ trước khi INSERT")
+    void datVe_datLaiSauCancelled_xoaVeCu() {
+        when(anhXaTaiKhoan.timTheoTenDangNhap("u")).thenReturn(TaiKhoan.builder().ma(1L).email("a@b.com").build());
+        when(anhXaKhachHang.timTheoMaTaiKhoan(1L)).thenReturn(KhachHang.builder().ma(2L).build());
+        ChuyenXe cx = ChuyenXe.builder().ma(1178L).maTuyen(5L).maXe(3L).giaVe(BigDecimal.valueOf(200_000))
+                .thoiDiemKhoiHanh(LocalDateTime.now().plusDays(1)).build();
+        when(anhXaChuyenXe.timTheoMa(1178L)).thenReturn(cx);
+        when(anhXaGheNgoi.timTheoMa(200L)).thenReturn(GheNgoi.builder().ma(200L).maXe(3L).maGhe("B5").build());
+        when(anhXaVeXe.timTheoMaChuyen(1178L)).thenReturn(
+                List.of(VeXe.builder().ma(50L).maChuyen(1178L).maGhe(200L).trangThai("CANCELLED").build()));
+        when(anhXaTuyenDuong.timTheoMa(5L)).thenReturn(TuyenDuong.builder().diemDi("A").diemDen("B").build());
+        when(anhXaVeXe.them(any(VeXe.class))).thenAnswer(inv -> {
+            VeXe v = inv.getArgument(0);
+            v.setMa(51L);
+            return 1;
+        });
+        when(anhXaVeXe.timTheoMa(51L)).thenReturn(
+                VeXe.builder().ma(51L).maChuyen(1178L).maKhach(2L).maGhe(200L).trangThai("PENDING").build());
+        when(anhXaVeXe.timTheoMaVeHienThi(anyString())).thenReturn(null);
+
+        YeuCauDatVe y = yeuCauDatVe(1178L);
+        y.setMaGhe(200L);
+        dichVu.datVe("u", y);
+
+        verify(anhXaVeXe).xoaVeInactiveTheoChuyenGhe(1178L, 200L, null);
+        verify(anhXaVeXe).them(any(VeXe.class));
+    }
+
+    @Test
     @DisplayName("huyVe thành công vé PENDING của chủ tài khoản")
     void huyVe_pending_thanhCong() {
         VeXe ve = VeXe.builder().ma(1L).maKhach(2L).trangThai("PENDING").thoiGianDat(LocalDateTime.now()).build();

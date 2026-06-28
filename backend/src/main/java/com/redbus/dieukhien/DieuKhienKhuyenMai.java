@@ -2,11 +2,16 @@ package com.redbus.dieukhien;
 
 import com.redbus.dichvu.DichVuKhuyenMai;
 import com.redbus.mohinh.KhuyenMai;
+import com.redbus.truyen.KetQuaApDungKhuyenMai;
+import com.redbus.truyen.KetQuaTinhTongKhuyenMai;
 import com.redbus.truyen.PhanHoiChung;
+import com.redbus.truyen.YeuCauTinhTongKhuyenMai;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -19,6 +24,17 @@ public class DieuKhienKhuyenMai {
     @GetMapping("/hien-thi")
     public PhanHoiChung<List<KhuyenMai>> hienThi() {
         return PhanHoiChung.ok(dichVuKhuyenMai.dangHieuLuc());
+    }
+
+    @GetMapping("/ap-dung")
+    public PhanHoiChung<KetQuaApDungKhuyenMai> apDung(
+            @RequestParam String maCode, @RequestParam BigDecimal giaGoc) {
+        return PhanHoiChung.ok(dichVuKhuyenMai.apDungMaCode(maCode, giaGoc));
+    }
+
+    @PostMapping("/tinh-tong")
+    public PhanHoiChung<KetQuaTinhTongKhuyenMai> tinhTong(@Valid @RequestBody YeuCauTinhTongKhuyenMai yeuCau) {
+        return PhanHoiChung.ok(dichVuKhuyenMai.tinhTong(yeuCau));
     }
 
     @GetMapping

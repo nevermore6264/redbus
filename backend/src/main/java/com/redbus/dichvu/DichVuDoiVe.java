@@ -34,6 +34,7 @@ public class DichVuDoiVe {
         VeXe ve = kiemTraVeDoiDuoc(tenDangNhap, maVe);
         ChuyenXe cx = anhXaChuyenXe.timTheoMa(ve.getMaChuyen());
         kiemTraGheTrong(cx, yeuCau.getMaGheMoi(), ve.getMa());
+        anhXaVeXe.xoaVeInactiveTheoChuyenGhe(cx.getMa(), yeuCau.getMaGheMoi(), ve.getMa());
         anhXaVeXe.capNhatGhe(maVe, yeuCau.getMaGheMoi());
         thongBaoDoi(tenDangNhap, maVe, "Đổi ghế thành công");
         return anhXaVeXe.timTheoMa(maVe);
@@ -51,6 +52,8 @@ public class DichVuDoiVe {
             throw new IllegalStateException("Chỉ đổi sang chuyến cùng tuyến");
         }
         kiemTraGheTrong(cxMoi, yeuCau.getMaGheMoi(), ve.getMa());
+        anhXaVeXe.xoaVeInactiveTheoChuyenGhe(
+                cxMoi.getMa(), yeuCau.getMaGheMoi(), ve.getMa());
         anhXaVeXe.capNhatChuyenVaGhe(maVe, yeuCau.getMaChuyenMoi(), yeuCau.getMaGheMoi());
         thongBaoDoi(tenDangNhap, maVe, "Đổi chuyến thành công");
         return anhXaVeXe.timTheoMa(maVe);

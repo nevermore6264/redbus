@@ -2,11 +2,16 @@ package com.redbus.dichvu;
 
 import com.redbus.anhxa.AnhXaKhuyenMai;
 import com.redbus.mohinh.KhuyenMai;
+import com.redbus.truyen.KetQuaApDungKhuyenMai;
+import com.redbus.truyen.KetQuaTinhTongKhuyenMai;
+import com.redbus.truyen.YeuCauTinhTongKhuyenMai;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -92,5 +97,93 @@ public class DichVuKhuyenMai {
     public void xoa(Long ma) {
         layTheoMa(ma);
         anhXaKhuyenMai.xoa(ma);
+    }
+
+    public KetQuaApDungKhuyenMai apDungMaCode(String maCode, BigDecimal giaGoc) {
+        if (giaGoc == null || giaGoc.signum() <= 0) {
+            throw new IllegalArgumentException("Giá vé không hợp lệ");
+        }
+        if (maCode == null || maCode.isBlank()) {
+            return KetQuaApDungKhuyenMai.builder()
+                    .giaGoc(giaGoc)
+                    .soTienGiam(BigDecimal.ZERO)
+                    .giaSauGiam(giaGoc)
+                    .build();
+        }
+        KhuyenMai km = layKhuyenMaiHopLe(chuanHoaMaCode(maCode));
+        BigDecimal giam = tinhSoTienGiam(giaGoc, km);
+        BigDecimal sau = giaGoc.subtract(giam);
+        if (sau.signum() < 0) {
+            sau = BigDecimal.ZERO;
+        }
+        return KetQuaApDungKhuyenMai.builder()
+                .maCode(km.getMaCode())
+                .maKhuyenMai(km.getMa())
+                .tieuDe(km.getTieuDe())
+                .phanTramGiam(km.getPhanTramGiam())
+                .giaGoc(giaGoc)
+                .soTienGiam(giam)
+                .giaSauGiam(sau)
+                .build();
+    }
+
+    public KetQuaTinhTongKhuyenMai tinhTong(YeuCauTinhTongKhuyenMai yeuCau) {
+        if (yeuCau.getDsGiaVe() == null || yeuCau.getDsGiaVe().isEmpty()) {
+            throw new IllegalArgumentException("Thiếu danh sách giá vé");
+        }
+        List<KetQuaApDungKhuyenMai> chiTiet = new ArrayList<>();
+        BigDecimal tongGoc = BigDecimal.ZERO;
+        BigDecimal tongSau = BigDecimal.ZERO;
+        for (BigDecimal gia : yeuCau.getDsGiaVe()) {
+            if (gia == null || gia.signum() <= 0) {
+                throw new IllegalArgumentException("Giá vé không hợp lệ");
+            }
+            KetQuaApDungKhuyenMai tung = apDungMaCode(yeuCau.getMaCode(), gia);
+            chiTiet.add(tung);
+            tongGoc = tongGoc.add(gia);
+            tongSau = tongSau.add(tung.getGiaSauGiam());
+        }
+        KetQuaApDungKhuyenMai mau = chiTiet.get(0);
+        return KetQuaTinhTongKhuyenMai.builder()
+                .maCode(mau.getMaCode())
+                .maKhuyenMai(mau.getMaKhuyenMai())
+                .tieuDe(mau.getTieuDe())
+                .phanTramGiam(mau.getPhanTramGiam())
+                .soVe(chiTiet.size())
+                .tongGiaGoc(tongGoc)
+                .tongGiam(tongGoc.subtract(tongSau))
+                .tongSauGiam(tongSau)
+                .chiTietTungVe(chiTiet)
+                .build();
+    }
+
+    private KhuyenMai layKhuyenMaiHopLe(String maCode) {
+        KhuyenMai km = anhXaKhuyenMai.timTheoMaCode(maCode, null);
+        if (km == null || !Boolean.TRUE.equals(km.getHoatDong())) {
+            throw new IllegalArgumentException("Mã khuyến mãi không hợp lệ");
+        }
+        LocalDateTime luc = LocalDateTime.now();
+        if (luc.isBefore(km.getNgayBatDau()) || luc.isAfter(km.getNgayKetThuc())) {
+            throw new IllegalStateException("Mã khuyến mãi hết hạn hoặc chưa hiệu lực");
+        }
+        if (km.getSoLanToiDa() != null
+                && km.getSoLanDaDung() != null
+                && km.getSoLanDaDung() >= km.getSoLanToiDa()) {
+            throw new IllegalStateException("Mã khuyến mãi đã hết lượt dùng");
+        }
+        return km;
+    }
+
+    private BigDecimal tinhSoTienGiam(BigDecimal giaGoc, KhuyenMai km) {
+        BigDecimal pct = km.getPhanTramGiam() != null ? km.getPhanTramGiam() : BigDecimal.ZERO;
+        BigDecimal giam = giaGoc.multiply(pct).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        if (km.getSoTienGiamToiDa() != null && giam.compareTo(km.getSoTienGiamToiDa()) > 0) {
+            giam = km.getSoTienGiamToiDa();
+        }
+        return giam;
+    }
+
+    private String chuanHoaMaCode(String maCode) {
+        return maCode.trim().replaceAll("\\s+", "").toUpperCase();
     }
 }

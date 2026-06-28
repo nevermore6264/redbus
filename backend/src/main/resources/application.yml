@@ -51,7 +51,7 @@ app:
   frontend:
     url: ${FRONTEND_URL:http://localhost:5173}
   ve:
-    phut-cho-thanh-toan: ${VE_PHUT_CHO_TT:15}
+    phut-cho-thanh-toan: ${VE_PHUT_CHO_TT:5}
   mail:
     enabled: ${MAIL_ENABLED:true}
     from: ${MAIL_FROM:${spring.mail.username}}

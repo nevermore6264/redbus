@@ -15,7 +15,7 @@ public class DichVuHetHanVe {
 
     private final AnhXaVeXe anhXaVeXe;
 
-    @Value("${app.ve.phut-cho-thanh-toan:15}")
+    @Value("${app.ve.phut-cho-thanh-toan:5}")
     private int phutChoThanhToan;
 
     public int getPhutChoThanhToan() {

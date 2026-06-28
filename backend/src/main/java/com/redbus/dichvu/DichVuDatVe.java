@@ -151,6 +151,7 @@ public class DichVuDatVe {
                 throw new IllegalStateException("Ghế " + ghe.getMaGhe() + " đã được giữ");
             }
         }
+        anhXaVeXe.xoaVeInactiveTheoChuyenGhe(cx.getMa(), ghe.getMa(), null);
         VeXe ve =
                 VeXe.builder()
                         .maChuyen(cx.getMa())

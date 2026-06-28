@@ -2583,6 +2583,19 @@ code {
   color: var(--primary-2);
 }
 
+.booking-aside__code-btn {
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.booking-aside__code-btn:hover .booking-aside__code {
+  background: rgba(225, 29, 72, 0.18);
+}
+
 .booking-aside__cta {
   display: flex;
   align-items: center;
@@ -8431,9 +8444,17 @@ code {
 
 .ve-panel__promo {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
   gap: 0.65rem;
   margin-bottom: 1rem;
+}
+
+.ve-panel__promo-preview {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
 }
 
 .ve-panel__promo-icon {

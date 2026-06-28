@@ -126,4 +126,12 @@
         WHERE trang_thai = 'PENDING'
           AND thoi_gian_dat &lt; DATE_SUB(NOW(), INTERVAL #{phut} MINUTE)
     </update>
+
+    <delete id="xoaVeInactiveTheoChuyenGhe">
+        DELETE FROM ve_xe
+        WHERE ma_chuyen = #{maChuyen}
+          AND ma_ghe_ngoi = #{maGhe}
+          AND UPPER(trang_thai) IN ('CANCELLED', 'EXPIRED', 'REFUNDED')
+          <if test="maLoaiTru != null">AND ma != #{maLoaiTru}</if>
+    </delete>
 </mapper>

@@ -41,7 +41,20 @@ class DichVuThanhToanTest {
     @Mock private DichVuGuiMail dichVuGuiMail;
     @Mock private DichVuThongBao dichVuThongBao;
     @Mock private DichVuHetHanVe dichVuHetHanVe;
+    @Mock private DichVuKhuyenMai dichVuKhuyenMai;
     @InjectMocks private DichVuThanhToan dichVu;
+
+    private void stubGiaKhongKm() {
+        when(dichVuKhuyenMai.apDungMaCode(any(), any(BigDecimal.class)))
+                .thenAnswer(inv -> {
+                    BigDecimal goc = inv.getArgument(1);
+                    return com.redbus.truyen.KetQuaApDungKhuyenMai.builder()
+                            .giaGoc(goc)
+                            .soTienGiam(BigDecimal.ZERO)
+                            .giaSauGiam(goc)
+                            .build();
+                });
+    }
 
     @BeforeEach
     void setUp() {
@@ -98,7 +111,7 @@ class DichVuThanhToanTest {
         ChuyenXe cx = ChuyenXe.builder().ma(10L).maTuyen(3L).giaVe(BigDecimal.valueOf(200000)).thoiDiemKhoiHanh(LocalDateTime.now().plusDays(1)).build();
         when(anhXaTaiKhoan.timTheoTenDangNhap("u")).thenReturn(tk);
         when(anhXaKhachHang.timTheoMaTaiKhoan(1L)).thenReturn(kh);
-        when(anhXaVeXe.huyPendingQuaHanTheoKhach(2L, 15)).thenReturn(0);
+        when(anhXaVeXe.huyPendingQuaHanTheoKhach(2L, 5)).thenReturn(0);
         when(anhXaVeXe.timTheoMa(5L)).thenReturn(v1);
         when(anhXaVeXe.timTheoMa(6L)).thenReturn(v2);
         when(anhXaChuyenXe.timTheoMa(10L)).thenReturn(cx);
@@ -106,6 +119,7 @@ class DichVuThanhToanTest {
         when(anhXaTuyenDuong.timTheoMa(3L)).thenReturn(TuyenDuong.builder().diemDi("A").diemDen("B").build());
         when(anhXaGheNgoi.timTheoMa(30L)).thenReturn(GheNgoi.builder().maGhe("A1").build());
         when(anhXaGheNgoi.timTheoMa(31L)).thenReturn(GheNgoi.builder().maGhe("A2").build());
+        stubGiaKhongKm();
 
         YeuCauThanhToanGop yc = new YeuCauThanhToanGop();
         yc.setDsMaVe(List.of(5L, 6L));
@@ -153,13 +167,14 @@ class DichVuThanhToanTest {
         ChuyenXe cx = ChuyenXe.builder().ma(10L).maTuyen(3L).giaVe(BigDecimal.valueOf(200000)).thoiDiemKhoiHanh(LocalDateTime.now().plusDays(1)).build();
         when(anhXaTaiKhoan.timTheoTenDangNhap("u")).thenReturn(tk);
         when(anhXaKhachHang.timTheoMaTaiKhoan(1L)).thenReturn(kh);
-        when(anhXaVeXe.huyPendingQuaHanTheoKhach(2L, 15)).thenReturn(0);
+        when(anhXaVeXe.huyPendingQuaHanTheoKhach(2L, 5)).thenReturn(0);
         when(anhXaVeXe.timTheoMa(5L)).thenReturn(ve).thenReturn(ve);
         when(anhXaChuyenXe.timTheoMa(10L)).thenReturn(cx);
         when(anhXaHinhThucThanhToan.timTheoMaLoai("TIEN_MAT")).thenReturn(HinhThucThanhToan.builder().ma(1L).maLoai("TIEN_MAT").build());
         when(anhXaTuyenDuong.timTheoMa(3L)).thenReturn(TuyenDuong.builder().diemDi("A").diemDen("B").build());
         when(anhXaGheNgoi.timTheoMa(30L)).thenReturn(GheNgoi.builder().maGhe("A1").build());
         when(anhXaThanhToan.timTheoMa(5L)).thenReturn(GiaoDichThanhToan.builder().ma(5L).build());
+        stubGiaKhongKm();
         dichVu.tienMatTaiQuay("u", 5L, null);
         verify(anhXaVeXe).capNhatThanhToan(any(VeXe.class));
         verify(dichVuThongBao).guiNhanh(eq(1L), anyString(), anyString());

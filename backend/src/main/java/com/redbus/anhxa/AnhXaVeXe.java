@@ -68,4 +68,9 @@ public interface AnhXaVeXe {
             @Param("ma") Long ma,
             @Param("maChuyen") Long maChuyen,
             @Param("maGhe") Long maGhe);
+
+    int xoaVeInactiveTheoChuyenGhe(
+            @Param("maChuyen") Long maChuyen,
+            @Param("maGhe") Long maGhe,
+            @Param("maLoaiTru") Long maLoaiTru);
 }

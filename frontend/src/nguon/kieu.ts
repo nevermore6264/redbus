@@ -211,6 +211,28 @@ export interface KhuyenMai {
   hoatDong?: boolean
 }
 
+export interface KetQuaApDungKm {
+  maCode?: string
+  maKhuyenMai?: number
+  tieuDe?: string
+  phanTramGiam?: number | string
+  giaGoc?: number | string
+  soTienGiam?: number | string
+  giaSauGiam?: number | string
+}
+
+export interface KetQuaTinhTongKm {
+  maCode?: string
+  maKhuyenMai?: number
+  tieuDe?: string
+  phanTramGiam?: number | string
+  soVe: number
+  tongGiaGoc: number | string
+  tongGiam: number | string
+  tongSauGiam: number | string
+  chiTietTungVe?: KetQuaApDungKm[]
+}
+
 export interface DanhGiaChuyen {
   ma: number
   maChuyen: number

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Armchair, CalendarClock, CalendarRange, MapPin, RefreshCw, Tag, Ticket } from 'lucide-react'
+import { Armchair, CalendarClock, CalendarRange, MapPin, RefreshCw, Ticket } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
 import type { PhanHoi, PhanHoiLinkPayOs, PhanHoiThanhToanGop, VeDienTu, VeXe, ChuyenXe, TuyenDuong, GheNgoi, KetQuaHuyVe, YeuCauHuyVeHoanTien } from '../nguon/kieu'
 import { dungThongBao } from '../dinhDanh/boiCanhThongBao'
@@ -18,6 +18,8 @@ import { CuaSoDoiVe, coTheDoiVe, type ThongTinVeDoi } from '../thanhPhan/CuaSoDo
 import { conLaiGiayThanhToan, daHetHanThanhToan } from '../tienIch/hetHanThanhToan'
 import { DANH_SACH_NGAN_HANG } from '../tienIch/danhSachNganHang'
 import { chuanHoaTenNguoiNhanHoan } from '../tienIch/chuoiTiengViet'
+import { docMaKmSession, mapGiaSauTheoMa, tinhTongKhuyenMai } from '../tienIch/khuyenMai'
+import type { KetQuaTinhTongKm } from '../nguon/kieu'
 
 function laVeDaHuy(trangThai: string) {
   return trangThai === 'CANCELLED' || trangThai === 'EXPIRED' || trangThai === 'REFUNDED' || trangThai === 'REFUND_PENDING'
@@ -42,7 +44,9 @@ export function TrangVeCuaToi() {
   const [dsVe, datVe] = useState<VeXe[]>([])
   const [phu, datPhu] = useState<Record<number, BamPhu>>({})
   const [tai, datTai] = useState(true)
-  const [maKhuyenMai, datMaKhuyenMai] = useState('')
+  const [previewKm, datPreviewKm] = useState<KetQuaTinhTongKm | null>(null)
+  const [loiKm, datLoiKm] = useState('')
+  const [dangTinhKm, datDangTinhKm] = useState(false)
   const [boLoc, datBoLoc] = useState<BoLoc>('ALL')
   const [veDaChon, datVeDaChon] = useState<Set<number>>(() => new Set())
   const [veDangXuLy, datVeDangXuLy] = useState<number | null>(null)
@@ -160,14 +164,65 @@ export function TrangVeCuaToi() {
     [dsVe, lucHienTai],
   )
 
+  const maKmSession = docMaKmSession().trim()
+
   const soVeDaChon = veDaChon.size
-  const tongTamTinh = useMemo(() => {
+
+  const dsVeChoKm = useMemo(
+    () =>
+      veChoThanhToan
+        .map((v) => ({ ma: v.ma, gia: phu[v.ma]?.giaSo ?? 0 }))
+        .filter((x) => x.gia > 0),
+    [veChoThanhToan, phu],
+  )
+
+  const giaSauTheoMa = useMemo(
+    () => mapGiaSauTheoMa(dsVeChoKm.map((x) => x.ma), previewKm?.chiTietTungVe),
+    [dsVeChoKm, previewKm],
+  )
+
+  useEffect(() => {
+    if (!maKmSession || dsVeChoKm.length === 0) {
+      datPreviewKm(null)
+      datLoiKm('')
+      return
+    }
+    const timer = window.setTimeout(() => {
+      datDangTinhKm(true)
+      void tinhTongKhuyenMai(
+        maKmSession,
+        dsVeChoKm.map((x) => x.gia),
+      )
+        .then((kq) => {
+          datPreviewKm(kq)
+          datLoiKm('')
+        })
+        .catch((e: unknown) => {
+          datPreviewKm(null)
+          datLoiKm(e instanceof Error ? e.message : 'Mã khuyến mãi không hợp lệ')
+        })
+        .finally(() => datDangTinhKm(false))
+    }, 400)
+    return () => window.clearTimeout(timer)
+  }, [maKmSession, dsVeChoKm])
+
+  const tongTamTinhGoc = useMemo(() => {
     let tong = 0
     for (const ma of veDaChon) {
       tong += phu[ma]?.giaSo ?? 0
     }
     return tong
   }, [veDaChon, phu])
+
+  const tongTamTinhSauGiam = useMemo(() => {
+    let tong = 0
+    for (const ma of veDaChon) {
+      tong += giaSauTheoMa[ma] ?? phu[ma]?.giaSo ?? 0
+    }
+    return tong
+  }, [veDaChon, phu, giaSauTheoMa])
+
+  const coGiamGia = maKmSession.length > 0 && previewKm != null && !loiKm
 
   function chonVe(ma: number, chon: boolean) {
     datVeDaChon((prev) => {
@@ -187,7 +242,8 @@ export function TrangVeCuaToi() {
   }
 
   function thanPayload() {
-    return maKhuyenMai.trim() ? { maKhuyenMai: maKhuyenMai.trim() } : {}
+    const ma = docMaKmSession().trim()
+    return ma ? { maKhuyenMai: ma } : {}
   }
 
   async function thanhToanGopTienMat() {
@@ -236,7 +292,7 @@ export function TrangVeCuaToi() {
   async function thanhToanTienMat(maVe: number) {
     datVeDangXuLy(maVe)
     try {
-      const than = maKhuyenMai.trim() ? { maKhuyenMai: maKhuyenMai.trim() } : {}
+      const than = thanPayload()
       await moKhoiDuLieu(
         khachHttp.post<PhanHoi<unknown>>(`/thanh-toan/ve/${maVe}/tien-mat`, than),
       )
@@ -252,7 +308,7 @@ export function TrangVeCuaToi() {
   async function thanhToanPayOs(maVe: number) {
     datVeDangXuLy(maVe)
     try {
-      const than = maKhuyenMai.trim() ? { maKhuyenMai: maKhuyenMai.trim() } : {}
+      const than = thanPayload()
       const link = await moKhoiDuLieu(
         khachHttp.post<PhanHoi<PhanHoiLinkPayOs>>(`/thanh-toan/ve/${maVe}/payos`, than),
       )
@@ -382,19 +438,6 @@ export function TrangVeCuaToi() {
             />
           </div>
 
-          <div className="ve-panel__promo">
-            <span className="ve-panel__promo-icon" aria-hidden>
-              <Tag size={18} />
-            </span>
-            <TruongNhap
-              nhan=""
-              goiY="Mã khuyến mãi khi thanh toán vé chờ"
-              placeholder="Mã KM — VD: REDBUS10"
-              value={maKhuyenMai}
-              onChange={(e) => datMaKhuyenMai(e.target.value)}
-            />
-          </div>
-
           <div className="ve-panel__tabs" role="tablist" aria-label="Lọc vé">
             {BO_LOC.map((b) => (
               <button
@@ -410,6 +453,27 @@ export function TrangVeCuaToi() {
               </button>
             ))}
           </div>
+
+          {maKmSession && veChoThanhToan.length > 0 ? (
+            <p className="ve-panel__promo-preview">
+              {dangTinhKm ? (
+                <span className="muted">Đang tính giảm giá mã {maKmSession}…</span>
+              ) : loiKm ? (
+                <span className="muted">
+                  Mã <strong>{maKmSession}</strong> không áp dụng: {loiKm}
+                </span>
+              ) : previewKm ? (
+                <>
+                  Mã <strong>{maKmSession}</strong>
+                  {previewKm.tieuDe ? ` · ${previewKm.tieuDe}` : ''}:{' '}
+                  <s className="muted">{dinhDangVnd(previewKm.tongGiaGoc)}</s>{' '}
+                  <strong>{dinhDangVnd(previewKm.tongSauGiam)}</strong>
+                  <span className="muted"> (−{dinhDangVnd(previewKm.tongGiam)})</span>
+                  <span className="muted"> · áp dụng khi thanh toán</span>
+                </>
+              ) : null}
+            </p>
+          ) : null}
 
           {veChoThanhToan.length > 0 ? (
             <div className="ve-panel__bulk-hint muted small">
@@ -427,10 +491,23 @@ export function TrangVeCuaToi() {
           <div className="ve-panel__bulk-bar" role="region" aria-label="Thanh toán gộp">
             <div className="ve-panel__bulk-info">
               <strong>{soVeDaChon} vé</strong>
-              <span className="muted"> · Tạm tính {dinhDangVnd(tongTamTinh)}</span>
-              {maKhuyenMai.trim() ? (
-                <span className="muted small"> (KM áp dụng từng vé khi thanh toán)</span>
-              ) : null}
+              <span className="muted">
+                {' '}
+                · Tạm tính{' '}
+                {dangTinhKm && maKmSession ? (
+                  '…'
+                ) : coGiamGia && tongTamTinhSauGiam < tongTamTinhGoc ? (
+                  <>
+                    <s>{dinhDangVnd(tongTamTinhGoc)}</s> {dinhDangVnd(tongTamTinhSauGiam)}
+                    <span className="small">
+                      {' '}
+                      (−{dinhDangVnd(tongTamTinhGoc - tongTamTinhSauGiam)})
+                    </span>
+                  </>
+                ) : (
+                  dinhDangVnd(tongTamTinhGoc)
+                )}
+              </span>
             </div>
             <div className="ve-panel__bulk-actions">
               <NutBam
@@ -525,7 +602,16 @@ export function TrangVeCuaToi() {
                         <Armchair size={15} aria-hidden />
                         Ghế <strong>{x?.maGhe ?? '…'}</strong>
                       </li>
-                      <li className="ve-card__price">{x?.gia ?? '…'}</li>
+                      <li className="ve-card__price">
+                        {choThanhToan && coGiamGia && giaSauTheoMa[t.ma] != null ? (
+                          <>
+                            <s className="muted">{x?.gia}</s>{' '}
+                            <strong>{dinhDangVnd(giaSauTheoMa[t.ma])}</strong>
+                          </>
+                        ) : (
+                          (x?.gia ?? '…')
+                        )}
+                      </li>
                     </ul>
 
                     {choThanhToan && t.thoiGianDat ? (

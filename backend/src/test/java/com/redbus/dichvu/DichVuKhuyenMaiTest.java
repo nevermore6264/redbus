@@ -2,6 +2,7 @@ package com.redbus.dichvu;
 
 import com.redbus.anhxa.AnhXaKhuyenMai;
 import com.redbus.mohinh.KhuyenMai;
+import com.redbus.truyen.YeuCauTinhTongKhuyenMai;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -169,6 +170,28 @@ class DichVuKhuyenMaiTest {
         when(anhXaKhuyenMai.timTheoMa(1L)).thenReturn(hopLe);
         dichVu.xoa(1L);
         verify(anhXaKhuyenMai).xoa(1L);
+    }
+
+    @Test
+    @DisplayName("apDungMaCode giảm đúng phần trăm")
+    void apDungMaCode_giamDung() {
+        when(anhXaKhuyenMai.timTheoMaCode(eq("KM10"), isNull())).thenReturn(hopLe);
+        var kq = dichVu.apDungMaCode("KM10", BigDecimal.valueOf(200_000));
+        assertEquals(BigDecimal.valueOf(20_000), kq.getSoTienGiam());
+        assertEquals(BigDecimal.valueOf(180_000), kq.getGiaSauGiam());
+        assertEquals(1L, kq.getMaKhuyenMai());
+    }
+
+    @Test
+    @DisplayName("tinhTong nhiều vé cùng mã")
+    void tinhTong_nhieuVe() {
+        when(anhXaKhuyenMai.timTheoMaCode(eq("KM10"), isNull())).thenReturn(hopLe);
+        YeuCauTinhTongKhuyenMai yc = new YeuCauTinhTongKhuyenMai();
+        yc.setMaCode("KM10");
+        yc.setDsGiaVe(List.of(BigDecimal.valueOf(200_000), BigDecimal.valueOf(200_000)));
+        var kq = dichVu.tinhTong(yc);
+        assertEquals(2, kq.getSoVe());
+        assertEquals(BigDecimal.valueOf(360_000), kq.getTongSauGiam());
     }
 
     private static KhuyenMai banSao(KhuyenMai goc) {

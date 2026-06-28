@@ -59,6 +59,7 @@ public class DichVuThanhToan {
     private final AnhXaTaiKhoan anhXaTaiKhoan;
     private final AnhXaKhachHang anhXaKhachHang;
     private final AnhXaKhuyenMai anhXaKhuyenMai;
+    private final DichVuKhuyenMai dichVuKhuyenMai;
     private final AnhXaHinhThucThanhToan anhXaHinhThucThanhToan;
     private final AnhXaTuyenDuong anhXaTuyenDuong;
     private final AnhXaGheNgoi anhXaGheNgoi;
@@ -351,33 +352,8 @@ public class DichVuThanhToan {
     private KetQuaGia tinhGia(VeXe ve, String maKhuyenMai) {
         ChuyenXe cx = anhXaChuyenXe.timTheoMa(ve.getMaChuyen());
         BigDecimal gia = cx.getGiaVe();
-        Long maKm = null;
-        if (maKhuyenMai != null && !maKhuyenMai.isBlank()) {
-            KhuyenMai km = anhXaKhuyenMai.timTheoMaCode(maKhuyenMai.trim(), null);
-            if (km == null || !Boolean.TRUE.equals(km.getHoatDong())) {
-                throw new IllegalArgumentException("Mã khuyến mãi không hợp lệ");
-            }
-            LocalDateTime luc = LocalDateTime.now();
-            if (luc.isBefore(km.getNgayBatDau()) || luc.isAfter(km.getNgayKetThuc())) {
-                throw new IllegalStateException("Mã khuyến mãi hết hạn hoặc chưa hiệu lực");
-            }
-            if (km.getSoLanToiDa() != null
-                    && km.getSoLanDaDung() != null
-                    && km.getSoLanDaDung() >= km.getSoLanToiDa()) {
-                throw new IllegalStateException("Mã khuyến mãi đã hết lượt dùng");
-            }
-            BigDecimal pct = km.getPhanTramGiam() != null ? km.getPhanTramGiam() : BigDecimal.ZERO;
-            BigDecimal giam = gia.multiply(pct).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-            if (km.getSoTienGiamToiDa() != null && giam.compareTo(km.getSoTienGiamToiDa()) > 0) {
-                giam = km.getSoTienGiamToiDa();
-            }
-            gia = gia.subtract(giam);
-            if (gia.compareTo(BigDecimal.ZERO) < 0) {
-                gia = BigDecimal.ZERO;
-            }
-            maKm = km.getMa();
-        }
-        return new KetQuaGia(gia, maKm);
+        var kq = dichVuKhuyenMai.apDungMaCode(maKhuyenMai, gia);
+        return new KetQuaGia(kq.getGiaSauGiam(), kq.getMaKhuyenMai());
     }
 
     private KetQuaGia giaTuVeTam(VeXe ve) {
