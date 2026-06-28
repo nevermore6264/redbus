@@ -4,6 +4,8 @@ const sac: Record<string, string> = {
   PENDING: 'badge--warn',
   PAID: 'badge--ok',
   CANCELLED: 'badge--muted',
+  REFUNDED: 'badge--info',
+  REFUND_PENDING: 'badge--warn',
   EXPIRED: 'badge--expired',
   SCHEDULED: 'badge--info',
   SUCCESS: 'badge--ok',

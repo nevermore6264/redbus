@@ -28,6 +28,7 @@ import { TrangTraCuuVe } from './trang/TrangTraCuuVe'
 import { TrangHoTroChat } from './trang/TrangHoTroChat'
 import { TrangKhongTimThay } from './trang/TrangKhongTimThay'
 import { TrangHoTroChatQuanTri } from './trang/quanTri/TrangHoTroChat'
+import { TrangHoanTien } from './trang/quanTri/TrangHoanTien'
 
 export function UngDung() {
   return (
@@ -73,6 +74,7 @@ export function UngDung() {
         <Route path="khuyen-mai" element={<TrangKhuyenMai />} />
         <Route path="tin-tuc" element={<TrangTinTucQuanTri />} />
         <Route path="ho-tro" element={<TrangHoTroChatQuanTri />} />
+        <Route path="hoan-tien" element={<TrangHoanTien />} />
         <Route path="*" element={<Navigate to="tong-quan" replace />} />
       </Route>
 

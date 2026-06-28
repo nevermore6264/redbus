@@ -42,6 +42,7 @@
     </update>
 
     <update id="tangSoLanDung">UPDATE khuyen_mai SET so_lan_da_dung = so_lan_da_dung + 1 WHERE ma = #{ma}</update>
+    <update id="giamSoLanDung">UPDATE khuyen_mai SET so_lan_da_dung = GREATEST(so_lan_da_dung - 1, 0) WHERE ma = #{ma}</update>
 
     <delete id="xoa">DELETE FROM khuyen_mai WHERE ma = #{ma}</delete>
 </mapper>

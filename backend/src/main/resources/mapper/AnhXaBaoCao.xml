@@ -10,14 +10,21 @@
 
     <select id="doanhThuTheoNgay" resultMap="mucBieuDo">
         SELECT DATE_FORMAT(x.ngay, '%d/%m') AS nhan,
-               COUNT(*) AS so_luong,
-               COALESCE(SUM(x.so_tien_thanh_toan), 0) AS gia_tri
+               SUM(CASE WHEN x.gia_tri &gt; 0 THEN 1 ELSE 0 END) AS so_luong,
+               COALESCE(SUM(x.gia_tri), 0) AS gia_tri
         FROM (
-            SELECT DATE(v.thoi_gian_thanh_toan) AS ngay, v.so_tien_thanh_toan
+            SELECT DATE(v.thoi_gian_thanh_toan) AS ngay, v.so_tien_thanh_toan AS gia_tri
             FROM ve_xe v
-            WHERE v.trang_thai = 'PAID'
+            WHERE v.trang_thai IN ('PAID', 'REFUND_PENDING')
               AND v.thoi_gian_thanh_toan IS NOT NULL
               AND v.thoi_gian_thanh_toan &gt;= DATE_SUB(CURDATE(), INTERVAL #{soNgay} - 1 DAY)
+            UNION ALL
+            SELECT DATE(v.thoi_gian_hoan) AS ngay, -v.so_tien_hoan AS gia_tri
+            FROM ve_xe v
+            WHERE v.trang_thai = 'REFUNDED'
+              AND v.thoi_gian_hoan IS NOT NULL
+              AND v.so_tien_hoan IS NOT NULL
+              AND v.thoi_gian_hoan &gt;= DATE_SUB(CURDATE(), INTERVAL #{soNgay} - 1 DAY)
         ) x
         GROUP BY x.ngay
         ORDER BY x.ngay ASC
@@ -36,7 +43,7 @@
                COALESCE(SUM(v.so_tien_thanh_toan), 0) AS gia_tri
         FROM ve_xe v
         LEFT JOIN hinh_thuc_thanh_toan h ON v.ma_hinh_thuc = h.ma
-        WHERE v.trang_thai = 'PAID'
+        WHERE v.trang_thai IN ('PAID', 'REFUND_PENDING')
         GROUP BY COALESCE(h.ten, h.ma_loai, 'Khác')
         ORDER BY so_luong DESC
     </select>
@@ -48,7 +55,7 @@
         FROM ve_xe v
         INNER JOIN chuyen_xe cx ON v.ma_chuyen = cx.ma
         INNER JOIN tuyen_duong t ON cx.ma_tuyen = t.ma
-        WHERE v.trang_thai = 'PAID'
+        WHERE v.trang_thai IN ('PAID', 'REFUND_PENDING')
         GROUP BY t.ma, t.diem_di, t.diem_den, CONCAT(t.diem_di, ' → ', t.diem_den)
         ORDER BY so_luong DESC
         LIMIT #{gioiHan}

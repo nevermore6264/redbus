@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Armchair, CalendarClock, CalendarRange, MapPin, RefreshCw, Tag, Ticket } from 'lucide-react'
 import { khachHttp, moKhoiDuLieu } from '../nguon/apiClient'
-import type { PhanHoi, PhanHoiLinkPayOs, PhanHoiThanhToanGop, VeDienTu, VeXe, ChuyenXe, TuyenDuong, GheNgoi } from '../nguon/kieu'
+import type { PhanHoi, PhanHoiLinkPayOs, PhanHoiThanhToanGop, VeDienTu, VeXe, ChuyenXe, TuyenDuong, GheNgoi, KetQuaHuyVe, YeuCauHuyVeHoanTien } from '../nguon/kieu'
 import { dungThongBao } from '../dinhDanh/boiCanhThongBao'
 import { NenTrangKhach } from '../thanhPhan/NenTrangKhach'
 import { TheChua, TieuDeThe } from '../thanhPhan/theChua'
 import { NutBam, NutLienKet } from '../thanhPhan/nutBam'
-import { TruongNhap } from '../thanhPhan/truongNhap'
+import { TruongNhap, TruongChon } from '../thanhPhan/truongNhap'
 import { NhanHieu } from '../thanhPhan/nhanHieu'
 import { dinhDangNgayGio, dinhDangVnd } from '../tienIch/dinhDang'
 import { trangThaiSangTiengViet } from '../tienIch/trangThai'
@@ -16,9 +16,11 @@ import { CuaSo } from '../thanhPhan/cuaSo'
 import { VeDienTuPanel } from '../thanhPhan/VeDienTuPanel'
 import { CuaSoDoiVe, coTheDoiVe, type ThongTinVeDoi } from '../thanhPhan/CuaSoDoiVe'
 import { conLaiGiayThanhToan, daHetHanThanhToan } from '../tienIch/hetHanThanhToan'
+import { DANH_SACH_NGAN_HANG } from '../tienIch/danhSachNganHang'
+import { chuanHoaTenNguoiNhanHoan } from '../tienIch/chuoiTiengViet'
 
 function laVeDaHuy(trangThai: string) {
-  return trangThai === 'CANCELLED' || trangThai === 'EXPIRED'
+  return trangThai === 'CANCELLED' || trangThai === 'EXPIRED' || trangThai === 'REFUNDED' || trangThai === 'REFUND_PENDING'
 }
 
 type BamPhu = ThongTinVeDoi & {
@@ -46,6 +48,10 @@ export function TrangVeCuaToi() {
   const [veDangXuLy, datVeDangXuLy] = useState<number | null>(null)
   const [veDienTu, datVeDienTu] = useState<VeDienTu | null>(null)
   const [veDoiChon, datVeDoiChon] = useState<VeXe | null>(null)
+  const [veHuyChon, datVeHuyChon] = useState<VeXe | null>(null)
+  const [dangHuyVe, datDangHuyVe] = useState(false)
+  const [bieuHoan, datBieuHoan] = useState({ stk: '', tenNganHang: '', tenNguoiNhan: '' })
+  const [loiHoan, datLoiHoan] = useState<Partial<Record<'stk' | 'tenNganHang' | 'tenNguoiNhan' | 'chung', string>>>({})
   const [cheDoDoiVe, datCheDoDoiVe] = useState<'chuyen' | 'ghe'>('chuyen')
   const [lucHienTai, datLucHienTai] = useState(() => Date.now())
   const daThongBaoHetHan = useRef<Set<number>>(new Set())
@@ -274,18 +280,64 @@ export function TrangVeCuaToi() {
     }
   }
 
-  async function huyVe(ma: number) {
-    if (!confirm('Bạn có chắc muốn hủy vé này?')) return
+  async function thucHienHuyVe(ma: number, thongTinHoan?: YeuCauHuyVeHoanTien) {
     datVeDangXuLy(ma)
     try {
-      await moKhoiDuLieu(khachHttp.post<PhanHoi<unknown>>(`/ve-xe/${ma}/huy`))
-      hienThi({ loai: 'thanhCong', noiDung: 'Đã hủy vé' })
+      const kq = await moKhoiDuLieu(
+        khachHttp.post<PhanHoi<KetQuaHuyVe>>(`/ve-xe/${ma}/huy`, thongTinHoan ?? undefined),
+      )
+      hienThi({
+        loai: 'thanhCong',
+        noiDung:
+          kq.thongBao ??
+          (kq.trangThai === 'REFUND_PENDING'
+            ? 'Đã gửi yêu cầu hoàn tiền'
+            : kq.trangThai === 'REFUNDED'
+              ? 'Đã hủy vé và hoàn tiền'
+              : 'Đã hủy vé'),
+      })
+      datVeHuyChon(null)
+      datBieuHoan({ stk: '', tenNganHang: '', tenNguoiNhan: '' })
+      datLoiHoan({})
       void lamMoi()
     } catch (e: unknown) {
       hienThi({ loai: 'loi', noiDung: e instanceof Error ? e.message : 'Hủy vé thất bại' })
     } finally {
       datVeDangXuLy(null)
+      datDangHuyVe(false)
     }
+  }
+
+  function batDauHuyVe(t: VeXe) {
+    datLoiHoan({})
+    if (t.trangThai === 'PAID') {
+      datBieuHoan({ stk: '', tenNganHang: '', tenNguoiNhan: '' })
+    }
+    datVeHuyChon(t)
+  }
+
+  async function xacNhanHuyVe() {
+    if (!veHuyChon) return
+    if (veHuyCoHoan) {
+      const loi: Partial<Record<'stk' | 'tenNganHang' | 'tenNguoiNhan' | 'chung', string>> = {}
+      const stk = bieuHoan.stk.trim()
+      const tenNganHang = bieuHoan.tenNganHang.trim()
+      const tenNguoiNhan = bieuHoan.tenNguoiNhan.trim()
+      if (!stk) loi.stk = 'Nhập số tài khoản'
+      else if (!/^\d{6,20}$/.test(stk)) loi.stk = 'Số tài khoản không hợp lệ'
+      if (!tenNganHang) loi.tenNganHang = 'Chọn ngân hàng'
+      if (!tenNguoiNhan) loi.tenNguoiNhan = 'Nhập tên người nhận'
+      else if (!/^[A-Z ]+$/.test(tenNguoiNhan)) {
+        loi.tenNguoiNhan = 'Chỉ dùng chữ in hoa không dấu (A–Z)'
+      }
+      datLoiHoan(loi)
+      if (Object.keys(loi).length > 0) return
+      datDangHuyVe(true)
+      await thucHienHuyVe(veHuyChon.ma, { stk, tenNganHang, tenNguoiNhan })
+      return
+    }
+    datDangHuyVe(true)
+    await thucHienHuyVe(veHuyChon.ma)
   }
 
   function moDoiVe(t: VeXe, cheDo: 'chuyen' | 'ghe') {
@@ -304,11 +356,13 @@ export function TrangVeCuaToi() {
     (veDienTuGoc.trangThai === 'PAID' || veDienTuGoc.trangThai === 'PENDING') &&
     coTheDoiVe(phuVeDienTu?.thoiDiemKhoiHanh)
 
+  const veHuyCoHoan = veHuyChon?.trangThai === 'PAID'
+
   return (
     <NenTrangKhach
       Icon={Ticket}
       tieuDe="Vé của tôi"
-      moTa="Quản lý vé, thanh toán, đổi chuyến/ghế (trước giờ khởi hành 2 giờ) và vé điện tử."
+      moTa="Quản lý vé, thanh toán, hủy & hoàn tiền (trước giờ khởi hành 2 giờ), đổi chuyến/ghế và vé điện tử."
     >
       <TheChua padding="none" className="cust-panel ve-panel" aria-busy={tai}>
         <div className="ve-panel__toolbar">
@@ -429,7 +483,7 @@ export function TrangVeCuaToi() {
                 return (
                   <article
                     key={t.ma}
-                    className={`ve-card${choThanhToan ? ' ve-card--pending' : ''}${daChon ? ' ve-card--selected' : ''}${t.trangThai === 'CANCELLED' ? ' ve-card--cancelled' : ''}${t.trangThai === 'EXPIRED' ? ' ve-card--expired' : ''}`}
+                    className={`ve-card${choThanhToan ? ' ve-card--pending' : ''}${daChon ? ' ve-card--selected' : ''}${t.trangThai === 'CANCELLED' ? ' ve-card--cancelled' : ''}${t.trangThai === 'EXPIRED' ? ' ve-card--expired' : ''}${t.trangThai === 'REFUNDED' ? ' ve-card--cancelled' : ''}`}
                   >
                     <header className="ve-card__head">
                       {choThanhToan && !hetHanLocal ? (
@@ -478,6 +532,19 @@ export function TrangVeCuaToi() {
                       <DemNguocThanhToanVe thoiGianDat={t.thoiGianDat} lucHienTai={lucHienTai} />
                     ) : null}
 
+                    {t.trangThai === 'REFUND_PENDING' ? (
+                      <p className="ve-card__refund muted small">
+                        Đang chờ admin xác nhận hoàn {t.soTienHoan != null ? dinhDangVnd(t.soTienHoan) : 'tiền'}
+                        {t.tenNganHangHoan ? ` → ${t.tenNganHangHoan} ${t.stkHoan ?? ''}` : ''}
+                      </p>
+                    ) : null}
+                    {t.trangThai === 'REFUNDED' && t.soTienHoan != null ? (
+                      <p className="ve-card__refund muted small">
+                        Đã hoàn {dinhDangVnd(t.soTienHoan)}
+                        {t.thoiGianHoan ? ` · ${dinhDangNgayGio(t.thoiGianHoan)}` : ''}
+                      </p>
+                    ) : null}
+
                     {(t.trangThai === 'PAID' || duocDoiVe) ? (
                       <div className="ve-card__extra">
                         {t.trangThai === 'PAID' ? (
@@ -514,6 +581,15 @@ export function TrangVeCuaToi() {
                                 </>
                               }
                             />
+                            {t.trangThai === 'PAID' ? (
+                              <NutBam
+                                bien="huy"
+                                className="btn--sm"
+                                disabled={dangXuLy}
+                                onClick={() => batDauHuyVe(t)}
+                                con="Hủy & hoàn tiền"
+                              />
+                            ) : null}
                           </>
                         ) : null}
                       </div>
@@ -547,7 +623,7 @@ export function TrangVeCuaToi() {
                           bien="huy"
                           className="btn--sm ve-card__cancel"
                           disabled={dangXuLy}
-                          onClick={() => void huyVe(t.ma)}
+                          onClick={() => batDauHuyVe(t)}
                           con="Hủy vé"
                         />
                       </footer>
@@ -614,6 +690,79 @@ export function TrangVeCuaToi() {
         onClose={() => datVeDoiChon(null)}
         onThanhCong={() => void lamMoi()}
       />
+
+      <CuaSo
+        open={veHuyChon != null}
+        title={veHuyCoHoan ? 'Hủy vé & hoàn tiền' : 'Hủy vé'}
+        size="sm"
+        onClose={() => !dangHuyVe && datVeHuyChon(null)}
+        footer={
+          <>
+            <NutBam bien="huy" disabled={dangHuyVe} onClick={() => datVeHuyChon(null)} con="Đóng" />
+            <NutBam
+              bien="nguyHiem"
+              disabled={dangHuyVe}
+              onClick={() => void xacNhanHuyVe()}
+              con={dangHuyVe ? 'Đang hủy…' : 'Xác nhận hủy'}
+            />
+          </>
+        }
+      >
+        {veHuyChon ? (
+          <div className="form-stack modal-confirm-text">
+            <p>
+              Bạn có chắc muốn hủy vé <strong>#{veHuyChon.ma}</strong>
+              {veHuyChon.maVeHienThi ? ` (${veHuyChon.maVeHienThi})` : ''}?
+            </p>
+            {veHuyCoHoan ? (
+              <>
+                <p className="muted small">
+                  Hoàn <strong>100%</strong> số tiền đã thanh toán
+                  {veHuyChon.soTienThanhToan != null
+                    ? ` (${dinhDangVnd(veHuyChon.soTienThanhToan)})`
+                    : ''}
+                  . Admin sẽ chuyển khoản sau khi bạn gửi thông tin tài khoản.
+                </p>
+                <TruongNhap
+                  nhan="Số tài khoản"
+                  value={bieuHoan.stk}
+                  onChange={(e) => datBieuHoan({ ...bieuHoan, stk: e.target.value })}
+                  loi={loiHoan.stk}
+                  required
+                />
+                <TruongChon
+                  nhan="Tên ngân hàng"
+                  value={bieuHoan.tenNganHang}
+                  onChange={(e) => datBieuHoan({ ...bieuHoan, tenNganHang: e.target.value })}
+                  loi={loiHoan.tenNganHang}
+                  required
+                >
+                  <option value="">— Chọn ngân hàng —</option>
+                  {DANH_SACH_NGAN_HANG.map((nh) => (
+                    <option key={nh} value={nh}>
+                      {nh}
+                    </option>
+                  ))}
+                </TruongChon>
+                <TruongNhap
+                  nhan="Tên người nhận"
+                  value={bieuHoan.tenNguoiNhan}
+                  onChange={(e) =>
+                    datBieuHoan({ ...bieuHoan, tenNguoiNhan: chuanHoaTenNguoiNhanHoan(e.target.value) })
+                  }
+                  loi={loiHoan.tenNguoiNhan}
+                  goiY="In hoa không dấu, giống tên trên tài khoản ngân hàng (VD: NGUYEN VAN A)"
+                  required
+                />
+              </>
+            ) : (
+              <p className="muted small">
+                Ghế sẽ được giải phóng ngay. Vé chưa thanh toán sẽ không bị trừ phí.
+              </p>
+            )}
+          </div>
+        ) : null}
+      </CuaSo>
     </NenTrangKhach>
   )
 }

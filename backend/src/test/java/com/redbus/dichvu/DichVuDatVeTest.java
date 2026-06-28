@@ -32,6 +32,7 @@ class DichVuDatVeTest {
     @Mock private DichVuGuiMail dichVuGuiMail;
     @Mock private DichVuHetHanVe dichVuHetHanVe;
     @Mock private AnhXaDiemDungChan anhXaDiemDungChan;
+    @Mock private DichVuHuyVeHoanTien dichVuHuyVeHoanTien;
     @InjectMocks private DichVuDatVe dichVu;
 
     @Test
@@ -54,12 +55,15 @@ class DichVuDatVeTest {
     }
 
     @Test
-    @DisplayName("huyVe từ chối vé đã thanh toán")
-    void huyVe_daThanhToan_nemLoi() {
-        when(anhXaVeXe.timTheoMa(1L)).thenReturn(VeXe.builder().ma(1L).maKhach(2L).trangThai("PAID").build());
-        when(anhXaTaiKhoan.timTheoTenDangNhap("u")).thenReturn(TaiKhoan.builder().ma(1L).build());
-        when(anhXaKhachHang.timTheoMaTaiKhoan(1L)).thenReturn(KhachHang.builder().ma(2L).build());
-        assertThrows(IllegalStateException.class, () -> dichVu.huyVe("u", 1L));
+    @DisplayName("huyVe chuyển vé PAID sang hoàn tiền")
+    void huyVe_daThanhToan_goiHoanTien() {
+        VeXe ve = VeXe.builder().ma(1L).maKhach(2L).trangThai("PAID").build();
+        when(anhXaVeXe.timTheoMa(1L)).thenReturn(ve);
+        when(dichVuHuyVeHoanTien.huyVeDaThanhToan(eq("u"), eq(ve), any())).thenReturn(
+                com.redbus.truyen.KetQuaHuyVePhanHoi.builder().maVe(1L).trangThai("REFUND_PENDING").build());
+        var kq = dichVu.huyVe("u", 1L, new com.redbus.truyen.YeuCauHuyVeHoanTien());
+        assertEquals("REFUND_PENDING", kq.getTrangThai());
+        verify(dichVuHuyVeHoanTien).huyVeDaThanhToan(eq("u"), eq(ve), any());
     }
 
     @Test
@@ -126,7 +130,7 @@ class DichVuDatVeTest {
         when(anhXaVeXe.timTheoMa(1L)).thenReturn(ve);
         when(anhXaTaiKhoan.timTheoTenDangNhap("u")).thenReturn(TaiKhoan.builder().ma(1L).build());
         when(anhXaKhachHang.timTheoMaTaiKhoan(1L)).thenReturn(KhachHang.builder().ma(2L).build());
-        dichVu.huyVe("u", 1L);
+        dichVu.huyVe("u", 1L, null);
         verify(anhXaVeXe).capNhatTrangThai(1L, "CANCELLED");
     }
 
@@ -136,7 +140,7 @@ class DichVuDatVeTest {
         when(anhXaVeXe.timTheoMa(1L)).thenReturn(VeXe.builder().ma(1L).maKhach(99L).trangThai("PENDING").build());
         when(anhXaTaiKhoan.timTheoTenDangNhap("u")).thenReturn(TaiKhoan.builder().ma(1L).build());
         when(anhXaKhachHang.timTheoMaTaiKhoan(1L)).thenReturn(KhachHang.builder().ma(2L).build());
-        assertThrows(IllegalStateException.class, () -> dichVu.huyVe("u", 1L));
+        assertThrows(IllegalStateException.class, () -> dichVu.huyVe("u", 1L, null));
     }
 
     private static YeuCauDatVe yeuCauDatVe(Long maChuyen) {

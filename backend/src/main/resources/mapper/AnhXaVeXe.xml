@@ -17,6 +17,12 @@
         <result property="soTienThanhToan" column="so_tien_thanh_toan"/>
         <result property="maDonPayOs" column="ma_don_payos"/>
         <result property="thoiGianThanhToan" column="thoi_gian_thanh_toan"/>
+        <result property="soTienHoan" column="so_tien_hoan"/>
+        <result property="thoiGianHoan" column="thoi_gian_hoan"/>
+        <result property="thoiGianYeuCauHoan" column="thoi_gian_yeu_cau_hoan"/>
+        <result property="stkHoan" column="stk_hoan"/>
+        <result property="tenNganHangHoan" column="ten_ngan_hang_hoan"/>
+        <result property="tenNguoiNhanHoan" column="ten_nguoi_nhan_hoan"/>
     </resultMap>
 
     <select id="timTheoMa" resultMap="banDo">SELECT * FROM ve_xe WHERE ma = #{ma}</select>
@@ -53,6 +59,27 @@
     </update>
 
     <update id="capNhatTrangThai">UPDATE ve_xe SET trang_thai = #{trangThai} WHERE ma = #{ma}</update>
+
+    <update id="capNhatYeuCauHoanTien">
+        UPDATE ve_xe SET
+            trang_thai = #{trangThai},
+            so_tien_hoan = #{soTienHoan},
+            thoi_gian_yeu_cau_hoan = #{thoiGianYeuCauHoan},
+            stk_hoan = #{stkHoan},
+            ten_ngan_hang_hoan = #{tenNganHangHoan},
+            ten_nguoi_nhan_hoan = #{tenNguoiNhanHoan}
+        WHERE ma = #{ma}
+    </update>
+
+    <update id="capNhatXacNhanHoanTien">
+        UPDATE ve_xe SET trang_thai = 'REFUNDED', thoi_gian_hoan = #{thoiGianHoan}
+        WHERE ma = #{ma} AND trang_thai = 'REFUND_PENDING'
+    </update>
+
+    <select id="danhSachChoHoanTien" resultMap="banDo">
+        SELECT * FROM ve_xe WHERE trang_thai = 'REFUND_PENDING'
+        ORDER BY thoi_gian_yeu_cau_hoan ASC
+    </select>
 
     <update id="capNhatThanhToan">
         UPDATE ve_xe SET

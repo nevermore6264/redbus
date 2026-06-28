@@ -2,6 +2,8 @@ const BANG: Record<string, string> = {
   PENDING: 'Chờ thanh toán',
   PAID: 'Đã thanh toán',
   CANCELLED: 'Đã hủy',
+  REFUNDED: 'Đã hoàn tiền',
+  REFUND_PENDING: 'Chờ hoàn tiền',
   EXPIRED: 'Quá hạn thanh toán',
   SUCCESS: 'Thành công',
   FAILED: 'Thất bại',

@@ -2,13 +2,17 @@ package com.redbus.dieukhien;
 
 import com.redbus.dichvu.DichVuDatVe;
 import com.redbus.dichvu.DichVuDoiVe;
+import com.redbus.dichvu.DichVuHuyVeHoanTien;
 import com.redbus.dichvu.DichVuTraCuuVe;
 import com.redbus.mohinh.VeXe;
+import com.redbus.truyen.KetQuaHuyVePhanHoi;
 import com.redbus.truyen.PhanHoiChung;
 import com.redbus.truyen.VeDienTuPhanHoi;
 import com.redbus.truyen.YeuCauDatVe;
 import com.redbus.truyen.YeuCauDoiChuyen;
 import com.redbus.truyen.YeuCauDoiGhe;
+import com.redbus.truyen.YeuCauHuyVeHoanTien;
+import com.redbus.truyen.VeHoanTienPhanHoi;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,6 +30,20 @@ public class DieuKhienVeXe {
     private final DichVuDatVe dichVuDatVe;
     private final DichVuTraCuuVe dichVuTraCuuVe;
     private final DichVuDoiVe dichVuDoiVe;
+    private final DichVuHuyVeHoanTien dichVuHuyVeHoanTien;
+
+    @GetMapping("/hoan-tien/cho-xu-ly")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    public PhanHoiChung<List<VeHoanTienPhanHoi>> hoanTienChoXuLy() {
+        return PhanHoiChung.ok(dichVuHuyVeHoanTien.danhSachChoXuLy());
+    }
+
+    @PostMapping("/{ma}/xac-nhan-hoan")
+    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
+    public PhanHoiChung<VeHoanTienPhanHoi> xacNhanHoan(@PathVariable Long ma) {
+        VeHoanTienPhanHoi kq = dichVuHuyVeHoanTien.xacNhanHoanTien(ma);
+        return PhanHoiChung.ok("Đã xác nhận hoàn tiền", kq);
+    }
 
     @GetMapping("/cua-toi")
     @PreAuthorize("hasRole('CUSTOMER')")
@@ -43,9 +61,12 @@ public class DieuKhienVeXe {
 
     @PostMapping("/{ma}/huy")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public PhanHoiChung<Void> huy(@AuthenticationPrincipal UserDetails nguoiDung, @PathVariable Long ma) {
-        dichVuDatVe.huyVe(nguoiDung.getUsername(), ma);
-        return PhanHoiChung.ok("Đã hủy", null);
+    public PhanHoiChung<KetQuaHuyVePhanHoi> huy(
+            @AuthenticationPrincipal UserDetails nguoiDung,
+            @PathVariable Long ma,
+            @Valid @RequestBody(required = false) YeuCauHuyVeHoanTien yeuCau) {
+        KetQuaHuyVePhanHoi kq = dichVuDatVe.huyVe(nguoiDung.getUsername(), ma, yeuCau);
+        return PhanHoiChung.ok(kq.getThongBao() != null ? kq.getThongBao() : "Đã hủy", kq);
     }
 
     @GetMapping("/tra-cuu")

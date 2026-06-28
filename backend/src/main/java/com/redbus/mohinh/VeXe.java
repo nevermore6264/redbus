@@ -29,4 +29,10 @@ public class VeXe {
     private BigDecimal soTienThanhToan;
     private String maDonPayOs;
     private LocalDateTime thoiGianThanhToan;
+    private BigDecimal soTienHoan;
+    private LocalDateTime thoiGianHoan;
+    private LocalDateTime thoiGianYeuCauHoan;
+    private String stkHoan;
+    private String tenNganHangHoan;
+    private String tenNguoiNhanHoan;
 }

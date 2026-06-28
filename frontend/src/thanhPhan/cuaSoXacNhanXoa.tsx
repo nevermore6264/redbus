@@ -9,6 +9,7 @@ type Props = {
   onConfirm: () => void
   dangXoa?: boolean
   nhanNutXoa?: string
+  nhanDangTai?: string
   children: ReactNode
 }
 
@@ -19,6 +20,7 @@ export function CuaSoXacNhanXoa({
   onConfirm,
   dangXoa = false,
   nhanNutXoa = 'Xóa',
+  nhanDangTai = 'Đang xóa…',
   children,
 }: Props) {
   return (
@@ -34,7 +36,7 @@ export function CuaSoXacNhanXoa({
             bien="nguyHiem"
             onClick={() => void onConfirm()}
             disabled={dangXoa}
-            con={dangXoa ? 'Đang xóa…' : nhanNutXoa}
+            con={dangXoa ? nhanDangTai : nhanNutXoa}
           />
         </>
       }

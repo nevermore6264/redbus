@@ -19,6 +19,20 @@ public interface AnhXaVeXe {
 
     int capNhatTrangThai(@Param("ma") Long ma, @Param("trangThai") String trangThai);
 
+    int capNhatYeuCauHoanTien(
+            @Param("ma") Long ma,
+            @Param("trangThai") String trangThai,
+            @Param("soTienHoan") java.math.BigDecimal soTienHoan,
+            @Param("thoiGianYeuCauHoan") java.time.LocalDateTime thoiGianYeuCauHoan,
+            @Param("stkHoan") String stkHoan,
+            @Param("tenNganHangHoan") String tenNganHangHoan,
+            @Param("tenNguoiNhanHoan") String tenNguoiNhanHoan);
+
+    int capNhatXacNhanHoanTien(
+            @Param("ma") Long ma, @Param("thoiGianHoan") java.time.LocalDateTime thoiGianHoan);
+
+    List<VeXe> danhSachChoHoanTien();
+
     int capNhatThanhToan(VeXe veXe);
 
     int capNhatMaDonPayOs(@Param("ma") Long ma, @Param("maDonPayOs") String maDonPayOs);

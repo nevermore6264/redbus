@@ -84,6 +84,36 @@ export interface GheNgoi {
   trangThai: string
 }
 
+export interface VeHoanTien {
+  maVe: number
+  maVeHienThi?: string
+  trangThai: string
+  soTienHoan?: number
+  thoiGianYeuCauHoan?: string
+  stkHoan?: string
+  tenNganHangHoan?: string
+  tenNguoiNhanHoan?: string
+  tenKhach?: string
+  soDienThoaiKhach?: string
+  maChuyen?: number
+  thoiDiemKhoiHanh?: string
+  phuongThucThanhToan?: string
+}
+
+export interface YeuCauHuyVeHoanTien {
+  stk: string
+  tenNganHang: string
+  tenNguoiNhan: string
+}
+
+export interface KetQuaHuyVe {
+  maVe: number
+  trangThai: string
+  soTienHoan?: number
+  phuongThucHoan?: string
+  thongBao?: string
+}
+
 export interface VeXe {
   ma: number
   maChuyen: number
@@ -94,6 +124,13 @@ export interface VeXe {
   thoiGianDat?: string
   maDiemLen?: number
   maDiemXuong?: number
+  soTienThanhToan?: number
+  soTienHoan?: number
+  thoiGianHoan?: string
+  thoiGianYeuCauHoan?: string
+  stkHoan?: string
+  tenNganHangHoan?: string
+  tenNguoiNhanHoan?: string
 }
 
 export interface VeDienTu {

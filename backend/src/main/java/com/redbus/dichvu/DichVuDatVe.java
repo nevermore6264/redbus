@@ -15,7 +15,9 @@ import com.redbus.mohinh.KhachHang;
 import com.redbus.mohinh.TaiKhoan;
 import com.redbus.mohinh.TuyenDuong;
 import com.redbus.mohinh.VeXe;
+import com.redbus.truyen.KetQuaHuyVePhanHoi;
 import com.redbus.truyen.YeuCauDatVe;
+import com.redbus.truyen.YeuCauHuyVeHoanTien;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +45,7 @@ public class DichVuDatVe {
     private final DichVuGuiMail dichVuGuiMail;
     private final DichVuHetHanVe dichVuHetHanVe;
     private final AnhXaDiemDungChan anhXaDiemDungChan;
+    private final DichVuHuyVeHoanTien dichVuHuyVeHoanTien;
 
     private static final DateTimeFormatter FMT_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -142,7 +145,9 @@ public class DichVuDatVe {
         for (VeXe v : anhXaVeXe.timTheoMaChuyen(cx.getMa())) {
             if (v.getMaGhe().equals(ghe.getMa())
                     && !"CANCELLED".equals(v.getTrangThai())
-                    && !"EXPIRED".equals(v.getTrangThai())) {
+                    && !"EXPIRED".equals(v.getTrangThai())
+                    && !"REFUNDED".equals(v.getTrangThai())
+                    && !"REFUND_PENDING".equals(v.getTrangThai())) {
                 throw new IllegalStateException("Ghế " + ghe.getMaGhe() + " đã được giữ");
             }
         }
@@ -188,10 +193,13 @@ public class DichVuDatVe {
     }
 
     @Transactional
-    public void huyVe(String tenDangNhap, Long maVe) {
+    public KetQuaHuyVePhanHoi huyVe(String tenDangNhap, Long maVe, YeuCauHuyVeHoanTien yeuCau) {
         VeXe ve = anhXaVeXe.timTheoMa(maVe);
         if (ve == null) {
             throw new IllegalArgumentException("Không có vé");
+        }
+        if ("PAID".equals(ve.getTrangThai())) {
+            return dichVuHuyVeHoanTien.huyVeDaThanhToan(tenDangNhap, ve, yeuCau);
         }
         TaiKhoan tk = anhXaTaiKhoan.timTheoTenDangNhap(tenDangNhap);
         if (tk == null) {
@@ -201,13 +209,20 @@ public class DichVuDatVe {
         if (kh == null || !ve.getMaKhach().equals(kh.getMa())) {
             throw new IllegalStateException("Không phải vé của bạn");
         }
-        if ("PAID".equals(ve.getTrangThai())) {
-            throw new IllegalStateException("Vé đã thanh toán — liên hệ hoàn tiền");
-        }
         if ("EXPIRED".equals(ve.getTrangThai())) {
             throw new IllegalStateException("Vé đã quá hạn thanh toán");
         }
+        if ("REFUNDED".equals(ve.getTrangThai())
+                || "REFUND_PENDING".equals(ve.getTrangThai())
+                || "CANCELLED".equals(ve.getTrangThai())) {
+            throw new IllegalStateException("Vé đã được hủy");
+        }
         dichVuHetHanVe.damBaoChuaHetHan(ve);
         anhXaVeXe.capNhatTrangThai(maVe, "CANCELLED");
+        return KetQuaHuyVePhanHoi.builder()
+                .maVe(maVe)
+                .trangThai("CANCELLED")
+                .thongBao("Đã hủy vé chờ thanh toán.")
+                .build();
     }
 }

@@ -30,13 +30,13 @@
     <select id="danhSachMaGheDaGiu" resultType="long">
         SELECT ma_ghe_ngoi FROM ve_xe
         WHERE ma_chuyen = #{maChuyen}
-          AND UPPER(trang_thai) NOT IN ('CANCELLED', 'EXPIRED')
+          AND UPPER(trang_thai) NOT IN ('CANCELLED', 'EXPIRED', 'REFUNDED', 'REFUND_PENDING')
     </select>
 
     <select id="thongKeSoVeDat" resultType="com.redbus.truyen.ThongKeVeChuyen">
         SELECT ma_chuyen AS maChuyen, COUNT(*) AS soVe
         FROM ve_xe
-        WHERE UPPER(trang_thai) NOT IN ('CANCELLED', 'EXPIRED')
+        WHERE UPPER(trang_thai) NOT IN ('CANCELLED', 'EXPIRED', 'REFUNDED', 'REFUND_PENDING')
         GROUP BY ma_chuyen
     </select>
 

@@ -85,7 +85,9 @@ public class DichVuDoiVe {
             if (!v.getMa().equals(maVeLoaiTru)
                     && v.getMaGhe().equals(maGheMoi)
                     && !"CANCELLED".equals(v.getTrangThai())
-                    && !"EXPIRED".equals(v.getTrangThai())) {
+                    && !"EXPIRED".equals(v.getTrangThai())
+                    && !"REFUNDED".equals(v.getTrangThai())
+                    && !"REFUND_PENDING".equals(v.getTrangThai())) {
                 throw new IllegalStateException("Ghế đã được giữ");
             }
         }

@@ -80,6 +80,8 @@ public class DichVuBaoCao {
                 "PENDING", "Chờ thanh toán",
                 "PAID", "Đã thanh toán",
                 "CANCELLED", "Đã hủy",
+                "REFUNDED", "Đã hoàn tiền",
+                "REFUND_PENDING", "Chờ hoàn tiền",
                 "EXPIRED", "Quá hạn");
         List<MucBieuDo> ketQua = new ArrayList<>();
         for (MucBieuDo m : ds) {
@@ -106,7 +108,8 @@ public class DichVuBaoCao {
         return BaoCaoMoRong.builder()
                 .soGiaoDichThanhToan(tatCa.size())
                 .tongDoanhThu(doanhThu)
-                .soVeDaThanhToan(anhXaVeXe.demTheoTrangThai("PAID"))
+                .soVeDaThanhToan(
+                        anhXaVeXe.demTheoTrangThai("PAID") + anhXaVeXe.demTheoTrangThai("REFUND_PENDING"))
                 .soVeChoXuLy(anhXaVeXe.demTheoTrangThai("PENDING"))
                 .soChuyenLichDinh(anhXaChuyenXe.demTheoTrangThai("SCHEDULED"))
                 .soDanhGia(anhXaDanhGiaChuyen.demTatCa())

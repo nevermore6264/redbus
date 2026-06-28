@@ -53,6 +53,7 @@ class DichVuBaoCaoTest {
         when(anhXaThanhToan.tatCa()).thenReturn(List.of(ok, fail));
         when(anhXaDanhGiaChuyen.diemTrungBinh()).thenReturn(BigDecimal.valueOf(4.5));
         when(anhXaVeXe.demTheoTrangThai("PAID")).thenReturn(3);
+        when(anhXaVeXe.demTheoTrangThai("REFUND_PENDING")).thenReturn(0);
         when(anhXaVeXe.demTheoTrangThai("PENDING")).thenReturn(1);
         when(anhXaChuyenXe.demTheoTrangThai("SCHEDULED")).thenReturn(2);
         when(anhXaDanhGiaChuyen.demTatCa()).thenReturn(5L);

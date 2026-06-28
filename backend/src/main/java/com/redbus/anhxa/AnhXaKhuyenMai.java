@@ -24,5 +24,7 @@ public interface AnhXaKhuyenMai {
 
     int tangSoLanDung(@Param("ma") Long ma);
 
+    int giamSoLanDung(@Param("ma") Long ma);
+
     long demDangHoatDong(@Param("luc") LocalDateTime luc);
 }

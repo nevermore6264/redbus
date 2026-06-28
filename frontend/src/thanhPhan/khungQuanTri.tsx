@@ -14,6 +14,7 @@ import {
   Newspaper,
   BusFront,
   MessageCircle,
+  Banknote,
 } from 'lucide-react'
 import { dungNguoiDung } from '../dinhDanh/boiCanhNguoiDung'
 
@@ -71,6 +72,10 @@ export function KhungQuanTri() {
             <NavLink className={lopLk} to="/quan-tri/khach-hang">
               <Users size={18} />
               Khách hàng
+            </NavLink>
+            <NavLink className={lopLk} to="/quan-tri/hoan-tien">
+              <Banknote size={18} />
+              Hoàn tiền
             </NavLink>
             <NavLink className={lopLk} to="/quan-tri/ho-tro">
               <MessageCircle size={18} />
